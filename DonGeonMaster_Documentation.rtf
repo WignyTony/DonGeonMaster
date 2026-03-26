@@ -1,0 +1,283 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0\fswiss\fcharset0 Calibri;}{\f1\fmodern\fcharset0 Consolas;}}
+{\colortbl;\red0\green0\blue0;\red30\green80\blue150;\red180\green50\blue50;\red50\green130\blue50;\red100\green100\blue100;\red60\green60\blue80;}
+\viewkind4\uc1
+
+\pard\sa200\sl276\slmult1\qc\b\f0\fs48\cf2 DonGeon Master\par
+\fs28\cf0 Documentation Technique du Projet\par
+\b0\fs22\cf5 Dark Fantasy Roguelike Dungeon Crawler | Unity 6 | Mars 2026\par
+
+\pard\sa200\sl276\slmult1
+
+\par\b\fs32\cf2 1. PRESENTATION DU PROJET\par
+\b0\fs22\cf0
+DonGeon Master est un jeu roguelike dungeon-crawler en 3D avec vue top-back (camera au-dessus et derriere le joueur). Le joueur incarne un heros maudit, piege dans un cycle de mort et resurrection, explorant des donjons de plus en plus profonds.\par
+\par
+\b Moteur :\b0  Unity 6 (6000.4.0f1) avec Universal Render Pipeline (URP 17.4.0)\par
+\b Rendu :\b0  3D, vue top-back isometrique, post-processing (bloom, vignette, fog)\par
+\b Input :\b0  New Input System 1.19.0 avec binds reconfigurables\par
+\b Modelisation :\b0  Blender 5.1, generation procedurale via scripts Python\par
+\b Style :\b0  Dark fantasy, anime-inspired, semi-realiste\par
+
+\par\b\fs32\cf2 2. ARCHITECTURE TECHNIQUE\par
+\b0\fs22\cf0
+
+\b\fs26 2.1 Namespaces\par\b0\fs22
+\f1
+- DonGeonMaster.Character   \f0 Construction et configuration des personnages\f1\par
+- DonGeonMaster.Core         \f0 Gestion du jeu (GameManager)\f1\par
+- DonGeonMaster.Debugging    \f0 Outils de developpement\f1\par
+- DonGeonMaster.Effects      \f0 Effets visuels (torches)\f1\par
+- DonGeonMaster.Equipment    \f0 Systeme d'equipement\f1\par
+- DonGeonMaster.Inventory    \f0 Gestion des objets\f1\par
+- DonGeonMaster.Player       \f0 Controleur joueur et camera\f1\par
+- DonGeonMaster.UI           \f0 Interface utilisateur\f1\par
+\f0
+
+\b\fs26 2.2 Design Patterns\par\b0\fs22
+\b Singleton :\b0  GameManager, PlayerInventory, KeyBindingManager (DontDestroyOnLoad)\par
+\b Factory :\b0  CharacterBuilder.Create() construit un personnage depuis un CharacterConfig\par
+\b ScriptableObject :\b0  ItemData (base), EquipmentData, ConsumableData, MaterialData, CharacterConfig\par
+\b Event System :\b0  PlayerInventory.OnInventoryChanged declenche le refresh de l'UI\par
+\b Auto-Setup :\b0  [InitializeOnLoad] avec versioning pour regenerer automatiquement les scenes et assets\par
+
+\b\fs26 2.3 Flux de donnees\par\b0\fs22
+\f1
+CharacterConfig -> CharacterBuilder -> GameObject (personnage)\par
+ItemData -> PlayerInventory -> InventoryUI (affichage)\par
+EquipmentData -> EquipmentManager -> Socket bones (visuel 3D)\par
+KeyBindingManager -> PlayerController -> CharacterController (mouvement)\par
+AutoSetup -> ProjectSetup -> Scenes + Assets (generation auto)\par
+\f0
+
+\par\b\fs32\cf2 3. STRUCTURE DES FICHIERS\par
+\b0\fs22\cf0
+
+\b\fs26 3.1 Scripts Runtime (19 fichiers)\par\b0\fs22
+
+\b Character/ (2)\par\b0
+\bullet  \b CharacterBuilder.cs\b0  - Fabrique un personnage 3D depuis un CharacterConfig (primitives arrondies + sockets)\par
+\bullet  \b CharacterConfig.cs\b0  - ScriptableObject : hauteur, proportions, couleurs, options (bras, tete, vetements)\par
+
+\b Core/ (1)\par\b0
+\bullet  \b GameManager.cs\b0  - Singleton : chargement de scenes, quit du jeu\par
+
+\b Debug/ (1)\par\b0
+\bullet  \b DebugInventoryLoader.cs\b0  - Charge des items de test dans l'inventaire au demarrage\par
+
+\b Effects/ (1)\par\b0
+\bullet  \b TorchFlicker.cs\b0  - Animation de lumiere de torche (Perlin noise multi-octave)\par
+
+\b Equipment/ (3)\par\b0
+\bullet  \b CharacterStandards.cs\b0  - Standards : noms des bones, enum EquipmentSlot (10 slots), sockets, dimensions\par
+\bullet  \b EquipmentData.cs\b0  - ScriptableObject arme/armure : slot, meshPrefab, armor, damage, attackSpeed\par
+\bullet  \b EquipmentManager.cs\b0  - Equipe/desequipe des items sur les socket bones du personnage\par
+
+\b Inventory/ (5)\par\b0
+\bullet  \b ItemData.cs\b0  - Classe abstraite base : id, nom, description, icone, rarete (6 niveaux), stackable\par
+\bullet  \b ConsumableData.cs\b0  - Consommable : effet (Heal/Mana/Buff/Cure), valeur, duree\par
+\bullet  \b MaterialData.cs\b0  - Materiau : type, niveau de craft\par
+\bullet  \b InventorySlot.cs\b0  - Struct : item + quantite, gestion du stack\par
+\bullet  \b PlayerInventory.cs\b0  - Singleton : 200 slots, Add/Remove/Use/Drop, stacking auto, events\par
+
+\b Player/ (2)\par\b0
+\bullet  \b PlayerController.cs\b0  - Mouvement WASD, course (Shift), saut (Space), attaque (clic), gravite\par
+\bullet  \b CameraController.cs\b0  - Vue top-back 55 degres, suivi fluide, zoom molette\par
+
+\b UI/ (8)\par\b0
+\bullet  \b CharacterShowcase.cs\b0  - Affichage rotatif des personnages dans le menu principal\par
+\bullet  \b EquipmentSlotUI.cs\b0  - Slot d'equipement visuel (icone placeholder, glow rarete, label francais)\par
+\bullet  \b HubNavigation.cs\b0  - Retour au menu principal\par
+\bullet  \b InventorySlotUI.cs\b0  - Case de grille inventaire (icone, quantite, fond couleur rarete)\par
+\bullet  \b InventoryUI.cs\b0  - Panneau split-screen : grille gauche + equipement droit + stats\par
+\bullet  \b KeyBindingManager.cs\b0  - 8 actions rebindables (ZQSD/WASD), persistance PlayerPrefs, labels francais\par
+\bullet  \b MainMenuController.cs\b0  - Boutons Jouer/Settings/Quitter + selecteur personnage\par
+\bullet  \b SettingsMenuController.cs\b0  - Rebinding des touches avec feedback visuel\par
+\bullet  \b StatsPanel.cs\b0  - Affichage stats (ATK/DEF/MAG/SPD/CRT/VIT) avec preview vert/rouge\par
+
+\b\fs26 3.2 Scripts Editor (5 fichiers)\par\b0\fs22
+\bullet  \b AutoSetup.cs\b0  - [InitializeOnLoad], versioning (v34), import TMP auto, lance ProjectSetup\par
+\bullet  \b ProjectSetup.cs\b0  - Genere les scenes MainMenu/Hub, UI inventaire, textures, post-processing\par
+\bullet  \b ProceduralTextures.cs\b0  - Generation procedurale : pierre, bois, parchemin + icones slots/stats/armes\par
+\bullet  \b DefaultCharacterConfigs.cs\b0  - Cree les configs Human/Goblin/Skeleton\par
+\bullet  \b DefaultWeaponConfigs.cs\b0  - Genere 120 armes (20 base x 6 raretes) avec icones et modeles 3D\par
+
+\b\fs26 3.3 Scripts Blender (2 fichiers)\par\b0\fs22
+\bullet  \b create_knight.py\b0  - Genere le heros dark fantasy (corps athletique, yeux lumineux, vetements)\par
+\bullet  \b create_weapons.py\b0  - Genere 20 modeles 3D d'armes (8 epees, 6 haches, 6 dagues)\par
+
+\b\fs26 3.4 Assets\par\b0\fs22
+\bullet  \b Configs/\b0  - 3 personnages + 120 armes (ScriptableObjects)\par
+\bullet  \b Art/Models/Knight/\b0  - Knight.fbx + Knight.blend (personnage principal)\par
+\bullet  \b Art/Models/Weapons/\b0  - 20 FBX d'armes\par
+\bullet  \b Art/Textures/\b0  - 4 textures de base + 64 icones procedurales\par
+\bullet  \b Materials/\b0  - 3 materiaux URP (pierre mur, pierre sol, bois)\par
+\bullet  \b Scenes/\b0  - MainMenu.unity, Hub.unity\par
+\bullet  \b Prefabs/\b0  - InventorySlot.prefab\par
+\bullet  \b Settings/\b0  - 2 profils post-processing (menu et hub)\par
+
+\par\b\fs32\cf2 4. SYSTEMES DE JEU\par
+\b0\fs22\cf0
+
+\b\fs26 4.1 Systeme de Personnage\par\b0\fs22
+Le personnage est un modele FBX genere par Blender (create_knight.py). Il possede :\par
+\bullet  21 bones de deformation (spine chain + bras + jambes)\par
+\bullet  7 socket bones non-deformants pour l'equipement\par
+\bullet  4 meshes : Body, Tunic, Pants, Boots\par
+\bullet  Yeux avec emission cyan (glow magique)\par
+\bullet  Materiau PBR : peau, cheveux, manteau, armure, cuir\par
+\par
+Le systeme CharacterBuilder permet aussi de creer des PNJ/monstres depuis des CharacterConfig differents (Goblin 1.1m peau verte, Skeleton 1.7m sans vetements, etc.).\par
+
+\b\fs26 4.2 Systeme d'Inventaire\par\b0\fs22
+Inventaire split-screen dark fantasy :\par
+\bullet  \b Gauche (45%)\b0  : Grille scrollable de 200 slots avec filtrage par onglets\par
+\bullet  \b Droite (55%)\b0  : 10 slots d'equipement autour d'une silhouette + panneau stats\par
+\bullet  Chaque item a une icone procedurale avec fond colore par rarete\par
+\bullet  Panneau detail : nom, description, stats, boutons Equiper/Jeter\par
+\bullet  Stats preview : vert = amelioration, rouge = degradation\par
+
+\b\fs26 4.3 Systeme d'Equipement\par\b0\fs22
+10 slots d'equipement :\par
+\bullet  Tete, Torse, Jambes, Bottes\par
+\bullet  Arme (main droite), Bouclier (main gauche)\par
+\bullet  Dos (cape)\par
+\bullet  Amulette, Accessoire 1, Accessoire 2\par
+\par
+Quand un item est equipe :\par
+\bullet  Le meshPrefab est instancie sur le socket bone correspondant\par
+\bullet  Le vetement par defaut est cache\par
+\bullet  Les stats sont mises a jour dans le StatsPanel\par
+\bullet  L'ancien item equipe retourne dans l'inventaire\par
+
+\b\fs26 4.4 Systeme de Rarete\par\b0\fs22
+6 niveaux de rarete avec multiplicateurs de stats :\par
+\bullet  \cf5 Common\cf0  (x1.00) - Gris\par
+\bullet  \cf4 Uncommon\cf0  (x1.15) - Vert\par
+\bullet  \cf2 Rare\cf0  (x1.30) - Bleu\par
+\bullet  Epic (x1.50) - Violet\par
+\bullet  Legendary (x1.75) - Or\par
+\bullet  \cf3 Mythic\cf0  (x2.00) - Rouge sang\par
+
+\b\fs26 4.5 Armes (20 base x 6 raretes = 120)\par\b0\fs22
+\par
+\b Epees (8) - Equilibrees, polyvalentes :\b0\par
+T1 Rusty Shiv | T3 Iron Shortsword | T6 Dungeon Longsword | T9 Rune Sabre\par
+T12 Crescent Falchion | T15 Cursed Estoc | T17 Crystal Arming Sword | T20 Soulreaver Blade\par
+\par
+\b Haches (6) - Lentes, puissantes :\b0\par
+T2 Woodcutter's Hatchet | T5 Battle Axe | T8 Bonecleaver\par
+T11 Obsidian Greataxe | T14 Demonrend Axe | T19 Abyssal Executioner\par
+\par
+\b Dagues (6) - Rapides, haut critique :\b0\par
+T4 Thief's Knife | T7 Poisoned Stiletto | T10 Shadow Fang\par
+T13 Voidtouched Kris | T16 Phantom Tanto | T18 Soulsplitter Dagger\par
+
+\b\fs26 4.6 Systeme d'Input\par\b0\fs22
+8 actions rebindables via le menu Settings :\par
+\f1
+Avancer     (defaut: W/Z)     Courir      (defaut: LeftShift)\par
+Reculer     (defaut: S)       Sauter      (defaut: Space)\par
+Gauche      (defaut: A/Q)     Interagir   (defaut: E)\par
+Droite      (defaut: D)       Inventaire  (defaut: I)\par
+\f0
+\par
+Support clavier AZERTY (Belge/Francais) via displayName matching.\par
+
+\par\b\fs32\cf2 5. SCENES\par
+\b0\fs22\cf0
+
+\b\fs26 5.1 MainMenu\par\b0\fs22
+Salle de donjon 3D en arriere-plan :\par
+\bullet  Murs en pierre procedurale (14x6x20 unites)\par
+\bullet  4 torches avec particules de feu et lumieres flickering\par
+\bullet  Particules de poussiere flottantes\par
+\bullet  Post-processing : bloom, vignette, fog, color grading chaud\par
+\bullet  Camera fixe regardant l'entree du donjon\par
+\par
+UI superposee :\par
+\bullet  Titre "DonGeon Master" dore avec ombre\par
+\bullet  3 boutons medievaux : Jouer, Settings, Quitter\par
+\bullet  Selecteur de personnage (< Nom >) avec modele 3D rotatif sur piedestal eclaire\par
+\bullet  Panneau Settings (parchemin) avec 8 binds reconfigurables\par
+
+\b\fs26 5.2 Hub\par\b0\fs22
+Zone de jeu principale :\par
+\bullet  Grande surface plane (50x50) avec texture pierre\par
+\bullet  Bordures invisibles (colliders)\par
+\bullet  Directional light chaude + ambient sombre + fog\par
+\bullet  Joueur FBX avec CharacterController + PlayerController\par
+\bullet  Camera top-back qui suit le joueur\par
+\bullet  Inventaire split-screen (touche I)\par
+\bullet  Bouton Menu en haut a gauche\par
+\bullet  Post-processing : bloom + vignette\par
+
+\par\b\fs32\cf2 6. AUTOMATISATION\par
+\b0\fs22\cf0
+
+\b\fs26 6.1 AutoSetup (versioning)\par\b0\fs22
+Le systeme AutoSetup s'execute automatiquement a chaque recompilation Unity :\par
+\bullet  Verifie si TMP Essential Resources sont importes\par
+\bullet  Compare la version courante (EditorPrefs) avec SetupVersion\par
+\bullet  Si different : regenere TOUTES les scenes et assets\par
+\bullet  Ouvre automatiquement la scene MainMenu\par
+\par
+Version actuelle : v34\par
+
+\b\fs26 6.2 Generation Blender\par\b0\fs22
+Les modeles 3D sont generes automatiquement via Blender en mode background :\par
+\f1
+blender --background --python Blender/create_knight.py\par
+blender --background --python Blender/create_weapons.py\par
+\f0
+Les FBX sont exportes directement dans Assets/_Project/Art/Models/.\par
+
+\b\fs26 6.3 Textures procedurales\par\b0\fs22
+Toutes les textures sont generees par code (ProceduralTextures.cs) :\par
+\bullet  Pierre (Perlin noise multi-octave avec motif de blocs)\par
+\bullet  Bois (grain horizontal avec noeuds)\par
+\bullet  Parchemin (base jaunie avec taches d'age)\par
+\bullet  Icones (pixel art procedurale pour slots, stats, armes)\par
+
+\par\b\fs32\cf2 7. GUIDE DE DEVELOPPEMENT\par
+\b0\fs22\cf0
+
+\b\fs26 7.1 Ajouter un nouveau type de personnage\par\b0\fs22
+1. Creer un CharacterConfig dans Assets/_Project/Configs/\par
+2. Definir hauteur, proportions, couleurs\par
+3. Le personnage apparaitra dans le showcase du menu\par
+4. Pour le spawn en jeu : CharacterBuilder.Create(config, position)\par
+
+\b\fs26 7.2 Ajouter une nouvelle arme\par\b0\fs22
+1. Ajouter une entree dans DefaultWeaponConfigs.Weapons[]\par
+2. Ajouter le modele 3D dans create_weapons.py\par
+3. Ajouter la silhouette dans ProceduralTextures.GenerateWeaponIcon()\par
+4. Relancer Blender + regenerer les assets\par
+
+\b\fs26 7.3 Ajouter un consommable ou materiau\par\b0\fs22
+1. Creer un asset via Create > DonGeonMaster > Consumable/Material\par
+2. Remplir les champs dans l'Inspector\par
+3. L'item sera utilisable dans l'inventaire automatiquement\par
+
+\b\fs26 7.4 Ajouter un slot d'equipement\par\b0\fs22
+1. Ajouter a l'enum EquipmentSlot dans CharacterStandards.cs\par
+2. Ajouter le socket bone dans create_knight.py\par
+3. Ajouter le slot UI dans ProjectSetup.CreateInventoryUI()\par
+4. Ajouter le mapping dans EquipmentManager\par
+
+\b\fs26 7.5 Forcer une regeneration complete\par\b0\fs22
+Incrementer SetupVersion dans AutoSetup.cs. Au prochain lancement Unity, tout sera regenere.\par
+
+\par\b\fs32\cf2 8. PROCHAINES ETAPES\par
+\b0\fs22\cf0
+\bullet  Systeme d'animation du personnage (Animator Controller + clips FBX)\par
+\bullet  Generation procedurale de donjons\par
+\bullet  Systeme de combat (ennemis, degats, mort)\par
+\bullet  Systeme de loot (coffres, drops)\par
+\bullet  Progression entre les runs (meta-progression)\par
+\bullet  Systeme de craft avec les materiaux\par
+\bullet  Sons et musique d'ambiance\par
+\bullet  Sauvegarde/chargement de la progression\par
+
+\par\pard\sa200\sl276\slmult1\qc\cf5\fs18
+Document genere le 23 mars 2026 | DonGeon Master v0.1\par
+}
