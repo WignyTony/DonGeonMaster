@@ -78,7 +78,9 @@ Armor = activating/deactivating child GameObjects under category containers (HEA
 
 - **`DonGeonMaster > Create Default Armor`** — Deletes and regenerates all armor (108) + weapon assets. Auto-loads thumbnail PNGs from `Thumbnails/Thumb_{assetName}.png` as icons. Also refreshes serialized references in open scenes (DebugArmorLoader, ItemEditorController).
 - **`DonGeonMaster > Setup Project`** (ProjectSetup.cs) — Full scene generation (medieval environment, UI, lighting)
-- **ProceduralTextures.cs** — Generates stone/floor/wood textures programmatically
+- **`DonGeonMaster > Bake Weapon Positions`** — Transfers weapon offsets from Editor PlayerPrefs into `.asset` ScriptableObjects. **Must run before building** if positions were adjusted in AnimationPreview.
+- **`DonGeonMaster > Create Default Armor`** preserves baked weapon offsets across regeneration (savedOffsets dictionary).
+- **ProceduralTextures.cs** — Generates stone/floor/wood textures + UI textures (SlotFrame, RarityBorder, QuantityBadge)
 
 ## Item Icon Pipeline
 
@@ -90,10 +92,26 @@ Armor = activating/deactivating child GameObjects under category containers (HEA
 ## Important Conventions
 
 - **Serialized references break on regeneration:** `DebugArmorLoader.armorsToLoad[]` and `ItemEditorController.items[]` hold direct ScriptableObject refs. Both have `RefreshReferences()` context menu methods. `DefaultArmorConfigs` calls these automatically after regeneration.
-- **PlayerPrefs persistence:** Face customization, weapon positions, camera settings, key bindings all use PlayerPrefs (not saved to files).
+- **PlayerPrefs persistence:** Face customization, camera settings, key bindings, equipped items (`Equipped_{Slot}`) use PlayerPrefs.
+- **Weapon positions are in ScriptableObjects**, NOT PlayerPrefs. `EquipmentData.weaponPosOffset/weaponRotOffset/weaponScaleOverride` are the source of truth (works in builds). PlayerPrefs are only used for live Editor tweaking in AnimationPreview. `AnimationPreviewController.ValidateWeaponPosition()` bakes to both.
+- **AnimatorControllers use serialized fields**, NOT `Resources.Load`. Each script (CharacterShowcase, CharacterCustomizer, AnimationPreviewController) has an `animController` field assigned by ProjectSetup.
+- **AutoSetup version** (AutoSetup.cs `SetupVersion`): increment ONLY when scene regeneration is truly needed. Regeneration recreates ALL scenes and re-runs `EnsureArmorExists` which deletes/recreates assets.
 - **Stats formula:** `ATK = 10 + sum(damage * rarityMul)`, `DEF = 5 + sum(armor * rarityMul)`, `SPD = 20 + sum((attackSpeed-1)*10 + (moveSpeedMod-1)*10)`
 - **Combat formula:** `rawDmg = ATK * max(0.5, attackSpeed) * elementMultiplier`, `finalDmg = max(1, rawDmg - DEF*0.5)`, crit = 1.5x
 - **Element wheel:** Feu > Glace > Foudre > Poison > Feu, Sacre > Tenebres > Arcane > Sacre (1.5x advantage, 0.75x disadvantage)
+
+## Build Checklist
+
+1. Run `DonGeonMaster > Bake Weapon Positions` if weapon offsets were adjusted
+2. Save all scenes (`Ctrl+Shift+S`)
+3. Enable **Development Build** in Build Settings for debugging
+4. Build And Run
+
+## Equipment Persistence
+
+- Equipped items saved via PlayerPrefs (`Equipped_Head`, `Equipped_Weapon`, etc.) using `itemId`
+- `ModularEquipmentManager.SaveEquipment()` auto-saves on every equip/unequip
+- `LoadSavedEquipmentDelayed()` restores equipment at frame 2 (after DebugArmorLoader populates inventory)
 
 ## Key File Paths
 
