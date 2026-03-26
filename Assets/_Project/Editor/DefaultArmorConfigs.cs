@@ -105,6 +105,39 @@ public static class DefaultArmorConfigs
         _ => "Chest"
     };
 
+    [MenuItem("DonGeonMaster/Bake Weapon Positions")]
+    public static void BakeWeaponPositionsFromPlayerPrefs()
+    {
+        var guids = AssetDatabase.FindAssets("t:EquipmentData", new[] { WeaponPath });
+        int baked = 0;
+        foreach (var guid in guids)
+        {
+            var eq = AssetDatabase.LoadAssetAtPath<EquipmentData>(AssetDatabase.GUIDToAssetPath(guid));
+            if (eq == null || eq.meshPrefab == null) continue;
+
+            string key = eq.meshPrefab.name.Replace("FREE ", "").Replace("COLOR ", "C").Replace(" ", "_");
+            if (!PlayerPrefs.HasKey($"Wep_{key}_PY")) continue;
+
+            eq.weaponPosOffset = new Vector3(
+                PlayerPrefs.GetFloat($"Wep_{key}_PX", 0),
+                PlayerPrefs.GetFloat($"Wep_{key}_PY", 0),
+                PlayerPrefs.GetFloat($"Wep_{key}_PZ", 0));
+            eq.weaponRotOffset = new Vector3(
+                PlayerPrefs.GetFloat($"Wep_{key}_RX", 0),
+                PlayerPrefs.GetFloat($"Wep_{key}_RY", 0),
+                PlayerPrefs.GetFloat($"Wep_{key}_RZ", 0));
+
+            string upper = key.ToUpper();
+            eq.weaponScaleOverride = upper.Contains("SHIELD") ? new Vector3(0.8f, 0.8f, 0.8f) : Vector3.one;
+            eq.hasCustomOffset = true;
+
+            EditorUtility.SetDirty(eq);
+            baked++;
+        }
+        AssetDatabase.SaveAssets();
+        Debug.Log($"[DonGeonMaster] Baked {baked} weapon positions from PlayerPrefs into ScriptableObjects.");
+    }
+
     [MenuItem("DonGeonMaster/Create Default Armor")]
     public static void EnsureArmorExists()
     {
@@ -127,7 +160,7 @@ public static class DefaultArmorConfigs
     private static void RefreshAllSceneReferences()
     {
         // Refresh DebugArmorLoaders
-        var loaders = Object.FindObjectsByType<DonGeonMaster.Debugging.DebugArmorLoader>(FindObjectsSortMode.None);
+        var loaders = Object.FindObjectsByType<DonGeonMaster.Debugging.DebugArmorLoader>(FindObjectsInactive.Include);
         foreach (var loader in loaders)
         {
             loader.RefreshReferences();
@@ -135,7 +168,7 @@ public static class DefaultArmorConfigs
         }
 
         // Refresh ItemEditorControllers
-        var editors = Object.FindObjectsByType<DonGeonMaster.UI.ItemEditorController>(FindObjectsSortMode.None);
+        var editors = Object.FindObjectsByType<DonGeonMaster.UI.ItemEditorController>(FindObjectsInactive.Include);
         foreach (var editor in editors)
         {
             editor.RefreshReferences();
@@ -164,10 +197,17 @@ public static class DefaultArmorConfigs
 
     public static void EnsureWeaponsExist()
     {
-        // Delete existing weapon assets to force recreation with new stats
+        // Preserve baked weapon offsets before deleting assets
+        var savedOffsets = new System.Collections.Generic.Dictionary<string, (Vector3 pos, Vector3 rot, Vector3 scale, bool hasCustom)>();
         if (AssetDatabase.IsValidFolder(WeaponPath))
         {
             var oldGuids = AssetDatabase.FindAssets("t:EquipmentData", new[] { WeaponPath });
+            foreach (var guid in oldGuids)
+            {
+                var oldEq = AssetDatabase.LoadAssetAtPath<EquipmentData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (oldEq != null && oldEq.hasCustomOffset)
+                    savedOffsets[oldEq.itemId] = (oldEq.weaponPosOffset, oldEq.weaponRotOffset, oldEq.weaponScaleOverride, true);
+            }
             foreach (var guid in oldGuids)
                 AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(guid));
         }
@@ -223,10 +263,44 @@ public static class DefaultArmorConfigs
                 eq.attackSpeed = atkSpeed;
                 eq.moveSpeedModifier = 1f;
                 eq.sellValue = 0;
+
+                // Default weapon offsets (baked into asset, works in builds)
+                if (upper.Contains("SHIELD"))
+                {
+                    eq.weaponPosOffset = new Vector3(0f, -0.15f, 0f);
+                    eq.weaponRotOffset = new Vector3(0f, 90f, 0f);
+                    eq.weaponScaleOverride = new Vector3(0.8f, 0.8f, 0.8f);
+                }
+                else if (upper.Contains("GREAT SWORD"))
+                {
+                    eq.weaponPosOffset = new Vector3(0f, -0.45f, 0f);
+                    eq.weaponScaleOverride = Vector3.one;
+                }
+                else if (upper.Contains("HAMMER"))
+                {
+                    eq.weaponPosOffset = new Vector3(0f, -0.35f, 0f);
+                    eq.weaponScaleOverride = Vector3.one;
+                }
+                else
+                {
+                    eq.weaponPosOffset = new Vector3(0f, -0.30f, 0f);
+                    eq.weaponScaleOverride = Vector3.one;
+                }
+                eq.hasCustomOffset = true;
+
                 eq.weaponType = wType;
                 eq.weight = wWeight;
                 eq.handling = wHandling;
                 eq.icon = LoadThumbnailSprite(assetName) ?? ProceduralTextures.GenerateSlotIcon(isShield ? "Shield" : "Weapon");
+
+                // Restore baked offsets if they were preserved
+                if (savedOffsets.TryGetValue(eq.itemId, out var saved))
+                {
+                    eq.weaponPosOffset = saved.pos;
+                    eq.weaponRotOffset = saved.rot;
+                    eq.weaponScaleOverride = saved.scale;
+                    eq.hasCustomOffset = saved.hasCustom;
+                }
 
                 AssetDatabase.CreateAsset(eq, assetPath);
                 created++;

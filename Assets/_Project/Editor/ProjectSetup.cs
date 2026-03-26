@@ -285,6 +285,9 @@ public class ProjectSetup : EditorWindow
         if (ganzseA != null) custSO.FindProperty("ganzsePrefab").objectReferenceValue = ganzseA;
         var urpM = AssetDatabase.LoadAssetAtPath<Material>("Assets/_Project/Materials/MAT_GanzSe_URP.mat");
         if (urpM != null) custSO.FindProperty("urpMaterial").objectReferenceValue = urpM;
+        var custAnimCtrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+            "Assets/_Project/Art/Animations/AnimPreviewController.controller");
+        if (custAnimCtrl != null) custSO.FindProperty("animController").objectReferenceValue = custAnimCtrl;
 
         // Type labels (6 — one per category)
         var tlProp = custSO.FindProperty("typeLabels");
@@ -404,7 +407,7 @@ public class ProjectSetup : EditorWindow
         var showcaseObj = new GameObject("CharacterShowcase");
         var showcase = showcaseObj.AddComponent<CharacterShowcase>();
 
-        // Wire showcase to GanzSe prefab
+        // Wire showcase to GanzSe prefab + animator controller
         var showcaseSO = new SerializedObject(showcase);
         showcaseSO.FindProperty("spawnPoint").objectReferenceValue = spawnPoint.transform;
 
@@ -412,6 +415,11 @@ public class ProjectSetup : EditorWindow
         var ganzseAsset = AssetDatabase.LoadAssetAtPath<GameObject>(ganzsePath);
         if (ganzseAsset != null)
             showcaseSO.FindProperty("ganzsePrefab").objectReferenceValue = ganzseAsset;
+
+        var animCtrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+            "Assets/_Project/Art/Animations/AnimPreviewController.controller");
+        if (animCtrl != null)
+            showcaseSO.FindProperty("animController").objectReferenceValue = animCtrl;
 
         showcaseSO.ApplyModifiedPropertiesWithoutUndo();
 
@@ -1342,9 +1350,10 @@ public class ProjectSetup : EditorWindow
         grr.anchoredPosition = Vector2.zero;
         grr.sizeDelta = new Vector2(0, 0); // Will expand based on content
         var grd = gr.AddComponent<GridLayoutGroup>();
-        grd.cellSize = new Vector2(70, 70); grd.spacing = new Vector2(4, 4);
+        grd.cellSize = new Vector2(72, 72); grd.spacing = new Vector2(5, 5);
         grd.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         grd.constraintCount = 7;
+        grd.padding = new RectOffset(3, 3, 3, 3);
         var csf = gr.AddComponent<ContentSizeFitter>();
         csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
@@ -1403,16 +1412,23 @@ public class ProjectSetup : EditorWindow
 
         // Equipment slot factory
         var eqList = new List<EquipmentSlotUI>();
+        // Load frame sprite for equipment slots
+        var eqFrameSprite = ProceduralTextures.GenerateSlotFrame();
+        var eqRaritySprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Project/Art/Textures/RarityBorder.png");
+        if (eqRaritySprite == null) eqRaritySprite = ProceduralTextures.GenerateRarityBorder();
+
         void EqSlot(string n, CharacterStandards.EquipmentSlot st, float x1, float y1, float x2, float y2)
         {
             var o = CreateUIObject("Eq_"+n, esc.transform);
             SetRect(o, x1,y1, x2,y2);
-            o.AddComponent<Image>().color = new Color(0.12f,0.10f,0.08f,0.7f);
+            var bgImg = o.AddComponent<Image>();
+            if (eqFrameSprite != null) { bgImg.sprite = eqFrameSprite; bgImg.type = Image.Type.Simple; }
+            bgImg.color = Color.white;
 
             // Placeholder icon (silhouette visible when slot is empty)
-            string iconName = n == "Weap" ? "Weapon" : n == "Boots" ? "Feet" : n == "Belt" ? "Amulet" : n == "Arms" ? "Shield" : n;
+            string iconName = n == "Weap" ? "Weapon" : n == "Boots" ? "Feet" : n == "Belt" ? "Amulet" : n == "Arms" ? "Accessory" : n;
             var phObj = CreateUIObject("Ph", o.transform);
-            SetRect(phObj, 0.1f,0.2f, 0.9f,0.9f);
+            SetRect(phObj, 0.12f,0.22f, 0.88f,0.88f);
             var phImg = phObj.AddComponent<Image>();
             var phSprite = ProceduralTextures.GenerateSlotIcon(iconName);
             if (phSprite != null) phImg.sprite = phSprite;
@@ -1421,8 +1437,18 @@ public class ProjectSetup : EditorWindow
 
             // Item icon (hidden by default, shown when equipped)
             var ico = CreateUIObject("I", o.transform);
-            SetRect(ico, 0.1f,0.2f, 0.9f,0.9f);
-            var icoI = ico.AddComponent<Image>(); icoI.enabled = false;
+            SetRect(ico, 0.12f,0.22f, 0.88f,0.88f);
+            var icoI = ico.AddComponent<Image>();
+            icoI.preserveAspect = true;
+            icoI.enabled = false;
+
+            // Rarity glow overlay
+            var glow = CreateUIObject("Glow", o.transform);
+            SetRect(glow, 0,0, 1,1);
+            var glowImg = glow.AddComponent<Image>();
+            if (eqRaritySprite != null) { glowImg.sprite = eqRaritySprite; glowImg.type = Image.Type.Simple; }
+            glowImg.raycastTarget = false;
+            glowImg.enabled = false;
 
             var lbl = CreateUIObject("L", o.transform);
             SetRect(lbl, 0,0, 1,0.2f);
@@ -1430,11 +1456,18 @@ public class ProjectSetup : EditorWindow
             lblT.fontSize = 10; lblT.alignment = TextAlignmentOptions.Center;
             lblT.color = new Color(0.6f,0.55f,0.45f);
             var btn = o.AddComponent<Button>();
+            var cols = btn.colors;
+            cols.normalColor = Color.white;
+            cols.highlightedColor = new Color(1.15f,1.08f,1.0f);
+            cols.pressedColor = new Color(0.7f,0.65f,0.6f);
+            cols.fadeDuration = 0.08f;
+            btn.colors = cols;
             var ui = o.AddComponent<EquipmentSlotUI>();
             var so = new SerializedObject(ui);
             so.FindProperty("iconImage").objectReferenceValue = icoI;
             so.FindProperty("placeholderIcon").objectReferenceValue = phImg;
-            so.FindProperty("borderImage").objectReferenceValue = o.GetComponent<Image>();
+            so.FindProperty("borderImage").objectReferenceValue = bgImg;
+            so.FindProperty("glowImage").objectReferenceValue = glowImg;
             so.FindProperty("slotLabel").objectReferenceValue = lblT;
             so.FindProperty("button").objectReferenceValue = btn;
             so.FindProperty("slot").intValue = (int)st;
@@ -1551,25 +1584,64 @@ public class ProjectSetup : EditorWindow
 
     private static GameObject CreateSlotPrefab()
     {
+        // Generate UI textures
+        var frameSprite = ProceduralTextures.GenerateSlotFrame();
+        var raritySprite = ProceduralTextures.GenerateRarityBorder();
+        var badgeSprite = ProceduralTextures.GenerateQuantityBadge();
+
         var s = new GameObject("InventorySlot");
         s.AddComponent<RectTransform>().sizeDelta = new Vector2(70,70);
-        var bg = s.AddComponent<Image>(); bg.color = new Color(0.12f,0.10f,0.08f,0.6f);
+
+        // Background — stone frame texture
+        var bg = s.AddComponent<Image>();
+        if (frameSprite != null) { bg.sprite = frameSprite; bg.type = Image.Type.Simple; }
+        bg.color = Color.white;
+        bg.raycastTarget = true;
+
+        // Icon — centered with padding, preserveAspect
         var ico = CreateUIObject("I", s.transform);
-        SetRect(ico, 0.1f,0.15f, 0.9f,0.9f);
-        var icoI = ico.AddComponent<Image>(); icoI.enabled = false;
-        var qt = CreateUIObject("Q", s.transform);
-        SetRect(qt, 0.5f,0, 1,0.2f);
+        SetRect(ico, 0.12f,0.12f, 0.88f,0.88f);
+        var icoI = ico.AddComponent<Image>();
+        icoI.preserveAspect = true;
+        icoI.enabled = false;
+
+        // Rarity border overlay — colored frame
+        var rb = CreateUIObject("RB", s.transform);
+        SetRect(rb, 0,0, 1,1);
+        var rbI = rb.AddComponent<Image>();
+        if (raritySprite != null) { rbI.sprite = raritySprite; rbI.type = Image.Type.Simple; }
+        rbI.raycastTarget = false;
+        rbI.enabled = false;
+
+        // Quantity badge + text — bottom-right
+        var qBadge = CreateUIObject("QB", s.transform);
+        SetRect(qBadge, 0.52f,-0.02f, 1.06f,0.26f);
+        var qbI = qBadge.AddComponent<Image>();
+        if (badgeSprite != null) { qbI.sprite = badgeSprite; qbI.type = Image.Type.Simple; }
+        qbI.color = new Color(0,0,0,0.7f);
+        qbI.raycastTarget = false;
+        var qt = CreateUIObject("Q", qBadge.transform);
+        SetRect(qt, 0.05f,0, 0.9f,1);
         var qtT = qt.AddComponent<TextMeshProUGUI>();
-        qtT.fontSize = 11; qtT.alignment = TextAlignmentOptions.BottomRight; qtT.color = Color.white;
+        qtT.fontSize = 11; qtT.alignment = TextAlignmentOptions.Center;
+        qtT.color = new Color(1f,0.95f,0.85f);
+        qtT.fontStyle = FontStyles.Bold;
+
+        // Button — subtle hover effect on stone frame
         var btn = s.AddComponent<Button>();
-        var cols = btn.colors; cols.normalColor = new Color(0.85f,0.75f,0.6f);
-        cols.highlightedColor = new Color(1,0.9f,0.7f); cols.pressedColor = new Color(0.6f,0.5f,0.4f);
+        var cols = btn.colors;
+        cols.normalColor = Color.white;
+        cols.highlightedColor = new Color(1.2f,1.1f,1.0f);
+        cols.pressedColor = new Color(0.7f,0.65f,0.6f);
+        cols.fadeDuration = 0.08f;
         btn.colors = cols;
+
         var ui = s.AddComponent<InventorySlotUI>();
         var so = new SerializedObject(ui);
         so.FindProperty("iconImage").objectReferenceValue = icoI;
         so.FindProperty("quantityText").objectReferenceValue = qtT;
         so.FindProperty("borderImage").objectReferenceValue = bg;
+        so.FindProperty("rarityBorderImage").objectReferenceValue = rbI;
         so.FindProperty("button").objectReferenceValue = btn;
         so.ApplyModifiedPropertiesWithoutUndo();
         System.IO.Directory.CreateDirectory("Assets/_Project/Prefabs");
@@ -2072,6 +2144,7 @@ public class ProjectSetup : EditorWindow
         var ctrlSO = new SerializedObject(controller);
         if (ganzsePrefab != null)
             ctrlSO.FindProperty("ganzsePrefab").objectReferenceValue = ganzsePrefab;
+        ctrlSO.FindProperty("animController").objectReferenceValue = animCtrl;
         ctrlSO.FindProperty("animNameLabel").objectReferenceValue = nameTMP;
         ctrlSO.FindProperty("weaponNameLabel").objectReferenceValue = wNameTMP;
         ctrlSO.FindProperty("slotNameLabel").objectReferenceValue = asNameTMP;
@@ -2133,6 +2206,22 @@ public class ProjectSetup : EditorWindow
         wNamesProp.arraySize = weaponNamesList.Count;
         for (int i = 0; i < weaponNamesList.Count; i++)
             wNamesProp.GetArrayElementAtIndex(i).stringValue = weaponNamesList[i];
+
+        // Match each weapon prefab to its EquipmentData asset
+        var wEqDataProp = ctrlSO.FindProperty("weaponEquipmentData");
+        wEqDataProp.arraySize = weaponPrefabsList.Count;
+        var eqGuids = AssetDatabase.FindAssets("t:EquipmentData", new[] { "Assets/_Project/Configs/Weapons" });
+        for (int i = 0; i < weaponPrefabsList.Count; i++)
+        {
+            EquipmentData match = null;
+            foreach (var guid in eqGuids)
+            {
+                var eq = AssetDatabase.LoadAssetAtPath<EquipmentData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (eq != null && eq.meshPrefab == weaponPrefabsList[i])
+                { match = eq; break; }
+            }
+            wEqDataProp.GetArrayElementAtIndex(i).objectReferenceValue = match;
+        }
 
         ctrlSO.ApplyModifiedPropertiesWithoutUndo();
 

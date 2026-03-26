@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: weapon_hammer_2_c2
   itemName: HAMMER 2 C2
   description: "Masse forg\xE9(e) dans les profondeurs."
-  icon: {fileID: 21300000, guid: 12b8d94b874e1fb44a21e666ca129f07, type: 3}
+  icon: {fileID: 21300000, guid: 33496ef2b2e23244ab23616379bed518, type: 3}
   category: 0
   rarity: 2
   stackable: 0
@@ -29,6 +29,10 @@ MonoBehaviour:
   element: 0
   armorPartName: 
   meshPrefab: {fileID: 4942869476487557401, guid: ca9b91f6b96d02c4b9e5e6255399c845, type: 3}
+  weaponPosOffset: {x: 0.19023335, y: 0.21840453, z: 0.58453524}
+  weaponRotOffset: {x: -10.139038, y: 11.397928, z: -84.9227}
+  weaponScaleOverride: {x: 1, y: 1, z: 1}
+  hasCustomOffset: 1
   armor: 0
   damage: 4
   attackSpeed: 0.7

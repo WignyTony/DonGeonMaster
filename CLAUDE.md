@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The Unity project lives at `C:\TW\jeu\My project\` (Unity Hub name: "My project"). This repo (`C:\TW\jeu\DonGeonMaster\`) contains memory/config; all code is under `My project`.
 
+## Git Repository
+
+- **GitHub:** https://github.com/WignyTony/DonGeonMaster (private)
+- **Git root:** `C:\TW\jeu\My project\` (the Unity project folder)
+- **Git LFS:** enabled for binary assets (.fbx, .png, .wav, .mp3, .ogg, .ttf, .blend, .jpg, .tga, .psd)
+- **CLAUDE.md** is also versioned inside the Unity project repo
+
 ## Engine & Stack
 
 - **Unity 6** (6000.4.0f1), URP 17.4.0, New Input System 1.19.0

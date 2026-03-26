@@ -7,6 +7,7 @@ namespace DonGeonMaster.UI
     {
         [Header("GanzSe Prefab")]
         [SerializeField] private GameObject ganzsePrefab;
+        [SerializeField] private RuntimeAnimatorController animController;
 
         [Header("Display")]
         [SerializeField] private Transform spawnPoint;
@@ -48,12 +49,8 @@ namespace DonGeonMaster.UI
             var animator = currentCharacter.GetComponent<Animator>();
             if (animator == null) animator = currentCharacter.AddComponent<Animator>();
             animator.applyRootMotion = false;
-            var ctrl = Resources.Load<RuntimeAnimatorController>("AnimPreviewController");
-            #if UNITY_EDITOR
-            if (ctrl == null)
-                ctrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
-                    "Assets/_Project/Art/Animations/AnimPreviewController.controller");
-            #endif
+            var ctrl = animController;
+            if (ctrl == null) ctrl = Resources.Load<RuntimeAnimatorController>("AnimPreviewController");
             if (ctrl != null)
             {
                 animator.runtimeAnimatorController = ctrl;

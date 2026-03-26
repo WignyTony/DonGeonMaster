@@ -664,4 +664,198 @@ public static class ProceduralTextures
         string path = SaveIcon(tex, "Weapon_" + safeName);
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
+
+    // =========================================================================
+    // UI SLOT TEXTURES
+    // =========================================================================
+
+    /// <summary>
+    /// Generates a 128x128 medieval stone/iron slot frame with beveled edges,
+    /// inner shadow, and subtle noise. Used as background for inventory slots.
+    /// </summary>
+    public static Sprite GenerateSlotFrame()
+    {
+        int S = 128;
+        var tex = new Texture2D(S, S, TextureFormat.RGBA32, false);
+        var px = new Color[S * S];
+
+        int border = 5;
+        int edgeLine = 1;
+        int innerShadow = 14;
+        int cornerR = 8;
+
+        for (int y = 0; y < S; y++)
+        {
+            for (int x = 0; x < S; x++)
+            {
+                // Corner rounding
+                bool clipped = false;
+                int[][] corners = { new[]{cornerR, cornerR}, new[]{S-1-cornerR, cornerR},
+                                    new[]{cornerR, S-1-cornerR}, new[]{S-1-cornerR, S-1-cornerR} };
+                foreach (var c in corners)
+                {
+                    bool inZone = (c[0] <= cornerR ? x < cornerR : x > S-1-cornerR) &&
+                                  (c[1] <= cornerR ? y < cornerR : y > S-1-cornerR);
+                    if (inZone)
+                    {
+                        int dx = x - c[0], dy = y - c[1];
+                        if (dx * dx + dy * dy > cornerR * cornerR)
+                        { clipped = true; break; }
+                    }
+                }
+                if (clipped) { px[y * S + x] = Color.clear; continue; }
+
+                float nx = (float)x / S;
+                float ny = (float)y / S;
+                int dLeft = x, dRight = S - 1 - x, dBottom = y, dTop = S - 1 - y;
+                int dEdge = Mathf.Min(dLeft, dRight, dBottom, dTop);
+
+                // Stone noise
+                float n1 = Mathf.PerlinNoise(nx * 20f + 42f, ny * 20f + 42f);
+                float n2 = Mathf.PerlinNoise(nx * 40f + 100f, ny * 40f + 100f) * 0.3f;
+                float noise = n1 + n2;
+
+                if (dEdge < border)
+                {
+                    // Beveled stone frame
+                    float highlight = 0f;
+                    if (dTop < border)    highlight += (1f - (float)dTop / border) * 0.45f;
+                    if (dLeft < border)   highlight += (1f - (float)dLeft / border) * 0.3f;
+                    if (dBottom < border) highlight -= (1f - (float)dBottom / border) * 0.45f;
+                    if (dRight < border)  highlight -= (1f - (float)dRight / border) * 0.3f;
+
+                    float v = 0.22f + highlight * 0.14f;
+                    v *= (0.85f + noise * 0.18f);
+                    px[y * S + x] = new Color(v * 1.08f, v * 0.94f, v * 0.78f, 1f);
+                }
+                else if (dEdge < border + edgeLine)
+                {
+                    // Dark inner edge line for depth
+                    px[y * S + x] = new Color(0.03f, 0.025f, 0.02f, 1f);
+                }
+                else
+                {
+                    // Interior with shadow vignette
+                    float sd = Mathf.Max(0, dEdge - border - edgeLine);
+                    float t = Mathf.Clamp01(sd / (float)innerShadow);
+                    t *= t; // quadratic easing
+
+                    float v = Mathf.Lerp(0.035f, 0.085f, t);
+                    v *= (0.92f + noise * 0.1f);
+                    px[y * S + x] = new Color(v * 1.0f, v * 0.92f, v * 0.82f, 1f);
+                }
+            }
+        }
+
+        // Corner rivets (decorative dots at corners)
+        int rivetOffset = border + 3;
+        int[][] rivetPos = { new[]{rivetOffset, rivetOffset}, new[]{S-1-rivetOffset, rivetOffset},
+                             new[]{rivetOffset, S-1-rivetOffset}, new[]{S-1-rivetOffset, S-1-rivetOffset} };
+        foreach (var rp in rivetPos)
+        {
+            DrawCircle(px, S, rp[0], rp[1], 2, new Color(0.30f, 0.26f, 0.20f, 0.7f));
+            SetPx(px, S, rp[0], rp[1] + 1, new Color(0.38f, 0.34f, 0.26f, 0.5f)); // highlight dot
+        }
+
+        tex.SetPixels(px);
+        tex.Apply();
+        string path = SaveTextureAsSprite(tex, "SlotFrame");
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    /// <summary>
+    /// Generates a 128x128 border-only frame (white, transparent inside).
+    /// Tinted at runtime with rarity color for inventory slot overlays.
+    /// </summary>
+    public static Sprite GenerateRarityBorder()
+    {
+        int S = 128;
+        var tex = new Texture2D(S, S, TextureFormat.RGBA32, false);
+        var px = new Color[S * S];
+
+        int inset = 3;
+        int thickness = 3;
+        int cornerR = 7;
+
+        for (int y = 0; y < S; y++)
+        {
+            for (int x = 0; x < S; x++)
+            {
+                // Corner rounding
+                bool clipped = false;
+                int[][] corners = { new[]{cornerR, cornerR}, new[]{S-1-cornerR, cornerR},
+                                    new[]{cornerR, S-1-cornerR}, new[]{S-1-cornerR, S-1-cornerR} };
+                foreach (var c in corners)
+                {
+                    bool inZone = (c[0] <= cornerR ? x < cornerR : x > S-1-cornerR) &&
+                                  (c[1] <= cornerR ? y < cornerR : y > S-1-cornerR);
+                    if (inZone)
+                    {
+                        int dx = x - c[0], dy = y - c[1];
+                        if (dx * dx + dy * dy > cornerR * cornerR)
+                        { clipped = true; break; }
+                    }
+                }
+                if (clipped) continue; // px stays transparent
+
+                int dLeft = x, dRight = S - 1 - x, dBottom = y, dTop = S - 1 - y;
+                int dEdge = Mathf.Min(dLeft, dRight, dBottom, dTop);
+
+                if (dEdge >= inset && dEdge < inset + thickness)
+                {
+                    // Border with soft inner/outer edges
+                    float alpha = 1f;
+                    if (dEdge == inset) alpha = 0.5f;
+                    if (dEdge == inset + thickness - 1) alpha = 0.5f;
+                    px[y * S + x] = new Color(1f, 1f, 1f, alpha);
+                }
+                // else: stays transparent
+            }
+        }
+
+        tex.SetPixels(px);
+        tex.Apply();
+        string path = SaveTextureAsSprite(tex, "RarityBorder");
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    /// <summary>
+    /// Generates a small 32x32 dark rounded badge for quantity text background.
+    /// </summary>
+    public static Sprite GenerateQuantityBadge()
+    {
+        int S = 32;
+        var tex = new Texture2D(S, S, TextureFormat.RGBA32, false);
+        var px = new Color[S * S];
+
+        int cornerR = 6;
+        Color bg = new Color(0.0f, 0.0f, 0.0f, 0.75f);
+
+        for (int y = 0; y < S; y++)
+        {
+            for (int x = 0; x < S; x++)
+            {
+                bool clipped = false;
+                int[][] corners = { new[]{cornerR, cornerR}, new[]{S-1-cornerR, cornerR},
+                                    new[]{cornerR, S-1-cornerR}, new[]{S-1-cornerR, S-1-cornerR} };
+                foreach (var c in corners)
+                {
+                    bool inZone = (c[0] <= cornerR ? x < cornerR : x > S-1-cornerR) &&
+                                  (c[1] <= cornerR ? y < cornerR : y > S-1-cornerR);
+                    if (inZone)
+                    {
+                        int dx = x - c[0], dy = y - c[1];
+                        if (dx * dx + dy * dy > cornerR * cornerR)
+                        { clipped = true; break; }
+                    }
+                }
+                if (!clipped) px[y * S + x] = bg;
+            }
+        }
+
+        tex.SetPixels(px);
+        tex.Apply();
+        string path = SaveTextureAsSprite(tex, "QuantityBadge");
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
 }

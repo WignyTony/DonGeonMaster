@@ -58,10 +58,6 @@ namespace DonGeonMaster.UI
             Instance = this;
             DontDestroyOnLoad(gameObject);
             LoadBindings();
-        }
-
-        private void Start()
-        {
             RebuildControlCache();
         }
 

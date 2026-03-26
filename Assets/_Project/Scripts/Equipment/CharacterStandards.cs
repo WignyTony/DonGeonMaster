@@ -145,6 +145,8 @@ namespace DonGeonMaster.Equipment
                 EquipmentSlot.Chest => new Vector3(0.50f, 0.60f, 0.30f),
                 EquipmentSlot.Legs => new Vector3(0.40f, 0.85f, 0.30f),
                 EquipmentSlot.Feet => new Vector3(0.14f, 0.20f, 0.30f),
+                EquipmentSlot.Belt => new Vector3(0.35f, 0.15f, 0.25f),
+                EquipmentSlot.Arms => new Vector3(0.15f, 0.30f, 0.15f),
                 EquipmentSlot.Weapon => new Vector3(0.15f, 1.20f, 0.15f),
                 EquipmentSlot.Shield => new Vector3(0.45f, 0.55f, 0.12f),
                 EquipmentSlot.Back => new Vector3(0.40f, 0.60f, 0.20f),

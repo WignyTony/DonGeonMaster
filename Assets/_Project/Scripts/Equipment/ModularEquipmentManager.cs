@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DonGeonMaster.Inventory;
 
 namespace DonGeonMaster.Equipment
 {
@@ -30,6 +32,7 @@ namespace DonGeonMaster.Equipment
         private void Start()
         {
             CacheCategories();
+            StartCoroutine(LoadSavedEquipmentDelayed());
         }
 
         private void CacheCategories()
@@ -120,6 +123,7 @@ namespace DonGeonMaster.Equipment
             if (found)
             {
                 equippedItems[equipment.slot] = equipment;
+                SaveEquipment();
 
                 // Head armor: hide face details
                 if (equipment.slot == CharacterStandards.EquipmentSlot.Head && facePartsRoot != null)
@@ -141,45 +145,50 @@ namespace DonGeonMaster.Equipment
 
             var instance = Instantiate(equipment.meshPrefab, parent);
 
-            // Default offsets (same as AnimationPreviewController)
-            string upper = equipment.meshPrefab.name.ToUpper();
             Vector3 pos;
-            Quaternion rot = Quaternion.identity;
-            Vector3 scale = Vector3.one;
+            Quaternion rot;
+            Vector3 scale;
 
-            if (upper.Contains("SHIELD"))
+            if (equipment.hasCustomOffset)
             {
-                pos = new Vector3(0f, -0.15f, 0f);
-                rot = Quaternion.Euler(0f, 90f, 0f);
-                scale = new Vector3(0.8f, 0.8f, 0.8f);
+                // Use offsets baked into the ScriptableObject (works in builds)
+                pos = equipment.weaponPosOffset;
+                rot = Quaternion.Euler(equipment.weaponRotOffset);
+                scale = equipment.weaponScaleOverride;
             }
-            else if (upper.Contains("GREAT SWORD"))
-                pos = new Vector3(0f, -0.45f, 0f);
-            else if (upper.Contains("HAMMER"))
-                pos = new Vector3(0f, -0.35f, 0f);
             else
-                pos = new Vector3(0f, -0.30f, 0f);
-
-            // Load saved position from AnimationPreview tool
-            string key = equipment.meshPrefab.name.Replace("FREE ", "").Replace("COLOR ", "C").Replace(" ", "_");
-            if (PlayerPrefs.HasKey($"Wep_{key}_PY"))
             {
-                pos = new Vector3(
-                    PlayerPrefs.GetFloat($"Wep_{key}_PX", pos.x),
-                    PlayerPrefs.GetFloat($"Wep_{key}_PY", pos.y),
-                    PlayerPrefs.GetFloat($"Wep_{key}_PZ", pos.z));
-                rot = Quaternion.Euler(
-                    PlayerPrefs.GetFloat($"Wep_{key}_RX", 0),
-                    PlayerPrefs.GetFloat($"Wep_{key}_RY", 0),
-                    PlayerPrefs.GetFloat($"Wep_{key}_RZ", 0));
+                // Fallback: type-based defaults
+                string upper = equipment.meshPrefab.name.ToUpper();
+                rot = Quaternion.identity;
+                scale = Vector3.one;
+
+                if (upper.Contains("SHIELD"))
+                {
+                    pos = new Vector3(0f, -0.15f, 0f);
+                    rot = Quaternion.Euler(0f, 90f, 0f);
+                    scale = new Vector3(0.8f, 0.8f, 0.8f);
+                }
+                else if (upper.Contains("GREAT SWORD"))
+                    pos = new Vector3(0f, -0.45f, 0f);
+                else if (upper.Contains("HAMMER"))
+                    pos = new Vector3(0f, -0.35f, 0f);
+                else
+                    pos = new Vector3(0f, -0.30f, 0f);
             }
 
             instance.transform.localPosition = pos;
             instance.transform.localRotation = rot;
             instance.transform.localScale = scale;
 
+            Debug.Log($"[EquipWeapon] {equipment.itemName} | hasCustom={equipment.hasCustomOffset} " +
+                      $"| pos={pos} rot={equipment.weaponRotOffset} scale={scale} " +
+                      $"| parent={parent.name} handR={handR?.name} handL={handL?.name} " +
+                      $"| animator={GetComponent<Animator>()?.runtimeAnimatorController?.name}");
+
             weaponInstances[equipment.slot] = instance;
             equippedItems[equipment.slot] = equipment;
+            SaveEquipment();
             return true;
         }
 
@@ -200,6 +209,7 @@ namespace DonGeonMaster.Equipment
             }
 
             equippedItems.Remove(slot);
+            SaveEquipment();
 
             // Head: show face details again
             if (slot == CharacterStandards.EquipmentSlot.Head && facePartsRoot != null)
@@ -215,6 +225,54 @@ namespace DonGeonMaster.Equipment
         {
             foreach (var slot in new List<CharacterStandards.EquipmentSlot>(equippedItems.Keys))
                 Unequip(slot);
+        }
+
+        // =================================================================
+        // PERSISTENCE — save/load equipped items via PlayerPrefs
+        // =================================================================
+
+        private const string PrefsPrefix = "Equipped_";
+
+        private void SaveEquipment()
+        {
+            foreach (CharacterStandards.EquipmentSlot slot in System.Enum.GetValues(typeof(CharacterStandards.EquipmentSlot)))
+            {
+                string key = PrefsPrefix + slot;
+                if (equippedItems.TryGetValue(slot, out var eq) && eq != null)
+                    PlayerPrefs.SetString(key, eq.itemId);
+                else
+                    PlayerPrefs.DeleteKey(key);
+            }
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>
+        /// Waits for inventory to be populated (DebugArmorLoader runs after 1 frame),
+        /// then re-equips saved items via UseItem which handles removal + events.
+        /// </summary>
+        private IEnumerator LoadSavedEquipmentDelayed()
+        {
+            yield return null; // frame 1: DebugArmorLoader starts coroutine
+            yield return null; // frame 2: DebugArmorLoader has added items
+
+            var inv = PlayerInventory.Instance;
+            if (inv == null) yield break;
+
+            foreach (CharacterStandards.EquipmentSlot slot in System.Enum.GetValues(typeof(CharacterStandards.EquipmentSlot)))
+            {
+                string savedId = PlayerPrefs.GetString(PrefsPrefix + slot, "");
+                if (string.IsNullOrEmpty(savedId)) continue;
+
+                var allSlots = inv.GetAllSlots();
+                for (int i = 0; i < allSlots.Count; i++)
+                {
+                    if (!allSlots[i].IsEmpty && allSlots[i].item is EquipmentData eq && eq.itemId == savedId)
+                    {
+                        inv.UseItem(i); // handles equip + inventory removal + events
+                        break;
+                    }
+                }
+            }
         }
     }
 }

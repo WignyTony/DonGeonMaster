@@ -35,7 +35,7 @@ namespace DonGeonMaster.UI
         [Header("Right — Stats")]
         [SerializeField] private StatsPanel statsPanel;
 
-        private ItemCategory? currentFilter;
+        private int activeTab; // 0=All, 1=Weapons, 2=Armor, 3=Accessories, 4=Consumables, 5=Materials
         private int selectedSlotIndex = -1;
         private List<InventorySlotUI> slotUIs = new();
 
@@ -48,7 +48,7 @@ namespace DonGeonMaster.UI
             inventoryPanel.SetActive(opening);
             if (opening)
             {
-                currentFilter = null;
+                activeTab = 0;
                 selectedSlotIndex = -1;
                 RefreshAll();
             }
@@ -92,19 +92,38 @@ namespace DonGeonMaster.UI
 
         private void SetFilter(int tabIndex)
         {
-            // 0=All, 1=Weapons, 2=Armor, 3=Accessories, 4=Consumables, 5=Materials
-            currentFilter = tabIndex switch
-            {
-                1 => ItemCategory.Equipment, // TODO: sub-filter weapons
-                2 => ItemCategory.Equipment, // TODO: sub-filter armor
-                3 => ItemCategory.Equipment, // TODO: sub-filter accessories
-                4 => ItemCategory.Consumable,
-                5 => ItemCategory.Material,
-                _ => null
-            };
+            activeTab = tabIndex;
             selectedSlotIndex = -1;
             RefreshInventoryGrid();
             HideDetails();
+        }
+
+        private bool PassesFilter(InventorySlot slot)
+        {
+            if (activeTab == 0) return true;
+            if (slot.IsEmpty) return false;
+
+            switch (activeTab)
+            {
+                case 1: // Armes — weapons + shields
+                    return slot.item is EquipmentData w &&
+                           (w.slot == CharacterStandards.EquipmentSlot.Weapon ||
+                            w.slot == CharacterStandards.EquipmentSlot.Shield);
+                case 2: // Armure — all armor pieces (head, chest, legs, feet, belt, arms)
+                    return slot.item is EquipmentData a &&
+                           a.slot != CharacterStandards.EquipmentSlot.Weapon &&
+                           a.slot != CharacterStandards.EquipmentSlot.Shield &&
+                           a.slot != CharacterStandards.EquipmentSlot.Back;
+                case 3: // Accessoires — back slot (capes, etc.)
+                    return slot.item is EquipmentData ac &&
+                           ac.slot == CharacterStandards.EquipmentSlot.Back;
+                case 4: // Consommables
+                    return slot.item.category == ItemCategory.Consumable;
+                case 5: // Matériaux
+                    return slot.item.category == ItemCategory.Material;
+                default:
+                    return true;
+            }
         }
 
         public void RefreshAll()
@@ -135,7 +154,7 @@ namespace DonGeonMaster.UI
             for (int i = 0; i < slotUIs.Count && i < allSlots.Count; i++)
             {
                 var slot = allSlots[i];
-                bool visible = slot.IsEmpty || currentFilter == null || slot.item.category == currentFilter;
+                bool visible = PassesFilter(slot);
                 slotUIs[i].SetSlot(slot, visible);
                 slotUIs[i].SetSelected(i == selectedSlotIndex);
             }

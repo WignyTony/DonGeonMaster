@@ -11,7 +11,7 @@ using System.IO;
 public static class AutoSetup
 {
     // Increment this to force a re-setup after code changes
-    private const int SetupVersion = 98;
+    private const int SetupVersion = 101;
     private const string VersionKey = "DonGeonMaster_SetupVersion";
 
     static AutoSetup()

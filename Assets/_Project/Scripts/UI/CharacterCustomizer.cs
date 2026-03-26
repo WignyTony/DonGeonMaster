@@ -13,6 +13,7 @@ namespace DonGeonMaster.UI
         [Header("GanzSe Prefab")]
         [SerializeField] private GameObject ganzsePrefab;
         [SerializeField] private Material urpMaterial;
+        [SerializeField] private RuntimeAnimatorController animController;
 
         [Header("Type Labels (6)")]
         [SerializeField] private TextMeshProUGUI[] typeLabels;
@@ -77,12 +78,8 @@ namespace DonGeonMaster.UI
             var anim = previewCharacter.GetComponent<Animator>();
             if (anim == null) anim = previewCharacter.AddComponent<Animator>();
             anim.applyRootMotion = false;
-            var ctrl = Resources.Load<RuntimeAnimatorController>("AnimPreviewController");
-            #if UNITY_EDITOR
-            if (ctrl == null)
-                ctrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
-                    "Assets/_Project/Art/Animations/AnimPreviewController.controller");
-            #endif
+            var ctrl = animController;
+            if (ctrl == null) ctrl = Resources.Load<RuntimeAnimatorController>("AnimPreviewController");
             if (ctrl != null)
             {
                 anim.runtimeAnimatorController = ctrl;

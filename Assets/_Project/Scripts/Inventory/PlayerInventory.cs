@@ -89,7 +89,8 @@ namespace DonGeonMaster.Inventory
                 }
             }
 
-            OnInventoryChanged?.Invoke();
+            if (remaining < quantity) // at least one item was removed
+                OnInventoryChanged?.Invoke();
             return remaining <= 0;
         }
 

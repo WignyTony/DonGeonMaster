@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: weapon_one_handed_sword_1_c1
   itemName: ONE HANDED SWORD 1 C1
   description: "\xC9p\xE9e forg\xE9(e) dans les profondeurs."
-  icon: {fileID: 21300000, guid: b178d084626388143be0a8bc57c68d13, type: 3}
+  icon: {fileID: 21300000, guid: d8ba44621abb9694c8a9104edbcd12a1, type: 3}
   category: 0
   rarity: 0
   stackable: 0
@@ -29,6 +29,10 @@ MonoBehaviour:
   element: 0
   armorPartName: 
   meshPrefab: {fileID: 6654403910166112854, guid: c1f779f2e34d39041bfff6c9cfcd5d0b, type: 3}
+  weaponPosOffset: {x: 0.049416542, y: 0.10574448, z: 0.021259785}
+  weaponRotOffset: {x: -1.2436829, y: 1.1452696e-13, z: 180}
+  weaponScaleOverride: {x: 1, y: 1, z: 1}
+  hasCustomOffset: 1
   armor: 0
   damage: 2
   attackSpeed: 1.2

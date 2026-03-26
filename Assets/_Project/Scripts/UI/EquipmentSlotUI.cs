@@ -20,9 +20,6 @@ namespace DonGeonMaster.UI
         private EquipmentData equippedItem;
         private System.Action<CharacterStandards.EquipmentSlot> onClicked;
 
-        private static readonly Color emptyColor = new Color(0.12f, 0.10f, 0.08f, 0.6f);
-        private static readonly Color borderColor = new Color(0.25f, 0.22f, 0.18f, 0.8f);
-
         public void Setup(CharacterStandards.EquipmentSlot slotType, System.Action<CharacterStandards.EquipmentSlot> callback)
         {
             slot = slotType;
@@ -42,7 +39,7 @@ namespace DonGeonMaster.UI
             {
                 if (iconImage != null) iconImage.enabled = false;
                 if (placeholderIcon != null) placeholderIcon.enabled = true;
-                if (borderImage != null) borderImage.color = emptyColor;
+                if (borderImage != null) borderImage.color = Color.white;
                 if (glowImage != null) glowImage.enabled = false;
             }
             else
@@ -52,15 +49,19 @@ namespace DonGeonMaster.UI
                 {
                     iconImage.enabled = item.icon != null;
                     iconImage.sprite = item.icon;
+                    iconImage.preserveAspect = true;
                 }
-                if (borderImage != null)
-                    borderImage.color = item.RarityColor * 0.7f + Color.white * 0.3f;
+                // Keep frame natural, use glow for rarity
+                if (borderImage != null) borderImage.color = Color.white;
                 if (glowImage != null)
                 {
-                    bool hasGlow = item.rarity >= ItemRarity.Rare;
+                    bool hasGlow = item.rarity > ItemRarity.Common;
                     glowImage.enabled = hasGlow;
                     if (hasGlow)
-                        glowImage.color = new Color(item.RarityColor.r, item.RarityColor.g, item.RarityColor.b, 0.3f);
+                    {
+                        Color rc = item.RarityColor;
+                        glowImage.color = new Color(rc.r, rc.g, rc.b, 0.6f);
+                    }
                 }
             }
         }

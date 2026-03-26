@@ -4,6 +4,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using DonGeonMaster.Character;
+using DonGeonMaster.Equipment;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace DonGeonMaster.UI
 {
@@ -17,6 +21,7 @@ namespace DonGeonMaster.UI
         [Header("Character")]
         [SerializeField] private GameObject ganzsePrefab;
         [SerializeField] private Material urpMaterial;
+        [SerializeField] private RuntimeAnimatorController animController;
 
         [Header("Animations")]
         [SerializeField] private AnimationClip[] animationClips;
@@ -25,6 +30,7 @@ namespace DonGeonMaster.UI
         [Header("Weapons")]
         [SerializeField] private GameObject[] weaponPrefabs;
         [SerializeField] private string[] weaponNames;
+        [SerializeField] private EquipmentData[] weaponEquipmentData;
 
         [Header("UI")]
         [SerializeField] private TextMeshProUGUI animNameLabel;
@@ -74,15 +80,8 @@ namespace DonGeonMaster.UI
                 animator = character.AddComponent<Animator>();
 
             // Load the AnimatorController we created in ProjectSetup
-            var ctrl = Resources.Load<RuntimeAnimatorController>("AnimPreviewController");
-            if (ctrl == null)
-            {
-                // Try loading from project path
-                #if UNITY_EDITOR
-                ctrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
-                    "Assets/_Project/Art/Animations/AnimPreviewController.controller");
-                #endif
-            }
+            var ctrl = animController;
+            if (ctrl == null) ctrl = Resources.Load<RuntimeAnimatorController>("AnimPreviewController");
             if (ctrl != null)
             {
                 animator.runtimeAnimatorController = ctrl;
@@ -155,13 +154,28 @@ namespace DonGeonMaster.UI
             string key = GetWeaponKey();
             if (key == null) return;
 
-            PlayerPrefs.SetFloat($"Wep_{key}_PX", sliderPosX != null ? sliderPosX.value : 0);
-            PlayerPrefs.SetFloat($"Wep_{key}_PY", sliderPosY != null ? sliderPosY.value : 0);
-            PlayerPrefs.SetFloat($"Wep_{key}_PZ", sliderPosZ != null ? sliderPosZ.value : 0);
-            PlayerPrefs.SetFloat($"Wep_{key}_RX", sliderRotX != null ? sliderRotX.value : 0);
-            PlayerPrefs.SetFloat($"Wep_{key}_RY", sliderRotY != null ? sliderRotY.value : 0);
-            PlayerPrefs.SetFloat($"Wep_{key}_RZ", sliderRotZ != null ? sliderRotZ.value : 0);
+            Vector3 savedPos = new Vector3(
+                sliderPosX != null ? sliderPosX.value : 0,
+                sliderPosY != null ? sliderPosY.value : 0,
+                sliderPosZ != null ? sliderPosZ.value : 0);
+            Vector3 savedRot = new Vector3(
+                sliderRotX != null ? sliderRotX.value : 0,
+                sliderRotY != null ? sliderRotY.value : 0,
+                sliderRotZ != null ? sliderRotZ.value : 0);
+
+            // Save to PlayerPrefs (for Editor live preview)
+            PlayerPrefs.SetFloat($"Wep_{key}_PX", savedPos.x);
+            PlayerPrefs.SetFloat($"Wep_{key}_PY", savedPos.y);
+            PlayerPrefs.SetFloat($"Wep_{key}_PZ", savedPos.z);
+            PlayerPrefs.SetFloat($"Wep_{key}_RX", savedRot.x);
+            PlayerPrefs.SetFloat($"Wep_{key}_RY", savedRot.y);
+            PlayerPrefs.SetFloat($"Wep_{key}_RZ", savedRot.z);
             PlayerPrefs.Save();
+
+            // Also bake into EquipmentData ScriptableObject assets (persists in builds)
+            #if UNITY_EDITOR
+            BakeWeaponOffset(key, savedPos, savedRot);
+            #endif
 
             if (valuesLabel != null)
                 valuesLabel.text += "\n<color=#4CAF50>Sauvegardé !</color>";
@@ -317,18 +331,14 @@ namespace DonGeonMaster.UI
 
             currentWeaponInstance = Instantiate(prefab, parent);
 
-            // Load saved position from PlayerPrefs (per-weapon key)
-            string key = GetWeaponKey();
-            if (!string.IsNullOrEmpty(key) && PlayerPrefs.HasKey($"Wep_{key}_PY"))
+            // Load baked position from EquipmentData asset (works in builds)
+            if (weaponEquipmentData != null && index < weaponEquipmentData.Length &&
+                weaponEquipmentData[index] != null && weaponEquipmentData[index].hasCustomOffset)
             {
-                pos = new Vector3(
-                    PlayerPrefs.GetFloat($"Wep_{key}_PX", pos.x),
-                    PlayerPrefs.GetFloat($"Wep_{key}_PY", pos.y),
-                    PlayerPrefs.GetFloat($"Wep_{key}_PZ", pos.z));
-                rot = Quaternion.Euler(
-                    PlayerPrefs.GetFloat($"Wep_{key}_RX", rot.eulerAngles.x),
-                    PlayerPrefs.GetFloat($"Wep_{key}_RY", rot.eulerAngles.y),
-                    PlayerPrefs.GetFloat($"Wep_{key}_RZ", rot.eulerAngles.z));
+                var eq = weaponEquipmentData[index];
+                pos = eq.weaponPosOffset;
+                rot = Quaternion.Euler(eq.weaponRotOffset);
+                scale = eq.weaponScaleOverride;
             }
             else if (sliderPosX != null)
             {
@@ -540,5 +550,36 @@ namespace DonGeonMaster.UI
 
             pieceNameLabel.text = cat.GetChild(pieceIdx).name;
         }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Finds all EquipmentData weapon assets matching this key and bakes the
+        /// position/rotation offsets into the ScriptableObject so they persist in builds.
+        /// </summary>
+        private void BakeWeaponOffset(string key, Vector3 pos, Vector3 rot)
+        {
+            // Determine scale from weapon type
+            string upper = key.ToUpper();
+            Vector3 scale = upper.Contains("SHIELD") ? new Vector3(0.8f, 0.8f, 0.8f) : Vector3.one;
+
+            var guids = AssetDatabase.FindAssets("t:EquipmentData", new[] { "Assets/_Project/Configs/Weapons" });
+            foreach (var guid in guids)
+            {
+                var eq = AssetDatabase.LoadAssetAtPath<EquipmentData>(AssetDatabase.GUIDToAssetPath(guid));
+                if (eq == null || eq.meshPrefab == null) continue;
+
+                string eqKey = eq.meshPrefab.name.Replace("FREE ", "").Replace("COLOR ", "C").Replace(" ", "_");
+                if (eqKey == key)
+                {
+                    eq.weaponPosOffset = pos;
+                    eq.weaponRotOffset = rot;
+                    eq.weaponScaleOverride = scale;
+                    eq.hasCustomOffset = true;
+                    EditorUtility.SetDirty(eq);
+                }
+            }
+            AssetDatabase.SaveAssets();
+        }
+#endif
     }
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: weapon_great_sword_3_c2
   itemName: GREAT SWORD 3 C2
   description: "Grande \xC9p\xE9e forg\xE9(e) dans les profondeurs."
-  icon: {fileID: 21300000, guid: 3bca22fedf639f24fa98e90979de0a7c, type: 3}
+  icon: {fileID: 21300000, guid: 1eabb955ffdfa5647b03d62e5f0daa01, type: 3}
   category: 0
   rarity: 1
   stackable: 0
@@ -29,6 +29,10 @@ MonoBehaviour:
   element: 0
   armorPartName: 
   meshPrefab: {fileID: 6999725053200202163, guid: 3f85231310b14de468a0bfbe9c64b4c6, type: 3}
+  weaponPosOffset: {x: 0.049416542, y: 0.10574448, z: 0.41555548}
+  weaponRotOffset: {x: -1.2436829, y: 8.907652e-14, z: 180}
+  weaponScaleOverride: {x: 1, y: 1, z: 1}
+  hasCustomOffset: 1
   armor: 0
   damage: 3
   attackSpeed: 0.8

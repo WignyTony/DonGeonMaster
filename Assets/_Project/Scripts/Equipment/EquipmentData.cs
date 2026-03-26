@@ -23,6 +23,12 @@ namespace DonGeonMaster.Equipment
         [Header("Visuals (legacy)")]
         public GameObject meshPrefab;
 
+        [Header("Weapon Offset (set by AnimationPreview > Valider)")]
+        public Vector3 weaponPosOffset;
+        public Vector3 weaponRotOffset;
+        public Vector3 weaponScaleOverride = Vector3.one;
+        public bool hasCustomOffset;
+
         [Header("Stats")]
         public int armor;
         public int damage;

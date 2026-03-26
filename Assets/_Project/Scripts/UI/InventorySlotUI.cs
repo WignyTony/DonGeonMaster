@@ -11,12 +11,12 @@ namespace DonGeonMaster.UI
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI quantityText;
         [SerializeField] private Image borderImage;
+        [SerializeField] private Image rarityBorderImage;
         [SerializeField] private Button button;
 
         public event Action OnClicked;
 
-        private static readonly Color emptyBg = new Color(0.12f, 0.10f, 0.08f, 0.5f);
-        private static readonly Color selectedBorder = new Color(0.3f, 0.8f, 0.9f, 1f); // Cyan accent
+        private static readonly Color selectedBorder = new Color(0.3f, 0.8f, 0.9f, 1f);
 
         private bool isSelected;
 
@@ -35,7 +35,7 @@ namespace DonGeonMaster.UI
             {
                 if (iconImage != null) iconImage.enabled = false;
                 if (quantityText != null) quantityText.text = "";
-                if (borderImage != null) borderImage.color = emptyBg;
+                if (rarityBorderImage != null) rarityBorderImage.enabled = false;
             }
             else
             {
@@ -43,15 +43,20 @@ namespace DonGeonMaster.UI
                 {
                     iconImage.enabled = slot.item.icon != null;
                     iconImage.sprite = slot.item.icon;
+                    iconImage.preserveAspect = true;
                     iconImage.color = Color.white;
                 }
                 if (quantityText != null)
                     quantityText.text = slot.quantity > 1 ? "x" + slot.quantity : "";
-                // Rarity-colored background (dark tinted version)
-                if (borderImage != null && !isSelected)
+
+                // Rarity colored border overlay
+                if (rarityBorderImage != null)
                 {
                     Color rc = slot.item.RarityColor;
-                    borderImage.color = new Color(rc.r * 0.2f + 0.08f, rc.g * 0.2f + 0.08f, rc.b * 0.2f + 0.08f, 0.9f);
+                    bool showBorder = slot.item.rarity > ItemRarity.Common;
+                    rarityBorderImage.enabled = showBorder;
+                    if (showBorder)
+                        rarityBorderImage.color = new Color(rc.r, rc.g, rc.b, 0.75f);
                 }
             }
         }
@@ -59,8 +64,11 @@ namespace DonGeonMaster.UI
         public void SetSelected(bool selected)
         {
             isSelected = selected;
-            if (borderImage != null)
-                borderImage.color = selected ? selectedBorder : emptyBg;
+            if (rarityBorderImage != null && selected)
+            {
+                rarityBorderImage.enabled = true;
+                rarityBorderImage.color = selectedBorder;
+            }
         }
     }
 }
