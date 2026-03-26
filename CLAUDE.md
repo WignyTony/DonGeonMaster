@@ -100,6 +100,12 @@ Armor = activating/deactivating child GameObjects under category containers (HEA
 - **Combat formula:** `rawDmg = ATK * max(0.5, attackSpeed) * elementMultiplier`, `finalDmg = max(1, rawDmg - DEF*0.5)`, crit = 1.5x
 - **Element wheel:** Feu > Glace > Foudre > Poison > Feu, Sacre > Tenebres > Arcane > Sacre (1.5x advantage, 0.75x disadvantage)
 
+## Git Workflow
+
+- **Push command:** `git -C "C:/TW/jeu/My project" push origin master`
+- Si le push échoue avec "Repository not found", c'est un problème d'auth — l'utilisateur doit lancer `! git -C "C:/TW/jeu/My project" push origin master` lui-même pour que le credential manager s'ouvre
+- Ne pas commit les dossiers `Build/`, `Library/`, `Temp/`, `Logs/` (déjà dans .gitignore)
+
 ## Build Checklist
 
 1. Run `DonGeonMaster > Bake Weapon Positions` if weapon offsets were adjusted
