@@ -4,9 +4,8 @@ using UnityEngine.InputSystem;
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
     /// <summary>
-    /// Script de test Phase 1 : valide MapStructureDebugRenderer en isolation.
-    /// Attacher a un GameObject vide dans une scene vide.
-    /// F5 = generer + afficher la structure. F7 = clear. Molette = zoom. Clic droit = pan.
+    /// Test Phase 1 : valide MapStructureDebugRenderer en isolation.
+    /// F5 = generer, F7 = clear, molette = zoom, clic droit = pan.
     /// </summary>
     public class StructureRendererTest : MonoBehaviour
     {
@@ -14,12 +13,27 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         MapGenerator generator;
         Camera cam;
         MapGenConfig config;
-        MapData lastMap;
+        int genCount;
 
         void Start()
         {
             structureRenderer = gameObject.AddComponent<MapStructureDebugRenderer>();
+            generator = new MapGenerator();
+            config = new MapGenConfig
+            {
+                mapWidth = 30, mapHeight = 30, cellSize = 6,
+                minRooms = 5, maxRooms = 10,
+                minRoomSize = 3, maxRoomSize = 8,
+                borderMargin = 2, corridorWidth = 2,
+                useRandomSeed = true
+            };
 
+            SetupCamera();
+            UnityEngine.Debug.Log("[Phase1] Pret. F5=generer F7=clear F8=petite map F9=grande map");
+        }
+
+        void SetupCamera()
+        {
             var camGO = GameObject.Find("Main Camera");
             if (camGO == null)
             {
@@ -27,42 +41,25 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 camGO.tag = "MainCamera";
             }
             cam = camGO.GetComponent<Camera>();
-            if (cam == null)
-                cam = camGO.AddComponent<Camera>();
+            if (cam == null) cam = camGO.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.08f, 0.08f, 0.12f);
+            cam.backgroundColor = new Color(0.06f, 0.06f, 0.10f);
             cam.orthographic = true;
             cam.orthographicSize = 60;
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 500f;
-            cam.transform.position = new Vector3(90, 100, 90);
+            cam.transform.position = new Vector3(90, 120, 90);
             cam.transform.rotation = Quaternion.Euler(90, 0, 0);
 
             if (FindAnyObjectByType<Light>() == null)
             {
                 var lightGO = new GameObject("Light");
-                var light = lightGO.AddComponent<Light>();
-                light.type = LightType.Directional;
-                light.intensity = 1f;
+                var l = lightGO.AddComponent<Light>();
+                l.type = LightType.Directional;
+                l.intensity = 1.2f;
+                l.color = new Color(1f, 0.95f, 0.9f);
                 lightGO.transform.rotation = Quaternion.Euler(50, -30, 0);
             }
-
-            generator = new MapGenerator();
-            config = new MapGenConfig
-            {
-                mapWidth = 30,
-                mapHeight = 30,
-                cellSize = 6,
-                minRooms = 5,
-                maxRooms = 10,
-                minRoomSize = 3,
-                maxRoomSize = 8,
-                borderMargin = 2,
-                corridorWidth = 2,
-                useRandomSeed = true
-            };
-
-            UnityEngine.Debug.Log("[Phase1Test] Pret. F5 = generer, F7 = clear, molette = zoom, clic droit = pan");
         }
 
         void Update()
@@ -70,68 +67,63 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var kb = Keyboard.current;
             if (kb == null) return;
 
-            if (kb.f5Key.wasPressedThisFrame)
-                GenerateAndRender();
+            if (kb.f5Key.wasPressedThisFrame) GenerateAndRender();
+            if (kb.f7Key.wasPressedThisFrame) { structureRenderer.Clear(); UnityEngine.Debug.Log("[Phase1] Clear OK"); }
+            // Presets taille pour tester le cadrage
+            if (kb.f8Key.wasPressedThisFrame) { config.mapWidth = 15; config.mapHeight = 15; config.minRooms = 3; config.maxRooms = 5; GenerateAndRender(); }
+            if (kb.f9Key.wasPressedThisFrame) { config.mapWidth = 50; config.mapHeight = 50; config.minRooms = 10; config.maxRooms = 20; GenerateAndRender(); }
 
-            if (kb.f7Key.wasPressedThisFrame)
-            {
-                structureRenderer.Clear();
-                UnityEngine.Debug.Log("[Phase1Test] Clear OK");
-            }
-
+            // Camera controls
             var mouse = Mouse.current;
-            if (mouse != null && cam != null && cam.orthographic)
-            {
-                float scroll = mouse.scroll.y.ReadValue() * 0.01f;
-                if (Mathf.Abs(scroll) > 0.001f)
-                    cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scroll, 5, 200);
+            if (mouse == null || cam == null) return;
 
-                if (mouse.rightButton.isPressed)
-                {
-                    var delta = mouse.delta.ReadValue();
-                    float speed = cam.orthographicSize * 0.002f;
-                    cam.transform.Translate(-delta.x * speed, 0, -delta.y * speed, Space.World);
-                }
+            float scroll = mouse.scroll.y.ReadValue() * 0.01f;
+            if (Mathf.Abs(scroll) > 0.001f)
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scroll, 3, 300);
+
+            if (mouse.rightButton.isPressed)
+            {
+                var d = mouse.delta.ReadValue();
+                float speed = cam.orthographicSize * 0.002f;
+                cam.transform.Translate(-d.x * speed, 0, -d.y * speed, Space.World);
             }
         }
 
         void GenerateAndRender()
         {
+            genCount++;
             structureRenderer.Clear();
 
             var (map, result) = generator.Generate(config);
-            lastMap = map;
-
             structureRenderer.Render(map, config);
 
-            cam.transform.position = new Vector3(
-                structureRenderer.StructureCenter.x, 100, structureRenderer.StructureCenter.z);
-            cam.orthographicSize = Mathf.Max(
-                structureRenderer.StructureSize.x, structureRenderer.StructureSize.z) * 0.55f;
+            // Cadrage : la structure entiere doit etre visible avec marge
+            FitCamera();
 
-            UnityEngine.Debug.Log($"[Phase1Test] === VALIDATION ===");
-            UnityEngine.Debug.Log($"  Seed: {result.seed}");
-            UnityEngine.Debug.Log($"  Salles: {result.roomCount}, Couloirs: {result.corridorCount}");
-            UnityEngine.Debug.Log($"  HasRendered: {structureRenderer.HasRendered}");
-            UnityEngine.Debug.Log($"  CellsRendered: {structureRenderer.RenderedCellCount}");
-            UnityEngine.Debug.Log($"  Floors: {structureRenderer.RenderedFloorCount}");
-            UnityEngine.Debug.Log($"  Walls: {structureRenderer.RenderedWallCount}");
-            UnityEngine.Debug.Log($"  Center: {structureRenderer.StructureCenter}");
-            UnityEngine.Debug.Log($"  Size: {structureRenderer.StructureSize}");
-            UnityEngine.Debug.Log($"  Spawn: ({map.spawnCell.x},{map.spawnCell.y})");
-            UnityEngine.Debug.Log($"  Exit: ({map.exitCell.x},{map.exitCell.y})");
+            // Validation
+            bool spawnOK = structureRenderer.HasSpawnMarker;
+            bool exitOK = structureRenderer.HasExitMarker;
+            bool floorOK = structureRenderer.RenderedFloorCount >= 10;
+            bool wallOK = structureRenderer.RenderedWallCount >= 10;
+            bool allOK = structureRenderer.HasRendered && spawnOK && exitOK && floorOK && wallOK;
 
-            bool ok = structureRenderer.HasRendered
-                      && structureRenderer.RenderedFloorCount > 0
-                      && structureRenderer.RenderedWallCount > 0
-                      && structureRenderer.StructureCenter.magnitude > 0
-                      && structureRenderer.StructureSize.magnitude > 0
-                      && map.spawnCell.x >= 0
-                      && map.exitCell.x >= 0;
+            UnityEngine.Debug.Log(
+                $"[Phase1] Gen #{genCount} | Seed:{result.seed} | " +
+                $"{result.roomCount} salles, {result.corridorCount} couloirs | " +
+                $"Cells:{structureRenderer.RenderedCellCount} " +
+                $"Floor:{structureRenderer.RenderedFloorCount} Wall:{structureRenderer.RenderedWallCount} | " +
+                $"Spawn:{(spawnOK ? "OK" : "MANQUANT")} Exit:{(exitOK ? "OK" : "MANQUANT")} | " +
+                $"Map:{config.mapWidth}x{config.mapHeight} | " +
+                $"{(allOK ? "PHASE1 OK" : "PHASE1 ECHEC")}");
+        }
 
-            UnityEngine.Debug.Log(ok
-                ? "[Phase1Test] VALIDATION OK"
-                : "[Phase1Test] VALIDATION ECHEC");
+        void FitCamera()
+        {
+            var c = structureRenderer.StructureCenter;
+            var s = structureRenderer.StructureSize;
+            cam.transform.position = new Vector3(c.x, 120, c.z);
+            // Marge de 10% pour que les bords ne soient pas colles
+            cam.orthographicSize = Mathf.Max(s.x, s.z) * 0.6f;
         }
     }
 }
