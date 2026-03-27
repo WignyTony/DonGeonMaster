@@ -73,6 +73,7 @@ Armor = activating/deactivating child GameObjects under category containers (HEA
 | ItemEditor | Edit equipment stats via UI (editor-only tool) |
 | ScreenManager | Capture 128x128 thumbnail PNGs for item icons |
 | AnimationPreview | Test animations with equipment |
+| MapGenDebug | Procedural map generation debug/test workshop |
 
 ## Editor Tools (Assets/_Project/Editor/)
 
@@ -81,6 +82,8 @@ Armor = activating/deactivating child GameObjects under category containers (HEA
 - **`DonGeonMaster > Bake Weapon Positions`** — Transfers weapon offsets from Editor PlayerPrefs into `.asset` ScriptableObjects. **Must run before building** if positions were adjusted in AnimationPreview.
 - **`DonGeonMaster > Create Default Armor`** preserves baked weapon offsets across regeneration (savedOffsets dictionary).
 - **ProceduralTextures.cs** — Generates stone/floor/wood textures + UI textures (SlotFrame, RarityBorder, QuantityBadge)
+- **`DonGeonMaster > Créer Catégories d'Assets MapGen`** — Creates AssetCategory ScriptableObjects from Pandazole pack prefabs + AssetCategoryRegistry
+- **`DonGeonMaster > Créer Scène MapGenDebug`** — Creates the MapGenDebug scene with camera, lighting, controller, and all components
 
 ## Item Icon Pipeline
 
@@ -119,10 +122,43 @@ Armor = activating/deactivating child GameObjects under category containers (HEA
 - `ModularEquipmentManager.SaveEquipment()` auto-saves on every equip/unequip
 - `LoadSavedEquipmentDelayed()` restores equipment at frame 2 (after DebugArmorLoader populates inventory)
 
+## Map Generation Debug System (namespace: DonGeonMaster.MapGeneration)
+
+BSP-based procedural outdoor map generator with full debug tooling.
+
+### Setup (2 steps in Unity Editor)
+1. `DonGeonMaster > Créer Catégories d'Assets MapGen` — creates 17 AssetCategory SOs from Pandazole pack
+2. `DonGeonMaster > Créer Scène MapGenDebug` — creates the debug scene
+
+### Architecture (21 scripts, ~4300 lines)
+- **MapGenerator** — BSP room placement + L-shaped corridors + Perlin biome assignment
+- **MapGenDebugController** — orchestrates generation, validation, spawning, logging
+- **MapGenDebugUI** — runtime-built left panel with collapsible sections (F5-F12 shortcuts)
+- **AssetCategory** (ScriptableObject) — flexible category with placement rules (cell types, biomes, density)
+- **AssetCategoryRegistry** (ScriptableObject) — holds all categories
+- **AssetPlacer** — instantiates prefabs per cell based on category rules
+- **GenerationValidator** — 10 post-gen checks (connectivity, bounds, overlaps, path spawn→exit)
+- **GenerationLogger** — dual output: human-readable .txt + machine-readable .json in `MapGenLogs/`
+- **BatchTestRunner** — stress test X iterations, export report with failed seeds
+- **PresetManager** — save/load config presets as JSON in `MapGenPresets/`
+- **DebugVisualization** — gizmos for grid, rooms, corridors, spawn/exit, biomes, validation errors
+
+### Pandazole asset transform
+All Pandazole assets: scale `(100,100,100)`, rotation X `-90°` (Blender Z-up → Unity Y-up).
+TileGround grid: **6-unit spacing**. Configured in `MapGenConfig.assetScale/assetRotation`.
+
+### Log format
+`MapGenLogs/GenerationLog_YYYY-MM-DD_HH-mm-ss_seedXXXX.txt` + `.json`
+
+### Keyboard shortcuts (in MapGenDebug scene)
+F5=Generate, F6=Regenerate, F7=Clear, F8=Spawn, F9=Screenshot, F10=Camera, F12=ExportLog, Tab=ToggleUI
+
 ## Key File Paths
 
 ```
 Scripts:        Assets/_Project/Scripts/{namespace}/
+MapGen scripts: Assets/_Project/Scripts/MapGeneration/
+MapGen configs: Assets/_Project/Configs/MapGeneration/
 Armor assets:   Assets/_Project/Configs/Armor/{Slot}_Armor_Type_{1-6}_Color_{1-3}.asset
 Weapon assets:  Assets/_Project/Configs/Weapons/{WEAPON_NAME}_{N}_C{1-3}.asset
 Thumbnails:     Assets/_Project/Art/Textures/Thumbnails/Thumb_{assetName}.png
