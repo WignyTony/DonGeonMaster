@@ -267,7 +267,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             tmp.fontSize = 10;
             tmp.fontStyle = FontStyles.Italic;
             tmp.color = new Color(0.4f, 0.4f, 0.45f);
-            tmp.alignment = TextAlignmentOptions.MidlineCenter;
+            tmp.alignment = TextAlignmentOptions.Center;
         }
 
         void Spacer(Transform parent, float height)
