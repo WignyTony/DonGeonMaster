@@ -11,11 +11,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         GameObject panel;
         TMP_InputField fSeed, fWidth, fHeight, fCellSize, fMinRooms, fMaxRooms;
         TMP_InputField fCorridorW, fMargin;
+        TMP_InputField fVegDensity, fRockDensity, fDecorDensity;
         TMP_InputField fPresetName, fBatchCount;
-        Transform presetListParent, seedHistoryParent;
+        Toggle tPlaceAssets, tForceBiome;
+        TMP_InputField fBiomeIndex;
+        Transform presetListParent, seedHistoryParent, categoryParent;
         TextMeshProUGUI batchStatusText;
+        Dictionary<string, Toggle> categoryToggles = new();
 
-        // Callbacks
         public Action OnGenerate, OnRegenerate, OnClear, OnHero;
         public Action<string> OnSavePreset, OnLoadPreset;
         public Action OnExportLog, OnOpenLogs, OnCopySeed;
@@ -23,7 +26,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         public Action OnBatchCancel;
         public Action<int> OnReplaySeed;
 
-        // Seed history (geree en interne)
         List<int> seedHistory = new();
         const int MaxHistory = 12;
 
@@ -86,8 +88,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
             Header(c, "MAP GEN DEBUG", 15, new Color(0.12f, 0.20f, 0.35f), 26);
 
-            // ── Config ──
-            Header(c, "Configuration", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            // ── Structure ──
+            Header(c, "Structure", 10, new Color(0.13f, 0.13f, 0.18f), 20);
             fSeed      = Row(c, "Seed", "0", TMP_InputField.ContentType.IntegerNumber);
             fWidth     = Row(c, "Largeur", "30", TMP_InputField.ContentType.IntegerNumber);
             fHeight    = Row(c, "Hauteur", "30", TMP_InputField.ContentType.IntegerNumber);
@@ -96,6 +98,24 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             fMaxRooms  = Row(c, "Salles max", "10", TMP_InputField.ContentType.IntegerNumber);
             fCorridorW = Row(c, "Couloir larg.", "2", TMP_InputField.ContentType.IntegerNumber);
             fMargin    = Row(c, "Marge bord", "2", TMP_InputField.ContentType.IntegerNumber);
+
+            // ── Densites ──
+            Header(c, "Densites", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            fVegDensity   = Row(c, "Vegetation", "0.6", TMP_InputField.ContentType.DecimalNumber);
+            fRockDensity  = Row(c, "Roches", "0.2", TMP_InputField.ContentType.DecimalNumber);
+            fDecorDensity = Row(c, "Decor", "0.3", TMP_InputField.ContentType.DecimalNumber);
+
+            // ── Biome ──
+            Header(c, "Biome", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            tForceBiome = Tgl(c, "Forcer biome", false);
+            fBiomeIndex = Row(c, "Biome (0-7)", "0", TMP_InputField.ContentType.IntegerNumber);
+            SmallText(c, "0=Foret 1=Automne 2=Hiver 3=Prairie 4=Desert 5=Marecage 6=Rocailleux 7=Fantaisie");
+
+            // ── Assets ──
+            Header(c, "Assets (par dessus blockout)", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            tPlaceAssets = Tgl(c, "Placer les assets", false);
+            categoryParent = c;
+            // Les toggles de categories seront ajoutes par SetupCategories()
 
             // ── Actions ──
             Header(c, "Actions", 10, new Color(0.13f, 0.13f, 0.18f), 20);
@@ -113,19 +133,17 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             Btn(r3, "Export Log", new Color(0.25f, 0.25f, 0.35f), () => OnExportLog?.Invoke());
             Btn(c, "Ouvrir Logs", new Color(0.20f, 0.20f, 0.30f), () => OnOpenLogs?.Invoke());
 
-            // ── Batch Test ──
+            // ── Batch ──
             Header(c, "Batch Test", 10, new Color(0.13f, 0.13f, 0.18f), 20);
             fBatchCount = Row(c, "Iterations", "100", TMP_InputField.ContentType.IntegerNumber);
             var rb = BtnRow(c);
-            Btn(rb, "Lancer", new Color(0.50f, 0.35f, 0.12f), () =>
-                OnBatchStart?.Invoke(Int(fBatchCount, 100)));
+            Btn(rb, "Lancer", new Color(0.50f, 0.35f, 0.12f), () => OnBatchStart?.Invoke(Int(fBatchCount, 100)));
             Btn(rb, "Annuler", new Color(0.50f, 0.20f, 0.18f), () => OnBatchCancel?.Invoke());
             batchStatusText = SmallTextReturn(c, "Aucun batch");
 
-            // ── Seed History ──
+            // ── History ──
             Header(c, "Historique Seeds", 10, new Color(0.13f, 0.13f, 0.18f), 20);
             seedHistoryParent = c;
-            // Les boutons SH_ seront ajoutes dynamiquement
 
             // ── Presets ──
             Header(c, "Presets", 10, new Color(0.13f, 0.13f, 0.18f), 20);
@@ -151,6 +169,31 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         }
 
         // ════════════════════════════════════════════
+        //  CATEGORIES
+        // ════════════════════════════════════════════
+
+        public void SetupCategories(AssetCategoryRegistry registry)
+        {
+            if (categoryParent == null || registry == null) return;
+            categoryToggles.Clear();
+            foreach (var cat in registry.categories)
+            {
+                if (cat == null) continue;
+                categoryToggles[cat.categoryId] = Tgl(categoryParent, cat.displayName, true);
+            }
+        }
+
+        public bool PlaceAssetsEnabled => tPlaceAssets != null && tPlaceAssets.isOn;
+
+        public List<string> GetEnabledCategories()
+        {
+            var list = new List<string>();
+            foreach (var kv in categoryToggles)
+                if (kv.Value.isOn) list.Add(kv.Key);
+            return list;
+        }
+
+        // ════════════════════════════════════════════
         //  SEED HISTORY
         // ════════════════════════════════════════════
 
@@ -158,91 +201,38 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             seedHistory.Remove(seed);
             seedHistory.Insert(0, seed);
-            if (seedHistory.Count > MaxHistory)
-                seedHistory.RemoveAt(seedHistory.Count - 1);
+            if (seedHistory.Count > MaxHistory) seedHistory.RemoveAt(seedHistory.Count - 1);
             RefreshSeedHistory();
         }
 
         void RefreshSeedHistory()
         {
             if (seedHistoryParent == null) return;
-            var toRemove = new List<GameObject>();
-            for (int i = 0; i < seedHistoryParent.childCount; i++)
-            {
-                var child = seedHistoryParent.GetChild(i);
-                if (child.name.StartsWith("SH_")) toRemove.Add(child.gameObject);
-            }
-            foreach (var go in toRemove) DestroyImmediate(go);
-
+            RemoveTagged(seedHistoryParent, "SH_");
             foreach (int seed in seedHistory)
             {
                 int s = seed;
-                var go = new GameObject($"SH_{s}");
-                go.transform.SetParent(seedHistoryParent, false);
-                go.AddComponent<LayoutElement>().preferredHeight = 22;
-                go.AddComponent<Image>().color = new Color(0.10f, 0.10f, 0.15f);
-                var btn = go.AddComponent<Button>();
-                var cols = btn.colors;
-                cols.highlightedColor = new Color(0.18f, 0.18f, 0.28f);
-                btn.colors = cols;
-                btn.onClick.AddListener(() => OnReplaySeed?.Invoke(s));
-
-                var tgo = new GameObject("T");
-                tgo.transform.SetParent(go.transform, false);
-                Stretch(tgo, 6, 0);
-                var tmp = tgo.AddComponent<TextMeshProUGUI>();
-                tmp.text = $"Seed: {s}";
-                tmp.fontSize = 10;
-                tmp.color = new Color(0.65f, 0.75f, 0.90f);
-                tmp.alignment = TextAlignmentOptions.MidlineLeft;
+                TaggedBtn(seedHistoryParent, $"SH_{s}", $"Seed: {s}",
+                    new Color(0.10f, 0.10f, 0.15f), new Color(0.65f, 0.75f, 0.90f),
+                    () => OnReplaySeed?.Invoke(s));
             }
         }
-
-        // ════════════════════════════════════════════
-        //  BATCH STATUS
-        // ════════════════════════════════════════════
 
         public void UpdateBatchStatus(string status)
         {
             if (batchStatusText != null) batchStatusText.text = status;
         }
 
-        // ════════════════════════════════════════════
-        //  PRESET LIST
-        // ════════════════════════════════════════════
-
         void RefreshPresetList()
         {
             if (presetListParent == null) return;
-            var toRemove = new List<GameObject>();
-            for (int i = 0; i < presetListParent.childCount; i++)
-            {
-                var child = presetListParent.GetChild(i);
-                if (child.name.StartsWith("PB_")) toRemove.Add(child.gameObject);
-            }
-            foreach (var go in toRemove) DestroyImmediate(go);
-
+            RemoveTagged(presetListParent, "PB_");
             foreach (var name in PresetManager.GetAvailablePresets())
             {
                 var n = name;
-                var go = new GameObject($"PB_{n}");
-                go.transform.SetParent(presetListParent, false);
-                go.AddComponent<LayoutElement>().preferredHeight = 22;
-                go.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.18f);
-                var btn = go.AddComponent<Button>();
-                var cols = btn.colors;
-                cols.highlightedColor = new Color(0.20f, 0.20f, 0.30f);
-                btn.colors = cols;
-                btn.onClick.AddListener(() => OnLoadPreset?.Invoke(n));
-
-                var tgo = new GameObject("T");
-                tgo.transform.SetParent(go.transform, false);
-                Stretch(tgo, 6, 0);
-                var tmp = tgo.AddComponent<TextMeshProUGUI>();
-                tmp.text = n;
-                tmp.fontSize = 10;
-                tmp.color = new Color(0.7f, 0.7f, 0.75f);
-                tmp.alignment = TextAlignmentOptions.MidlineLeft;
+                TaggedBtn(presetListParent, $"PB_{n}", n,
+                    new Color(0.12f, 0.12f, 0.18f), new Color(0.7f, 0.7f, 0.75f),
+                    () => OnLoadPreset?.Invoke(n));
             }
         }
 
@@ -262,6 +252,13 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             cfg.maxRooms = Int(fMaxRooms, 10);
             cfg.corridorWidth = Int(fCorridorW, 2);
             cfg.borderMargin = Int(fMargin, 2);
+            cfg.vegetationDensity = Flt(fVegDensity, 0.6f);
+            cfg.rockDensity = Flt(fRockDensity, 0.2f);
+            cfg.decorDensity = Flt(fDecorDensity, 0.3f);
+            cfg.useForcedBiome = tForceBiome != null && tForceBiome.isOn;
+            int bi = Int(fBiomeIndex, 0);
+            cfg.forcedBiome = (BiomeType)Mathf.Clamp(bi, 0, 7);
+            cfg.enabledCategories = GetEnabledCategories();
             cfg.validateAfterGeneration = true;
             return cfg;
         }
@@ -277,6 +274,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             fMaxRooms.text = cfg.maxRooms.ToString();
             fCorridorW.text = cfg.corridorWidth.ToString();
             fMargin.text = cfg.borderMargin.ToString();
+            fVegDensity.text = cfg.vegetationDensity.ToString("F2");
+            fRockDensity.text = cfg.rockDensity.ToString("F2");
+            fDecorDensity.text = cfg.decorDensity.ToString("F2");
+            if (tForceBiome != null) tForceBiome.isOn = cfg.useForcedBiome;
+            fBiomeIndex.text = ((int)cfg.forcedBiome).ToString();
         }
 
         public void WriteSeed(int seed) { if (fSeed != null) fSeed.text = seed.ToString(); }
@@ -356,6 +358,48 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             return input;
         }
 
+        Toggle Tgl(Transform p, string label, bool def)
+        {
+            var go = new GameObject($"T_{label}");
+            go.transform.SetParent(p, false);
+            go.AddComponent<LayoutElement>().preferredHeight = 24;
+            var hlg = go.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 6; hlg.padding = new RectOffset(4, 0, 0, 0);
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.childControlWidth = false; hlg.childControlHeight = false;
+            hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = false;
+
+            var bgGO = new GameObject("Bg");
+            bgGO.transform.SetParent(go.transform, false);
+            var bgImg = bgGO.AddComponent<Image>();
+            bgImg.color = new Color(0.04f, 0.04f, 0.07f);
+            bgGO.GetComponent<RectTransform>().sizeDelta = new Vector2(16, 16);
+
+            var chkGO = new GameObject("Chk");
+            chkGO.transform.SetParent(bgGO.transform, false);
+            var chkRT = chkGO.AddComponent<RectTransform>();
+            chkRT.anchorMin = new Vector2(0.2f, 0.2f);
+            chkRT.anchorMax = new Vector2(0.8f, 0.8f);
+            chkRT.offsetMin = Vector2.zero;
+            chkRT.offsetMax = Vector2.zero;
+            var chkImg = chkGO.AddComponent<Image>();
+            chkImg.color = new Color(0.25f, 0.85f, 0.35f);
+
+            var lblGO = new GameObject("L");
+            lblGO.transform.SetParent(go.transform, false);
+            lblGO.AddComponent<RectTransform>().sizeDelta = new Vector2(200, 20);
+            var lbl = lblGO.AddComponent<TextMeshProUGUI>();
+            lbl.text = label; lbl.fontSize = 11;
+            lbl.color = new Color(0.65f, 0.65f, 0.70f);
+            lbl.alignment = TextAlignmentOptions.MidlineLeft;
+
+            var toggle = go.AddComponent<Toggle>();
+            toggle.isOn = def;
+            toggle.graphic = chkImg;
+            toggle.targetGraphic = bgImg;
+            return toggle;
+        }
+
         Transform BtnRow(Transform p)
         {
             var go = new GameObject("BR");
@@ -376,10 +420,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             go.AddComponent<Image>().color = col;
             var btn = go.AddComponent<Button>();
             var c = btn.colors;
-            c.highlightedColor = col * 1.25f;
-            c.pressedColor = col * 0.7f;
-            c.fadeDuration = 0.05f;
-            btn.colors = c;
+            c.highlightedColor = col * 1.25f; c.pressedColor = col * 0.7f;
+            c.fadeDuration = 0.05f; btn.colors = c;
             btn.onClick.AddListener(() => click());
             var tgo = new GameObject("T");
             tgo.transform.SetParent(go.transform, false);
@@ -390,13 +432,39 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             tmp.alignment = TextAlignmentOptions.Center;
         }
 
+        void TaggedBtn(Transform p, string tag, string text, Color bg, Color textCol, Action click)
+        {
+            var go = new GameObject(tag);
+            go.transform.SetParent(p, false);
+            go.AddComponent<LayoutElement>().preferredHeight = 22;
+            go.AddComponent<Image>().color = bg;
+            var btn = go.AddComponent<Button>();
+            var c = btn.colors;
+            c.highlightedColor = bg * 1.3f; btn.colors = c;
+            btn.onClick.AddListener(() => click());
+            var tgo = new GameObject("T");
+            tgo.transform.SetParent(go.transform, false);
+            Stretch(tgo, 6, 0);
+            var tmp = tgo.AddComponent<TextMeshProUGUI>();
+            tmp.text = text; tmp.fontSize = 10;
+            tmp.color = textCol; tmp.alignment = TextAlignmentOptions.MidlineLeft;
+        }
+
+        void RemoveTagged(Transform p, string prefix)
+        {
+            var toRemove = new List<GameObject>();
+            for (int i = 0; i < p.childCount; i++)
+                if (p.GetChild(i).name.StartsWith(prefix)) toRemove.Add(p.GetChild(i).gameObject);
+            foreach (var go in toRemove) DestroyImmediate(go);
+        }
+
         void SmallText(Transform p, string text)
         {
             var go = new GameObject("Help");
             go.transform.SetParent(p, false);
             go.AddComponent<LayoutElement>().preferredHeight = 18;
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.text = text; tmp.fontSize = 9;
+            tmp.text = text; tmp.fontSize = 8;
             tmp.fontStyle = FontStyles.Italic;
             tmp.color = new Color(0.4f, 0.4f, 0.45f);
             tmp.alignment = TextAlignmentOptions.Center;

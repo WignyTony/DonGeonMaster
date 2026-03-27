@@ -19,14 +19,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         MapStructureDebugRenderer structureRenderer;
         HeroDebugBridge heroBridge;
         BatchTestRunner batchRunner;
+        AssetPlacer assetPlacer;
+        [SerializeField] AssetCategoryRegistry assetRegistry;
         MapDebugSidebarUI sidebar;
         MapDebugOverlayUI overlay;
         Camera cam;
+        Transform assetRoot;
 
         void Start()
         {
             generator = new MapGenerator();
             validator = new GenerationValidator();
+            assetPlacer = new AssetPlacer();
 
             structureRenderer = gameObject.GetComponent<MapStructureDebugRenderer>();
             if (structureRenderer == null)
@@ -105,6 +109,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             sidebar.OnBatchCancel = CancelBatch;
             sidebar.OnReplaySeed = ReplaySeed;
 
+            // Setup categories si le registry est assigne
+            if (assetRegistry != null)
+                sidebar.SetupCategories(assetRegistry);
+
             overlay = gameObject.AddComponent<MapDebugOverlayUI>();
             overlay.Build();
 
@@ -142,6 +150,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 validator.Validate(map, currentConfig, result);
 
             structureRenderer.Render(map, currentConfig);
+
+            // Placer les assets par dessus le blockout si active
+            ClearAssets();
+            if (sidebar.PlaceAssetsEnabled && assetRegistry != null)
+            {
+                var rootGO = new GameObject("AssetLayer");
+                assetRoot = rootGO.transform;
+                assetPlacer.Initialize(assetRoot, currentConfig, currentConfig.seed, result);
+                int placed = assetPlacer.PlaceAssets(map, assetRegistry);
+                UnityEngine.Debug.Log($"[ModeController] Assets places: {placed}");
+            }
+
             FitCamera();
             SetMode(DebugMode.TopDown);
 
@@ -176,10 +196,20 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             heroBridge.Deactivate(cam);
             heroBridge.DestroyHero();
             structureRenderer.Clear();
+            ClearAssets();
             currentMap = null;
             currentResult = null;
             FitCamera();
             SetMode(DebugMode.Config);
+        }
+
+        void ClearAssets()
+        {
+            if (assetRoot != null)
+            {
+                DestroyImmediate(assetRoot.gameObject);
+                assetRoot = null;
+            }
         }
 
         // ════════════════════════════════════════════
