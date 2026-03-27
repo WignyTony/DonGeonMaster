@@ -8,10 +8,9 @@ namespace DonGeonMaster.MapGeneration
 {
     public class MapGenDebugController : MonoBehaviour
     {
-        [Header("Références")]
+        [Header("References")]
         [SerializeField] AssetCategoryRegistry assetRegistry;
         [SerializeField] Camera mainCamera;
-        [SerializeField] Camera overviewCamera;
 
         // Composants
         MapGenDebugUI debugUI;
@@ -20,16 +19,16 @@ namespace DonGeonMaster.MapGeneration
         BatchTestRunner batchRunner;
         DebugVisualization debugVis;
 
-        // Systèmes
+        // Systemes
         MapGenerator generator;
         AssetPlacer assetPlacer;
         GenerationValidator validator;
 
-        // État
+        // Etat
         MapData currentMap;
         GenerationResult currentResult;
         MapGenConfig lastConfig;
-        CameraMode cameraMode = CameraMode.VueDEnsemble;
+        DebugViewMode viewMode = DebugViewMode.Config;
 
         void Awake()
         {
@@ -44,12 +43,16 @@ namespace DonGeonMaster.MapGeneration
             debugUI.Initialize(this);
             if (assetRegistry != null)
                 debugUI.RefreshCategories(assetRegistry);
-            SetupOverviewCamera();
+
+            // Etat initial : mode config, camera top-down sur zone vide
+            SetupDefaultCamera();
+            debugUI.SetMode(DebugViewMode.Config);
         }
+
+        // ===================== SETUP =====================
 
         void SetupScene()
         {
-            // Canvas + EventSystem
             if (FindAnyObjectByType<EventSystem>() == null)
             {
                 var es = new GameObject("EventSystem");
@@ -59,32 +62,17 @@ namespace DonGeonMaster.MapGeneration
 
             var canvas = FindAnyObjectByType<Canvas>();
             if (canvas == null)
-            {
                 canvas = DebugUIBuilder.CreateCanvas("MapGenDebugCanvas");
-            }
 
-            // Composants
             debugUI = canvas.gameObject.GetComponent<MapGenDebugUI>();
             if (debugUI == null)
                 debugUI = canvas.gameObject.AddComponent<MapGenDebugUI>();
 
-            cleanupService = GetComponent<MapCleanupService>();
-            if (cleanupService == null)
-                cleanupService = gameObject.AddComponent<MapCleanupService>();
+            cleanupService = GetComponent<MapCleanupService>() ?? gameObject.AddComponent<MapCleanupService>();
+            spawnService = GetComponent<PlayerSpawnService>() ?? gameObject.AddComponent<PlayerSpawnService>();
+            batchRunner = GetComponent<BatchTestRunner>() ?? gameObject.AddComponent<BatchTestRunner>();
+            debugVis = GetComponent<DebugVisualization>() ?? gameObject.AddComponent<DebugVisualization>();
 
-            spawnService = GetComponent<PlayerSpawnService>();
-            if (spawnService == null)
-                spawnService = gameObject.AddComponent<PlayerSpawnService>();
-
-            batchRunner = GetComponent<BatchTestRunner>();
-            if (batchRunner == null)
-                batchRunner = gameObject.AddComponent<BatchTestRunner>();
-
-            debugVis = GetComponent<DebugVisualization>();
-            if (debugVis == null)
-                debugVis = gameObject.AddComponent<DebugVisualization>();
-
-            // Caméra
             if (mainCamera == null)
             {
                 mainCamera = Camera.main;
@@ -94,11 +82,10 @@ namespace DonGeonMaster.MapGeneration
                     camGo.tag = "MainCamera";
                     mainCamera = camGo.AddComponent<Camera>();
                     mainCamera.clearFlags = CameraClearFlags.SolidColor;
-                    mainCamera.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
+                    mainCamera.backgroundColor = new Color(0.08f, 0.10f, 0.13f);
                 }
             }
 
-            // Lumière
             if (FindAnyObjectByType<Light>() == null)
             {
                 var lightGo = new GameObject("Directional Light");
@@ -109,15 +96,11 @@ namespace DonGeonMaster.MapGeneration
                 lightGo.transform.rotation = Quaternion.Euler(50, -30, 0);
             }
 
-            // Batch events
-            batchRunner.OnStatusUpdate += status => debugUI.UpdateBatchStatus(status);
-            batchRunner.OnBatchComplete += metrics =>
-            {
-                debugUI.UpdateBatchStatus(metrics.BuildReport());
-            };
+            batchRunner.OnStatusUpdate += s => debugUI.UpdateBatchStatus(s);
+            batchRunner.OnBatchComplete += m => debugUI.UpdateBatchStatus(m.BuildReport());
         }
 
-        void SetupOverviewCamera()
+        void SetupDefaultCamera()
         {
             if (mainCamera == null) return;
             mainCamera.transform.position = new Vector3(45, 80, 45);
@@ -144,11 +127,7 @@ namespace DonGeonMaster.MapGeneration
 
         public void GenerateSameSeed()
         {
-            if (lastConfig == null)
-            {
-                Generate();
-                return;
-            }
+            if (lastConfig == null) { Generate(); return; }
             var config = debugUI.ReadConfig();
             config.seed = currentResult != null ? currentResult.seed : lastConfig.seed;
             config.useRandomSeed = false;
@@ -162,172 +141,172 @@ namespace DonGeonMaster.MapGeneration
             currentMap = null;
             currentResult = null;
             debugVis.ClearData();
-            Debug.Log("[MapGenDebug] Map nettoyée");
+            // Revenir en mode config
+            debugUI.SetMode(DebugViewMode.Config);
+            viewMode = DebugViewMode.Config;
+            SetupDefaultCamera();
         }
 
         public void SpawnPlayer()
         {
             if (currentMap == null)
             {
-                Debug.LogWarning("[MapGenDebug] Générez une map d'abord");
+                Debug.LogWarning("[MapGenDebug] Generez une map d'abord");
                 return;
             }
             spawnService.SpawnPlayer(currentMap, lastConfig);
         }
 
-        public void RespawnPlayer()
+        public void RespawnPlayer() => spawnService.RespawnPlayer();
+
+        /// <summary>F10 : passe en vue FPS. Spawn le joueur si necessaire.</summary>
+        public void EnterFPSMode()
         {
-            spawnService.RespawnPlayer();
+            if (currentMap == null)
+            {
+                Debug.LogWarning("[MapGenDebug] Generez une map d'abord (F5)");
+                return;
+            }
+
+            // Spawn joueur si pas deja present
+            if (spawnService.CurrentPlayer == null)
+                spawnService.SpawnPlayer(currentMap, lastConfig);
+
+            if (spawnService.CurrentPlayer == null)
+            {
+                Debug.LogError("[MapGenDebug] Impossible de spawn le joueur");
+                return;
+            }
+
+            // Activer mode FPS
+            viewMode = DebugViewMode.FPS;
+            debugUI.SetMode(DebugViewMode.FPS);
+            mainCamera.orthographic = false;
+            mainCamera.fieldOfView = 60;
+
+            // Desactiver le DebugPlayerMovement cursor lock
+            var movement = spawnService.CurrentPlayer.GetComponent<DebugPlayerMovement>();
+            if (movement) movement.enabled = true;
+        }
+
+        /// <summary>Revient en vue top-down depuis FPS.</summary>
+        public void EnterTopDownMode()
+        {
+            viewMode = DebugViewMode.TopDown;
+            debugUI.SetMode(DebugViewMode.TopDown);
+            FitCameraToMap();
+
+            // Desactiver controles joueur
+            if (spawnService.CurrentPlayer != null)
+            {
+                var movement = spawnService.CurrentPlayer.GetComponent<DebugPlayerMovement>();
+                if (movement) movement.enabled = false;
+            }
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        public void ToggleCameraMode()
+        {
+            if (viewMode == DebugViewMode.FPS)
+                EnterTopDownMode();
+            else
+                EnterFPSMode();
         }
 
         public void RunValidation()
         {
-            if (currentMap == null || currentResult == null)
-            {
-                Debug.LogWarning("[MapGenDebug] Pas de map à valider");
-                return;
-            }
+            if (currentMap == null || currentResult == null) return;
             currentResult.validationEntries.Clear();
             validator.Validate(currentMap, lastConfig, currentResult);
             debugUI.UpdateResults(currentResult);
-            Debug.Log($"[MapGenDebug] Validation: {currentResult.errorCount}E / {currentResult.warningCount}W");
         }
 
         public void ExportLog()
         {
-            if (currentMap == null || currentResult == null)
-            {
-                Debug.LogWarning("[MapGenDebug] Pas de données à exporter");
-                return;
-            }
-            string path = GenerationLogger.WriteLog(currentMap, lastConfig, currentResult);
-            Debug.Log($"[MapGenDebug] Log exporté: {path}");
+            if (currentMap == null || currentResult == null) return;
+            GenerationLogger.WriteLog(currentMap, lastConfig, currentResult);
         }
 
         public void TakeScreenshot()
         {
             string folder = Path.Combine(Application.dataPath, "..", "MapGenScreenshots");
             Directory.CreateDirectory(folder);
-            string filename = $"MapGen_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
-            if (currentResult != null)
-                filename += $"_seed{currentResult.seed}";
-            string path = Path.Combine(folder, filename + ".png");
-            ScreenCapture.CaptureScreenshot(path, 2);
-            Debug.Log($"[MapGenDebug] Screenshot: {path}");
+            string name = $"MapGen_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+            if (currentResult != null) name += $"_seed{currentResult.seed}";
+            ScreenCapture.CaptureScreenshot(Path.Combine(folder, name + ".png"), 2);
         }
 
         public void CopySummary()
         {
-            if (currentResult == null)
-            {
-                Debug.LogWarning("[MapGenDebug] Pas de résultat à copier");
-                return;
-            }
-            GUIUtility.systemCopyBuffer = currentResult.BuildSummary();
-            Debug.Log("[MapGenDebug] Résumé copié dans le presse-papiers");
-        }
-
-        public void ToggleCameraMode()
-        {
-            if (cameraMode == CameraMode.VueDEnsemble && spawnService.CurrentPlayer != null)
-            {
-                cameraMode = CameraMode.SuiviJoueur;
-                mainCamera.orthographic = false;
-                mainCamera.fieldOfView = 60;
-            }
-            else
-            {
-                cameraMode = CameraMode.VueDEnsemble;
-                FitCameraToMap();
-            }
+            if (currentResult != null)
+                GUIUtility.systemCopyBuffer = currentResult.BuildSummary();
         }
 
         public void SavePreset(string name)
         {
-            var config = debugUI.ReadConfig();
-            var preset = new GenerationPreset(name, config);
-            PresetManager.SavePreset(preset);
-            Debug.Log($"[MapGenDebug] Preset sauvegardé: {name}");
+            PresetManager.SavePreset(new GenerationPreset(name, debugUI.ReadConfig()));
         }
 
-        public void ResetToDefaults()
-        {
-            debugUI.ApplyConfig(new MapGenConfig());
-        }
+        public void ResetToDefaults() => debugUI.ApplyConfig(new MapGenConfig());
 
-        public void RunBatchTest(int iterations)
-        {
-            var config = debugUI.ReadConfig();
-            batchRunner.StartBatch(config, iterations);
-        }
+        public void RunBatchTest(int iterations) => batchRunner.StartBatch(debugUI.ReadConfig(), iterations);
 
-        public void CancelBatch()
-        {
-            batchRunner.Cancel();
-        }
+        public void CancelBatch() => batchRunner.Cancel();
 
-        // ===================== LOGIQUE INTERNE =====================
+        // ===================== GENERATION =====================
 
         void ExecuteGeneration(MapGenConfig config)
         {
-            // Nettoyage
             cleanupService.ClearMap();
             spawnService.DespawnPlayer();
-
             lastConfig = config.Clone();
 
-            // Génération
+            // Generer
             var (map, result) = generator.Generate(config);
             currentMap = map;
             currentResult = result;
 
-            result.AddPipelineStep("Placement des assets en scène");
-
-            // Placement d'assets
-            bool placeAssets = config.mode != GenerationMode.StructureSeule;
-            if (placeAssets && assetRegistry != null)
+            // Placer assets
+            result.AddPipelineStep("Placement des assets");
+            if (config.mode != GenerationMode.StructureSeule && assetRegistry != null)
             {
-                var root = cleanupService.MapRoot;
-                assetPlacer.Initialize(root, config, config.seed, result);
+                assetPlacer.Initialize(cleanupService.MapRoot, config, config.seed, result);
                 assetPlacer.PlaceAssets(map, assetRegistry);
             }
 
-            // Validation
+            // Valider
             if (config.validateAfterGeneration)
-            {
                 validator.Validate(map, config, result);
-            }
 
-            // Log automatique
+            // Log
             GenerationLogger.WriteLog(map, config, result);
 
-            // Auto-spawn joueur
+            // Spawn joueur (pret pour F10)
             spawnService.SpawnPlayer(map, config);
-
-            // Mise à jour de la visualisation debug
-            debugVis.SetData(map, config, result);
-
-            // Mise à jour UI
-            debugUI.UpdateResults(result);
-
-            // Masquer la sidebar et ajuster la caméra pour voir la map
-            debugUI.HideSidebar();
-            FitCameraToMap();
-
-            // Screenshot auto si échec
-            if (result.status == GenerationStatus.Echec)
+            // Desactiver les controles joueur — on est en top-down
+            if (spawnService.CurrentPlayer != null)
             {
-                TakeScreenshot();
-                Debug.LogWarning($"[MapGenDebug] Génération échouée (seed: {result.seed}) - Screenshot auto pris");
+                var movement = spawnService.CurrentPlayer.GetComponent<DebugPlayerMovement>();
+                if (movement) movement.enabled = false;
             }
 
-            string statusEmoji = result.status switch
-            {
-                GenerationStatus.Succes => "OK",
-                GenerationStatus.SuccesAvecWarnings => "WARN",
-                _ => "FAIL"
-            };
-            Debug.Log($"[MapGenDebug] Génération [{statusEmoji}] Seed:{result.seed} " +
+            // Gizmos
+            debugVis.SetData(map, config, result);
+
+            // UI
+            debugUI.UpdateResults(result);
+
+            // === PASSER EN MODE TOP-DOWN ===
+            viewMode = DebugViewMode.TopDown;
+            debugUI.SetMode(DebugViewMode.TopDown);
+            FitCameraToMap();
+            Cursor.lockState = CursorLockMode.None;
+
+            // Screenshot auto si echec
+            if (result.status == GenerationStatus.Echec)
+                TakeScreenshot();
+
+            Debug.Log($"[MapGenDebug] [{result.status}] Seed:{result.seed} " +
                       $"Temps:{result.generationTimeMs:F1}ms Salles:{result.roomCount} " +
                       $"Objets:{result.totalObjectsPlaced}");
         }
@@ -335,30 +314,28 @@ namespace DonGeonMaster.MapGeneration
         void FitCameraToMap()
         {
             if (mainCamera == null || lastConfig == null) return;
-
             float mapW = lastConfig.mapWidth * lastConfig.cellSize;
             float mapH = lastConfig.mapHeight * lastConfig.cellSize;
-            float centerX = mapW * 0.5f;
-            float centerZ = mapH * 0.5f;
-
             mainCamera.orthographic = true;
             mainCamera.orthographicSize = Mathf.Max(mapW, mapH) * 0.55f;
-            mainCamera.transform.position = new Vector3(centerX, 100, centerZ);
+            mainCamera.transform.position = new Vector3(mapW * 0.5f, 100, mapH * 0.5f);
             mainCamera.transform.rotation = Quaternion.Euler(90, 0, 0);
-            cameraMode = CameraMode.VueDEnsemble;
         }
+
+        // ===================== UPDATE =====================
 
         void LateUpdate()
         {
-            if (cameraMode == CameraMode.SuiviJoueur && spawnService.CurrentPlayer != null)
+            // Mode FPS : camera suit le joueur
+            if (viewMode == DebugViewMode.FPS && spawnService.CurrentPlayer != null)
             {
                 var target = spawnService.CurrentPlayer.transform.position;
                 mainCamera.transform.position = target + new Vector3(0, 15, -10);
                 mainCamera.transform.LookAt(target);
             }
 
-            // Scroll zoom en mode vue d'ensemble
-            if (cameraMode == CameraMode.VueDEnsemble && mainCamera.orthographic)
+            // Mode TopDown : zoom + pan
+            if (viewMode == DebugViewMode.TopDown && mainCamera != null && mainCamera.orthographic)
             {
                 float scroll = Input.GetAxis("Mouse ScrollWheel");
                 if (Mathf.Abs(scroll) > 0.001f)
@@ -367,12 +344,11 @@ namespace DonGeonMaster.MapGeneration
                         mainCamera.orthographicSize - scroll * 15f, 5f, 200f);
                 }
 
-                // Pan camera avec clic droit
                 if (Input.GetMouseButton(1))
                 {
-                    float panSpeed = mainCamera.orthographicSize * 0.003f;
-                    float dx = -Input.GetAxis("Mouse X") * panSpeed;
-                    float dy = -Input.GetAxis("Mouse Y") * panSpeed;
+                    float speed = mainCamera.orthographicSize * 0.004f;
+                    float dx = -Input.GetAxis("Mouse X") * speed;
+                    float dy = -Input.GetAxis("Mouse Y") * speed;
                     mainCamera.transform.Translate(dx, 0, dy, Space.World);
                 }
             }
