@@ -1,5 +1,7 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
@@ -8,7 +10,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
     /// <summary>
     /// Phase 2 : controleur central du debug de generation.
     /// Orchestre Config (lancement) et TopDown (apres F5).
-    /// Pas de hero, pas de sidebar UI, pas d'assets decoratifs.
+    /// Sidebar = placeholder minimal pour valider le toggle visuel.
     /// </summary>
     public class MapGenDebugModeController : MonoBehaviour
     {
@@ -24,6 +26,9 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         MapStructureDebugRenderer structureRenderer;
         Camera cam;
 
+        // ── UI placeholder ──
+        GameObject sidebarPanel;
+
         // ── Config par defaut (remplacee par sidebar en phase 4) ──
         MapGenConfig defaultConfig;
 
@@ -36,6 +41,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 structureRenderer = gameObject.AddComponent<MapStructureDebugRenderer>();
 
             SetupCamera();
+            CreateSidebarPlaceholder();
+
             defaultConfig = new MapGenConfig
             {
                 mapWidth = 30, mapHeight = 30, cellSize = 6,
@@ -45,9 +52,12 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 useRandomSeed = true, validateAfterGeneration = true
             };
 
-            currentMode = DebugMode.Config;
-            UnityEngine.Debug.Log("[ModeController] Phase 2 pret. F5=generer Tab=sidebar(phase4)");
+            SetMode(DebugMode.Config);
         }
+
+        // ════════════════════════════════════════════
+        //  SETUP
+        // ════════════════════════════════════════════
 
         void SetupCamera()
         {
@@ -80,45 +90,102 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             }
         }
 
+        /// <summary>
+        /// Sidebar placeholder : panneau noir a gauche avec texte.
+        /// Remplace par la vraie sidebar en phase 4.
+        /// </summary>
+        void CreateSidebarPlaceholder()
+        {
+            // Canvas
+            var canvasGO = new GameObject("DebugCanvas");
+            var canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 50;
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+            canvasGO.AddComponent<GraphicRaycaster>();
+
+            // Sidebar panel : ancre a gauche, 350px de large, toute la hauteur
+            sidebarPanel = new GameObject("SidebarPlaceholder");
+            sidebarPanel.transform.SetParent(canvasGO.transform, false);
+            var rt = sidebarPanel.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 0.5f);
+            rt.sizeDelta = new Vector2(350, 0);
+
+            var img = sidebarPanel.AddComponent<Image>();
+            img.color = new Color(0.08f, 0.08f, 0.12f, 0.92f);
+
+            // Titre
+            var titleGO = new GameObject("Title");
+            titleGO.transform.SetParent(sidebarPanel.transform, false);
+            var titleRT = titleGO.AddComponent<RectTransform>();
+            titleRT.anchorMin = new Vector2(0, 0.92f);
+            titleRT.anchorMax = new Vector2(1, 1);
+            titleRT.offsetMin = Vector2.zero;
+            titleRT.offsetMax = Vector2.zero;
+
+            var titleBg = titleGO.AddComponent<Image>();
+            titleBg.color = new Color(0.12f, 0.20f, 0.35f);
+
+            var titleTxt = titleGO.AddComponent<TextMeshProUGUI>();
+            titleTxt.text = "MAP GEN DEBUG";
+            titleTxt.fontSize = 18;
+            titleTxt.fontStyle = FontStyles.Bold;
+            titleTxt.color = Color.white;
+            titleTxt.alignment = TextAlignmentOptions.Center;
+
+            // Instructions
+            var infoGO = new GameObject("Info");
+            infoGO.transform.SetParent(sidebarPanel.transform, false);
+            var infoRT = infoGO.AddComponent<RectTransform>();
+            infoRT.anchorMin = new Vector2(0, 0.5f);
+            infoRT.anchorMax = new Vector2(1, 0.85f);
+            infoRT.offsetMin = new Vector2(16, 0);
+            infoRT.offsetMax = new Vector2(-16, 0);
+
+            var infoTxt = infoGO.AddComponent<TextMeshProUGUI>();
+            infoTxt.text =
+                "F5  =  Generer la map\n" +
+                "Tab  =  Toggle ce panneau\n\n" +
+                "Apres F5 :\n" +
+                "  Molette = Zoom\n" +
+                "  Clic droit = Pan\n\n" +
+                "<i>Config 30x30, 5-10 salles\n" +
+                "(Sidebar complete en phase 4)</i>";
+            infoTxt.fontSize = 14;
+            infoTxt.color = new Color(0.7f, 0.7f, 0.75f);
+            infoTxt.alignment = TextAlignmentOptions.TopLeft;
+        }
+
         // ════════════════════════════════════════════
         //  GENERATION (F5)
         // ════════════════════════════════════════════
 
         public void Generate()
         {
-            // Config (sera lue depuis la sidebar en phase 4)
             currentConfig = defaultConfig.Clone();
-
-            // Cleanup
             structureRenderer.Clear();
 
-            // Generation
             var (map, result) = generator.Generate(currentConfig);
             currentMap = map;
             currentResult = result;
 
-            // Validation
             if (currentConfig.validateAfterGeneration)
                 validator.Validate(map, currentConfig, result);
 
-            // Rendu structurel
             structureRenderer.Render(map, currentConfig);
-
-            // Cadrage camera
             FitCamera();
-
-            // Mode TopDown
             SetMode(DebugMode.TopDown);
 
-            // Log
-            string status = result.status.ToString();
             UnityEngine.Debug.Log(
-                $"[ModeController] Generation {status} | Seed:{result.seed} | " +
+                $"[ModeController] {result.status} | Seed:{result.seed} | " +
                 $"Salles:{result.roomCount} Couloirs:{result.corridorCount} | " +
-                $"Cells:{structureRenderer.RenderedCellCount} " +
-                $"Floor:{structureRenderer.RenderedFloorCount} Wall:{structureRenderer.RenderedWallCount} | " +
-                $"Spawn:{structureRenderer.HasSpawnMarker} Exit:{structureRenderer.HasExitMarker} | " +
-                $"Erreurs:{result.errorCount} Warnings:{result.warningCount}");
+                $"Cells:{structureRenderer.RenderedCellCount} | " +
+                $"E:{result.errorCount} W:{result.warningCount}");
         }
 
         // ════════════════════════════════════════════
@@ -128,28 +195,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         void SetMode(DebugMode mode)
         {
             currentMode = mode;
-            switch (mode)
-            {
-                case DebugMode.Config:
-                    // Phase 4 : afficher sidebar ici
-                    UnityEngine.Debug.Log("[ModeController] Mode: Config");
-                    break;
-
-                case DebugMode.TopDown:
-                    // Phase 4 : masquer sidebar ici
-                    UnityEngine.Debug.Log("[ModeController] Mode: TopDown");
-                    break;
-            }
+            bool showSidebar = mode == DebugMode.Config;
+            if (sidebarPanel != null)
+                sidebarPanel.SetActive(showSidebar);
         }
 
         void ToggleSidebar()
         {
-            // Phase 4 : toggle sidebar UI
-            // Pour l'instant : toggle le mode
-            if (currentMode == DebugMode.Config)
-                SetMode(DebugMode.TopDown);
-            else
-                SetMode(DebugMode.Config);
+            SetMode(currentMode == DebugMode.Config ? DebugMode.TopDown : DebugMode.Config);
         }
 
         // ════════════════════════════════════════════
@@ -166,7 +219,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         }
 
         // ════════════════════════════════════════════
-        //  UPDATE : inputs
+        //  UPDATE
         // ════════════════════════════════════════════
 
         void Update()
@@ -178,20 +231,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 if (kb.tabKey.wasPressedThisFrame) ToggleSidebar();
             }
 
-            // Zoom + pan uniquement en TopDown
+            // Zoom + pan en TopDown uniquement
             if (currentMode != DebugMode.TopDown || cam == null) return;
 
             var mouse = Mouse.current;
             if (mouse == null) return;
 
-            // Zoom multiplicatif
             float scroll = mouse.scroll.y.ReadValue();
             if (scroll > 0f)
                 cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * 0.85f, 3f, 300f);
             else if (scroll < 0f)
                 cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * 1.15f, 3f, 300f);
 
-            // Pan clic droit
             if (mouse.rightButton.isPressed)
             {
                 var d = mouse.delta.ReadValue();
@@ -201,7 +252,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         }
 
         // ════════════════════════════════════════════
-        //  API publique (pour phases suivantes)
+        //  API publique
         // ════════════════════════════════════════════
 
         public MapData CurrentMap => currentMap;
