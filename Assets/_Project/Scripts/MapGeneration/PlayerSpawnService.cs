@@ -5,9 +5,12 @@ namespace DonGeonMaster.MapGeneration
 {
     public class PlayerSpawnService : MonoBehaviour
     {
+        [Header("Prefabs")]
         [SerializeField] GameObject playerPrefab;
-        [SerializeField] float spawnHeight = 1.5f;
-        [SerializeField] float collisionCheckRadius = 0.5f;
+        [SerializeField] GameObject ganzsePrefab;
+
+        [Header("Spawn")]
+        [SerializeField] float spawnHeight = 0.1f;
         [SerializeField] int maxFallbackAttempts = 20;
 
         GameObject currentPlayer;
@@ -52,26 +55,14 @@ namespace DonGeonMaster.MapGeneration
         Vector3 FindValidSpawnPosition(MapData map, MapGenConfig config)
         {
             if (map.spawnCell.x >= 0)
-            {
-                Vector3 primary = CellToWorld(map.spawnCell, config);
-                if (!Physics.CheckSphere(primary, collisionCheckRadius))
-                    return primary;
-            }
+                return CellToWorld(map.spawnCell, config);
 
             foreach (var room in map.rooms)
-            {
-                Vector3 pos = CellToWorld(room.center, config);
-                if (!Physics.CheckSphere(pos, collisionCheckRadius))
-                    return pos;
-            }
+                return CellToWorld(room.center, config);
 
             var walkable = map.GetAllWalkableCells();
-            for (int i = 0; i < Mathf.Min(maxFallbackAttempts, walkable.Count); i++)
-            {
-                Vector3 pos = CellToWorld(walkable[Random.Range(0, walkable.Count)], config);
-                if (!Physics.CheckSphere(pos, collisionCheckRadius))
-                    return pos;
-            }
+            if (walkable.Count > 0)
+                return CellToWorld(walkable[Random.Range(0, walkable.Count)], config);
 
             return new Vector3(
                 config.mapWidth * config.cellSize * 0.5f,
@@ -85,52 +76,56 @@ namespace DonGeonMaster.MapGeneration
         }
 
         /// <summary>
-        /// Cree un joueur debug qui reproduit le gameplay top-down du vrai PlayerController :
-        /// WASD pour bouger, Shift pour courir, rotation smooth vers la direction, gravite.
-        /// Pas de mouse look FPS — coherent avec le jeu.
+        /// Cree le joueur debug. Priorite : prefab GanzSe (vrai personnage du jeu).
+        /// Fallback : capsule primitive si GanzSe absent.
         /// </summary>
         GameObject CreateDebugPlayer(Vector3 position)
         {
-            var player = new GameObject("DebugPlayer");
-            player.transform.position = position;
+            GameObject player;
 
-            // Visuel : capsule verte
-            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            body.transform.SetParent(player.transform);
-            body.transform.localPosition = Vector3.up; // centrer la capsule
-            body.transform.localScale = new Vector3(0.6f, 1f, 0.6f);
-            Destroy(body.GetComponent<Collider>());
+            if (ganzsePrefab != null)
+            {
+                // Vrai personnage GanzSe comme dans le Hub
+                player = Instantiate(ganzsePrefab, position, Quaternion.identity);
+                DonGeonMaster.Character.GanzSeHelper.DisableAllArmor(player);
 
-            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            mat.color = new Color(0.2f, 0.8f, 0.3f);
-            body.GetComponent<Renderer>().material = mat;
+                // CharacterController identique au vrai jeu
+                var cc = player.GetComponent<CharacterController>();
+                if (cc == null)
+                {
+                    cc = player.AddComponent<CharacterController>();
+                    cc.height = 1.7f;
+                    cc.radius = 0.3f;
+                    cc.center = new Vector3(0, 0.85f, 0);
+                }
+            }
+            else
+            {
+                // Fallback : capsule simple (pas de Shader.Find pour eviter le rose)
+                player = new GameObject("DebugPlayer");
+                player.transform.position = position;
 
-            // Indicateur de direction (cone devant)
-            var indicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            indicator.transform.SetParent(player.transform);
-            indicator.transform.localPosition = new Vector3(0, 1f, 0.6f);
-            indicator.transform.localScale = new Vector3(0.15f, 0.15f, 0.3f);
-            Destroy(indicator.GetComponent<Collider>());
-            indicator.GetComponent<Renderer>().material = mat;
-            indicator.GetComponent<Renderer>().material.color = Color.yellow;
+                var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                body.transform.SetParent(player.transform);
+                body.transform.localPosition = Vector3.up;
+                body.transform.localScale = new Vector3(0.6f, 1f, 0.6f);
+                Destroy(body.GetComponent<Collider>());
+                // Pas de material custom : garder le Default-Material gris (jamais rose)
 
-            // CharacterController
-            var cc = player.AddComponent<CharacterController>();
-            cc.height = 2f;
-            cc.radius = 0.3f;
-            cc.center = Vector3.up;
+                var cc = player.AddComponent<CharacterController>();
+                cc.height = 2f;
+                cc.radius = 0.3f;
+                cc.center = Vector3.up;
+            }
 
-            // Script de mouvement top-down (comme le vrai jeu)
             player.AddComponent<DebugTopDownMovement>();
-
             return player;
         }
     }
 
     /// <summary>
     /// Mouvement debug top-down identique au vrai PlayerController :
-    /// WASD = deplacement, Shift = courir, rotation smooth vers la direction.
-    /// Utilise InputSystem directement (pas KeyBindingManager pour eviter les dependances).
+    /// WASD = deplacement, Shift = courir, rotation smooth, gravite.
     /// </summary>
     public class DebugTopDownMovement : MonoBehaviour
     {
@@ -143,19 +138,14 @@ namespace DonGeonMaster.MapGeneration
         CharacterController cc;
         Vector3 velocity;
 
-        void Awake()
-        {
-            cc = GetComponent<CharacterController>();
-        }
+        void Awake() => cc = GetComponent<CharacterController>();
 
         void Update()
         {
             if (!enabled || cc == null) return;
-
             var kb = Keyboard.current;
             if (kb == null) return;
 
-            // Mouvement WASD (axes monde, pas relatif a la camera)
             float h = 0, v = 0;
             if (kb.wKey.isPressed || kb.upArrowKey.isPressed) v = 1;
             if (kb.sKey.isPressed || kb.downArrowKey.isPressed) v = -1;
@@ -163,25 +153,20 @@ namespace DonGeonMaster.MapGeneration
             if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) h = 1;
 
             Vector3 moveDir = new Vector3(h, 0, v).normalized;
-            bool running = kb.leftShiftKey.isPressed;
-            float speed = running ? runSpeed : walkSpeed;
+            float speed = kb.leftShiftKey.isPressed ? runSpeed : walkSpeed;
 
-            // Deplacement horizontal
             if (moveDir.magnitude > 0.1f)
             {
                 cc.Move(moveDir * (speed * Time.deltaTime));
-
-                // Rotation smooth vers la direction de mouvement
                 float targetAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
                 float smoothAngle = Mathf.LerpAngle(
                     transform.eulerAngles.y, targetAngle, Time.deltaTime * rotationSpeed);
                 transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
             }
 
-            // Saut
             if (cc.isGrounded)
             {
-                velocity.y = -1f; // petite force vers le bas pour rester ground
+                velocity.y = -1f;
                 if (kb.spaceKey.wasPressedThisFrame)
                     velocity.y = jumpForce;
             }

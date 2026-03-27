@@ -6,12 +6,16 @@ using DonGeonMaster.MapGeneration;
 
 public class MapGenSceneSetup
 {
+    static readonly string GanzsePrefabPath =
+        "Assets/Free Low Poly Modular Character Pack - Fantasy Dream/Prefabs/Modular Character/" +
+        "Modular Character Update 1.1/GanzSe Free Modular Character Update 1_1.prefab";
+
     [MenuItem("DonGeonMaster/Créer Scène MapGenDebug", false, 200)]
     public static void CreateScene()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // === Caméra principale ===
+        // === Camera ===
         var camGo = new GameObject("Main Camera");
         camGo.tag = "MainCamera";
         var cam = camGo.AddComponent<Camera>();
@@ -23,12 +27,9 @@ public class MapGenSceneSetup
         cam.farClipPlane = 500f;
         camGo.transform.position = new Vector3(45, 100, 45);
         camGo.transform.rotation = Quaternion.Euler(90, 0, 0);
+        camGo.AddComponent<UniversalAdditionalCameraData>().renderPostProcessing = true;
 
-        // URP Camera Data
-        var urpCam = camGo.AddComponent<UniversalAdditionalCameraData>();
-        urpCam.renderPostProcessing = true;
-
-        // === Lumière directionnelle ===
+        // === Lumieres ===
         var lightGo = new GameObject("Directional Light");
         var light = lightGo.AddComponent<Light>();
         light.type = LightType.Directional;
@@ -38,69 +39,77 @@ public class MapGenSceneSetup
         lightGo.transform.rotation = Quaternion.Euler(50, -30, 0);
         lightGo.AddComponent<UniversalAdditionalLightData>();
 
-        // === Lumière ambiante ===
-        var fillLightGo = new GameObject("Fill Light");
-        var fillLight = fillLightGo.AddComponent<Light>();
-        fillLight.type = LightType.Directional;
-        fillLight.intensity = 0.4f;
-        fillLight.color = new Color(0.6f, 0.7f, 1f);
-        fillLight.shadows = LightShadows.None;
-        fillLightGo.transform.rotation = Quaternion.Euler(150, 60, 0);
-        fillLightGo.AddComponent<UniversalAdditionalLightData>();
+        var fillGo = new GameObject("Fill Light");
+        var fill = fillGo.AddComponent<Light>();
+        fill.type = LightType.Directional;
+        fill.intensity = 0.4f;
+        fill.color = new Color(0.6f, 0.7f, 1f);
+        fill.shadows = LightShadows.None;
+        fillGo.transform.rotation = Quaternion.Euler(150, 60, 0);
+        fillGo.AddComponent<UniversalAdditionalLightData>();
 
-        // === Root de la map générée ===
+        // === Map root ===
         var mapRoot = new GameObject("GeneratedMap");
 
-        // === Controller principal ===
-        var controllerGo = new GameObject("MapGenDebugController");
-        var controller = controllerGo.AddComponent<MapGenDebugController>();
-        controllerGo.AddComponent<MapCleanupService>();
-        controllerGo.AddComponent<PlayerSpawnService>();
-        controllerGo.AddComponent<BatchTestRunner>();
-        controllerGo.AddComponent<DebugVisualization>();
+        // === Controller ===
+        var ctrlGo = new GameObject("MapGenDebugController");
+        var ctrl = ctrlGo.AddComponent<MapGenDebugController>();
+        ctrlGo.AddComponent<MapCleanupService>();
+        var spawnService = ctrlGo.AddComponent<PlayerSpawnService>();
+        ctrlGo.AddComponent<BatchTestRunner>();
+        ctrlGo.AddComponent<DebugVisualization>();
 
-        // Connecter le registre s'il existe
+        // Connecter references serialisees
+        var ctrlSO = new SerializedObject(ctrl);
+        ctrlSO.FindProperty("mainCamera").objectReferenceValue = cam;
+
+        // Connecter le registre d'assets s'il existe
         var registryGuids = AssetDatabase.FindAssets("t:AssetCategoryRegistry");
         if (registryGuids.Length > 0)
         {
             var registry = AssetDatabase.LoadAssetAtPath<AssetCategoryRegistry>(
                 AssetDatabase.GUIDToAssetPath(registryGuids[0]));
-            var so = new SerializedObject(controller);
-            so.FindProperty("assetRegistry").objectReferenceValue = registry;
-            so.FindProperty("mainCamera").objectReferenceValue = cam;
-            so.ApplyModifiedProperties();
+            ctrlSO.FindProperty("assetRegistry").objectReferenceValue = registry;
         }
         else
         {
-            var so = new SerializedObject(controller);
-            so.FindProperty("mainCamera").objectReferenceValue = cam;
-            so.ApplyModifiedProperties();
-            Debug.LogWarning("[MapGenSceneSetup] Aucun AssetCategoryRegistry trouvé. " +
-                "Utilisez DonGeonMaster > Créer Catégories d'Assets MapGen pour en créer un.");
+            Debug.LogWarning("[MapGenSceneSetup] AssetCategoryRegistry non trouve. " +
+                "Lancez DonGeonMaster > Creer Categories d'Assets MapGen d'abord.");
         }
+        ctrlSO.ApplyModifiedProperties();
 
-        // Connecter le MapRoot au cleanup service
-        var cleanupSO = new SerializedObject(controllerGo.GetComponent<MapCleanupService>());
+        // Connecter MapRoot au cleanup service
+        var cleanupSO = new SerializedObject(ctrlGo.GetComponent<MapCleanupService>());
         cleanupSO.FindProperty("mapRoot").objectReferenceValue = mapRoot.transform;
         cleanupSO.ApplyModifiedProperties();
 
-        // === Sol de référence (plan infini) ===
-        var groundPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        groundPlane.name = "ReferencePlane";
-        groundPlane.transform.position = new Vector3(90, -0.1f, 90);
-        groundPlane.transform.localScale = new Vector3(50, 1, 50);
-        var groundRenderer = groundPlane.GetComponent<Renderer>();
-        var groundMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-        groundMat.color = new Color(0.15f, 0.18f, 0.12f);
-        groundRenderer.material = groundMat;
-        groundPlane.isStatic = true;
+        // Connecter le prefab GanzSe au PlayerSpawnService
+        var ganzsePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(GanzsePrefabPath);
+        if (ganzsePrefab != null)
+        {
+            var spawnSO = new SerializedObject(spawnService);
+            spawnSO.FindProperty("ganzsePrefab").objectReferenceValue = ganzsePrefab;
+            spawnSO.ApplyModifiedProperties();
+            Debug.Log("[MapGenSceneSetup] Prefab GanzSe connecte au PlayerSpawnService.");
+        }
+        else
+        {
+            Debug.LogWarning($"[MapGenSceneSetup] Prefab GanzSe non trouve: {GanzsePrefabPath}");
+        }
 
-        // === Sauvegarder la scène ===
+        // === Sol de reference (default material, pas de Shader.Find) ===
+        var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        ground.name = "ReferencePlane";
+        ground.transform.position = new Vector3(90, -0.1f, 90);
+        ground.transform.localScale = new Vector3(50, 1, 50);
+        ground.isStatic = true;
+        // Garder le Default-Material gris de Unity — jamais rose
+
+        // === Sauvegarder ===
         string scenePath = "Assets/_Project/Scenes/MapGenDebug.unity";
         EditorSceneManager.SaveScene(scene, scenePath);
         EditorSceneManager.OpenScene(scenePath);
 
-        // Ajouter au Build Settings si pas déjà présent
         var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene>(
             EditorBuildSettings.scenes);
         if (!scenes.Exists(s => s.path == scenePath))
@@ -109,8 +118,7 @@ public class MapGenSceneSetup
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 
-        Debug.Log($"[MapGenSceneSetup] Scène MapGenDebug créée et sauvegardée: {scenePath}");
-        Debug.Log("[MapGenSceneSetup] Raccourcis: F5=Générer, F6=Regénérer, F7=Nettoyer, " +
-                  "F8=Spawn, F9=Screenshot, F10=Camera, F12=Log, Tab=Toggle UI");
+        Debug.Log($"[MapGenSceneSetup] Scene MapGenDebug creee: {scenePath}");
+        Debug.Log("[MapGenSceneSetup] F5=Generer, F10=Vue joueur, Tab=Sidebar");
     }
 }
