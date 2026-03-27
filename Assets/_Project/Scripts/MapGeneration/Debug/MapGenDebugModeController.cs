@@ -95,6 +95,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             sidebar.OnRegenerate = Regenerate;
             sidebar.OnClear = Clear;
             sidebar.OnHero = EnterHeroMode;
+            sidebar.OnExportLog = ExportLog;
+            sidebar.OnOpenLogs = () => GenerationLogger.OpenLogFolder();
+            sidebar.OnCopySeed = CopySeed;
+            sidebar.OnSavePreset = SavePreset;
+            sidebar.OnLoadPreset = LoadPreset;
 
             overlay = gameObject.AddComponent<MapDebugOverlayUI>();
             overlay.Build();
@@ -125,8 +130,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             SetMode(DebugMode.TopDown);
 
             // Mettre a jour l'overlay et le champ seed de la sidebar
-            overlay.UpdateStats(result);
+            overlay.UpdateStats(result, structureRenderer);
             sidebar.WriteSeed(result.seed);
+
+            // Log automatique sur disque
+            GenerationLogger.WriteLog(map, currentConfig, result);
 
             UnityEngine.Debug.Log(
                 $"[ModeController] {result.status} | Seed:{result.seed} | " +
@@ -155,6 +163,40 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             currentResult = null;
             FitCamera();
             SetMode(DebugMode.Config);
+        }
+
+        // ════════════════════════════════════════════
+        //  OUTILS
+        // ════════════════════════════════════════════
+
+        void ExportLog()
+        {
+            if (currentMap == null || currentResult == null)
+            { UnityEngine.Debug.LogWarning("[ModeController] Rien a exporter"); return; }
+            var path = GenerationLogger.WriteLog(currentMap, currentConfig, currentResult);
+            UnityEngine.Debug.Log($"[ModeController] Log exporte: {path}");
+        }
+
+        void CopySeed()
+        {
+            if (currentResult == null) return;
+            GUIUtility.systemCopyBuffer = currentResult.seed.ToString();
+            UnityEngine.Debug.Log($"[ModeController] Seed copiee: {currentResult.seed}");
+        }
+
+        void SavePreset(string name)
+        {
+            var cfg = sidebar.ReadConfig();
+            PresetManager.SavePreset(new GenerationPreset(name, cfg));
+            UnityEngine.Debug.Log($"[ModeController] Preset sauve: {name}");
+        }
+
+        void LoadPreset(string name)
+        {
+            var preset = PresetManager.LoadPreset(name);
+            if (preset == null) return;
+            sidebar.ApplyConfig(preset.config);
+            UnityEngine.Debug.Log($"[ModeController] Preset charge: {name}");
         }
 
         // ════════════════════════════════════════════

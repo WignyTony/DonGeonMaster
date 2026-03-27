@@ -1,20 +1,21 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
-    /// <summary>
-    /// Phase 4 : sidebar compacte style inspector.
-    /// Lignes de 30px, label 110px + input 100px, boutons 32px.
-    /// </summary>
     public class MapDebugSidebarUI : MonoBehaviour
     {
         GameObject panel;
         TMP_InputField fSeed, fWidth, fHeight, fCellSize, fMinRooms, fMaxRooms;
+        TMP_InputField fPresetName;
+        Transform presetListParent;
 
         public Action OnGenerate, OnRegenerate, OnClear, OnHero;
+        public Action<string> OnSavePreset, OnLoadPreset;
+        public Action OnExportLog, OnOpenLogs, OnCopySeed;
 
         public void Build()
         {
@@ -28,7 +29,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             scaler.matchWidthOrHeight = 0.5f;
             canvasGO.AddComponent<GraphicRaycaster>();
 
-            // Panel
             panel = new GameObject("Sidebar");
             panel.transform.SetParent(canvasGO.transform, false);
             var prt = panel.AddComponent<RectTransform>();
@@ -38,14 +38,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             prt.sizeDelta = new Vector2(320, 0);
             panel.AddComponent<Image>().color = new Color(0.07f, 0.07f, 0.10f, 0.95f);
 
-            // Scroll view pour le contenu
+            // ScrollView
             var scrollGO = new GameObject("Scroll");
             scrollGO.transform.SetParent(panel.transform, false);
-            var srt = scrollGO.AddComponent<RectTransform>();
-            srt.anchorMin = Vector2.zero;
-            srt.anchorMax = Vector2.one;
-            srt.offsetMin = Vector2.zero;
-            srt.offsetMax = Vector2.zero;
+            Stretch(scrollGO);
             scrollGO.AddComponent<Image>().color = Color.clear;
             var scroll = scrollGO.AddComponent<ScrollRect>();
             scroll.horizontal = false;
@@ -54,14 +50,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
             var vpGO = new GameObject("Viewport");
             vpGO.transform.SetParent(scrollGO.transform, false);
-            var vprt = vpGO.AddComponent<RectTransform>();
-            vprt.anchorMin = Vector2.zero;
-            vprt.anchorMax = Vector2.one;
-            vprt.offsetMin = Vector2.zero;
-            vprt.offsetMax = Vector2.zero;
+            Stretch(vpGO);
             vpGO.AddComponent<Image>().color = Color.clear;
             vpGO.AddComponent<RectMask2D>();
-            scroll.viewport = vprt;
+            scroll.viewport = vpGO.GetComponent<RectTransform>();
 
             var content = new GameObject("Content");
             content.transform.SetParent(vpGO.transform, false);
@@ -72,8 +64,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             crt.offsetMin = Vector2.zero;
             crt.offsetMax = Vector2.zero;
             var vlg = content.AddComponent<VerticalLayoutGroup>();
-            vlg.padding = new RectOffset(10, 10, 8, 8);
-            vlg.spacing = 4;
+            vlg.padding = new RectOffset(10, 10, 6, 6);
+            vlg.spacing = 3;
             vlg.childControlWidth = true;
             vlg.childControlHeight = true;
             vlg.childForceExpandWidth = true;
@@ -84,10 +76,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var c = content.transform;
 
             // ── Header ──
-            SectionHeader(c, "MAP GEN DEBUG", 16, new Color(0.12f, 0.20f, 0.35f), 28);
+            Header(c, "MAP GEN DEBUG", 15, new Color(0.12f, 0.20f, 0.35f), 26);
 
-            // ── Configuration ──
-            SectionHeader(c, "Configuration", 11, new Color(0.15f, 0.15f, 0.20f), 22);
+            // ── Config ──
+            Header(c, "Configuration", 10, new Color(0.13f, 0.13f, 0.18f), 20);
             fSeed     = Row(c, "Seed", "0", TMP_InputField.ContentType.IntegerNumber);
             fWidth    = Row(c, "Largeur", "30", TMP_InputField.ContentType.IntegerNumber);
             fHeight   = Row(c, "Hauteur", "30", TMP_InputField.ContentType.IntegerNumber);
@@ -96,18 +88,88 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             fMaxRooms = Row(c, "Salles max", "10", TMP_InputField.ContentType.IntegerNumber);
 
             // ── Actions ──
-            SectionHeader(c, "Actions", 11, new Color(0.15f, 0.15f, 0.20f), 22);
+            Header(c, "Actions", 10, new Color(0.13f, 0.13f, 0.18f), 20);
             var r1 = BtnRow(c);
             Btn(r1, "GENERER (F5)", new Color(0.15f, 0.45f, 0.22f), () => OnGenerate?.Invoke());
-            Btn(r1, "REGENERER (F6)", new Color(0.22f, 0.30f, 0.45f), () => OnRegenerate?.Invoke());
+            Btn(r1, "REGEN (F6)", new Color(0.22f, 0.30f, 0.45f), () => OnRegenerate?.Invoke());
             var r2 = BtnRow(c);
             Btn(r2, "HERO (F10)", new Color(0.35f, 0.25f, 0.45f), () => OnHero?.Invoke());
             Btn(r2, "CLEAR (F7)", new Color(0.50f, 0.20f, 0.18f), () => OnClear?.Invoke());
 
+            // ── Outils ──
+            Header(c, "Outils", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            var r3 = BtnRow(c);
+            Btn(r3, "Copier Seed", new Color(0.25f, 0.25f, 0.35f), () => OnCopySeed?.Invoke());
+            Btn(r3, "Export Log", new Color(0.25f, 0.25f, 0.35f), () => OnExportLog?.Invoke());
+            Btn(c, "Ouvrir dossier Logs", new Color(0.20f, 0.20f, 0.30f), () => OnOpenLogs?.Invoke());
+
+            // ── Presets ──
+            Header(c, "Presets", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            fPresetName = Row(c, "Nom", "", TMP_InputField.ContentType.Standard);
+            var r4 = BtnRow(c);
+            Btn(r4, "Sauver", new Color(0.20f, 0.35f, 0.25f), () =>
+            {
+                string n = fPresetName.text;
+                if (string.IsNullOrWhiteSpace(n)) n = "Preset_" + DateTime.Now.ToString("HHmmss");
+                OnSavePreset?.Invoke(n);
+                RefreshPresetList();
+            });
+            Btn(r4, "Charger", new Color(0.25f, 0.25f, 0.40f), () =>
+            {
+                string n = fPresetName.text;
+                if (!string.IsNullOrWhiteSpace(n)) OnLoadPreset?.Invoke(n);
+            });
+
+            // Liste des presets existants
+            presetListParent = c;
+            RefreshPresetList();
+
             // ── Aide ──
-            Spacer(c, 6);
-            SmallText(c, "Tab = Sidebar | Molette = Zoom | Clic droit = Pan");
+            Spacer(c, 4);
+            SmallText(c, "Tab=Sidebar  Molette=Zoom  Clic droit=Pan");
         }
+
+        void RefreshPresetList()
+        {
+            // Supprimer les anciens boutons de preset (tag "PresetBtn")
+            if (presetListParent == null) return;
+            var toRemove = new List<GameObject>();
+            for (int i = 0; i < presetListParent.childCount; i++)
+            {
+                var child = presetListParent.GetChild(i);
+                if (child.name.StartsWith("PB_")) toRemove.Add(child.gameObject);
+            }
+            foreach (var go in toRemove) DestroyImmediate(go);
+
+            // Ajouter les presets disponibles
+            var presets = PresetManager.GetAvailablePresets();
+            foreach (var name in presets)
+            {
+                var n = name;
+                var go = new GameObject($"PB_{n}");
+                go.transform.SetParent(presetListParent, false);
+                go.AddComponent<LayoutElement>().preferredHeight = 24;
+                go.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.18f);
+                var btn = go.AddComponent<Button>();
+                var cols = btn.colors;
+                cols.highlightedColor = new Color(0.20f, 0.20f, 0.30f);
+                btn.colors = cols;
+                btn.onClick.AddListener(() => OnLoadPreset?.Invoke(n));
+
+                var tgo = new GameObject("T");
+                tgo.transform.SetParent(go.transform, false);
+                Stretch(tgo, 6, 0);
+                var tmp = tgo.AddComponent<TextMeshProUGUI>();
+                tmp.text = n;
+                tmp.fontSize = 11;
+                tmp.color = new Color(0.7f, 0.7f, 0.75f);
+                tmp.alignment = TextAlignmentOptions.MidlineLeft;
+            }
+        }
+
+        // ════════════════════════════════════════════
+        //  READ / WRITE CONFIG
+        // ════════════════════════════════════════════
 
         public MapGenConfig ReadConfig()
         {
@@ -123,6 +185,17 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             return cfg;
         }
 
+        public void ApplyConfig(MapGenConfig cfg)
+        {
+            if (cfg == null) return;
+            fSeed.text = cfg.seed.ToString();
+            fWidth.text = cfg.mapWidth.ToString();
+            fHeight.text = cfg.mapHeight.ToString();
+            fCellSize.text = cfg.cellSize.ToString("F1");
+            fMinRooms.text = cfg.minRooms.ToString();
+            fMaxRooms.text = cfg.maxRooms.ToString();
+        }
+
         public void WriteSeed(int seed) { if (fSeed != null) fSeed.text = seed.ToString(); }
         public void Show() { if (panel) panel.SetActive(true); }
         public void Hide() { if (panel) panel.SetActive(false); }
@@ -132,13 +205,12 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         //  UI BUILDERS
         // ════════════════════════════════════════════
 
-        void SectionHeader(Transform parent, string text, int fontSize, Color bgColor, float height)
+        void Header(Transform parent, string text, int fontSize, Color bg, float height)
         {
             var go = new GameObject("Hdr");
             go.transform.SetParent(parent, false);
             go.AddComponent<LayoutElement>().preferredHeight = height;
-            go.AddComponent<Image>().color = bgColor;
-
+            go.AddComponent<Image>().color = bg;
             var tgo = new GameObject("T");
             tgo.transform.SetParent(go.transform, false);
             Stretch(tgo, 8, 0);
@@ -155,7 +227,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             var go = new GameObject($"R_{label}");
             go.transform.SetParent(parent, false);
-            go.AddComponent<LayoutElement>().preferredHeight = 30;
+            go.AddComponent<LayoutElement>().preferredHeight = 28;
             var hlg = go.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 6;
             hlg.padding = new RectOffset(4, 4, 0, 0);
@@ -164,24 +236,19 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = true;
 
-            // Label (TMP seul)
             var lblGO = new GameObject("L");
             lblGO.transform.SetParent(go.transform, false);
             var lle = lblGO.AddComponent<LayoutElement>();
-            lle.preferredWidth = 110;
-            lle.flexibleWidth = 0;
+            lle.preferredWidth = 100; lle.flexibleWidth = 0;
             var lbl = lblGO.AddComponent<TextMeshProUGUI>();
-            lbl.text = label;
-            lbl.fontSize = 12;
+            lbl.text = label; lbl.fontSize = 11;
             lbl.color = new Color(0.6f, 0.6f, 0.65f);
             lbl.alignment = TextAlignmentOptions.MidlineLeft;
 
-            // Input (Image + TMP_InputField, texte sur enfant)
             var iGO = new GameObject("I");
             iGO.transform.SetParent(go.transform, false);
             var ile = iGO.AddComponent<LayoutElement>();
-            ile.preferredWidth = 100;
-            ile.flexibleWidth = 1;
+            ile.preferredWidth = 100; ile.flexibleWidth = 1;
             iGO.AddComponent<Image>().color = new Color(0.04f, 0.04f, 0.07f);
             var input = iGO.AddComponent<TMP_InputField>();
             input.contentType = contentType;
@@ -195,16 +262,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             txtGO.transform.SetParent(taGO.transform, false);
             Stretch(txtGO);
             var txt = txtGO.AddComponent<TextMeshProUGUI>();
-            txt.fontSize = 12;
-            txt.color = Color.white;
+            txt.fontSize = 11; txt.color = Color.white;
             txt.textWrappingMode = TextWrappingModes.NoWrap;
 
             var phGO = new GameObject("PH");
             phGO.transform.SetParent(taGO.transform, false);
             Stretch(phGO);
             var ph = phGO.AddComponent<TextMeshProUGUI>();
-            ph.text = "...";
-            ph.fontSize = 12;
+            ph.text = "..."; ph.fontSize = 11;
             ph.color = new Color(0.35f, 0.35f, 0.40f);
             ph.fontStyle = FontStyles.Italic;
             ph.textWrappingMode = TextWrappingModes.NoWrap;
@@ -214,7 +279,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             input.placeholder = ph;
             input.text = defaultVal;
             input.caretColor = Color.white;
-
             return input;
         }
 
@@ -222,7 +286,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             var go = new GameObject("BR");
             go.transform.SetParent(parent, false);
-            go.AddComponent<LayoutElement>().preferredHeight = 32;
+            go.AddComponent<LayoutElement>().preferredHeight = 30;
             var hlg = go.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 4;
             hlg.childControlWidth = true;
@@ -245,13 +309,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             cols.fadeDuration = 0.05f;
             btn.colors = cols;
             btn.onClick.AddListener(() => onClick());
-
             var tgo = new GameObject("T");
             tgo.transform.SetParent(go.transform, false);
             Stretch(tgo);
             var tmp = tgo.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = 11;
+            tmp.text = text; tmp.fontSize = 10;
             tmp.fontStyle = FontStyles.Bold;
             tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Center;
@@ -261,31 +323,27 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             var go = new GameObject("Help");
             go.transform.SetParent(parent, false);
-            go.AddComponent<LayoutElement>().preferredHeight = 20;
+            go.AddComponent<LayoutElement>().preferredHeight = 18;
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = 10;
+            tmp.text = text; tmp.fontSize = 9;
             tmp.fontStyle = FontStyles.Italic;
             tmp.color = new Color(0.4f, 0.4f, 0.45f);
             tmp.alignment = TextAlignmentOptions.Center;
         }
 
-        void Spacer(Transform parent, float height)
+        void Spacer(Transform parent, float h)
         {
             var go = new GameObject("Sp");
             go.transform.SetParent(parent, false);
-            go.AddComponent<LayoutElement>().preferredHeight = height;
+            go.AddComponent<LayoutElement>().preferredHeight = h;
         }
 
-        /// <summary>Stretch RectTransform to fill parent with optional horizontal inset.</summary>
-        void Stretch(GameObject go, float insetH = 0, float insetV = 0)
+        void Stretch(GameObject go, float ih = 0, float iv = 0)
         {
             var rt = go.GetComponent<RectTransform>();
             if (rt == null) rt = go.AddComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(insetH, insetV);
-            rt.offsetMax = new Vector2(-insetH, -insetV);
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(ih, iv); rt.offsetMax = new Vector2(-ih, -iv);
         }
 
         static int Int(TMP_InputField f, int fb) => int.TryParse(f.text, out int v) ? v : fb;
