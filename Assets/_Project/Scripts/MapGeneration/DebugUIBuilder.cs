@@ -6,48 +6,58 @@ using UnityEngine.UI;
 
 namespace DonGeonMaster.MapGeneration
 {
+    /// <summary>
+    /// Fabrique d'éléments UI pour le module de debug MapGen.
+    /// Tout le layout passe par LayoutElement + LayoutGroups. Aucun anchor manuel
+    /// sauf pour le Root (seul élément qui doit stretch-fill le Canvas).
+    /// </summary>
     public static class DebugUIBuilder
     {
-        static readonly Color PanelDark = new(0.12f, 0.12f, 0.14f, 0.95f);
-        static readonly Color PanelMid = new(0.18f, 0.18f, 0.22f, 0.95f);
-        static readonly Color HeaderColor = new(0.25f, 0.25f, 0.35f);
-        static readonly Color ButtonColor = new(0.3f, 0.3f, 0.45f);
-        static readonly Color ButtonHover = new(0.4f, 0.4f, 0.55f);
-        static readonly Color SuccessColor = new(0.2f, 0.8f, 0.3f);
-        static readonly Color WarningColor = new(1f, 0.8f, 0.2f);
-        static readonly Color ErrorColor = new(1f, 0.3f, 0.3f);
-        static readonly Color InputBg = new(0.1f, 0.1f, 0.12f);
+        // ── Palette ──
+        public static readonly Color BgDarkest  = new(0.07f, 0.07f, 0.09f, 1f);
+        public static readonly Color BgDark     = new(0.10f, 0.10f, 0.13f, 1f);
+        public static readonly Color BgMid      = new(0.14f, 0.14f, 0.18f, 1f);
+        public static readonly Color BgLight    = new(0.18f, 0.18f, 0.23f, 1f);
+        public static readonly Color HeaderBg   = new(0.13f, 0.20f, 0.33f, 1f);
+        public static readonly Color BtnNormal  = new(0.22f, 0.24f, 0.34f, 1f);
+        public static readonly Color BtnHover   = new(0.30f, 0.32f, 0.44f, 1f);
+        public static readonly Color BtnPressed = new(0.16f, 0.17f, 0.26f, 1f);
+        public static readonly Color BtnGreen   = new(0.18f, 0.50f, 0.28f, 1f);
+        public static readonly Color BtnRed     = new(0.55f, 0.22f, 0.18f, 1f);
+        public static readonly Color BtnOrange  = new(0.55f, 0.38f, 0.12f, 1f);
+        public static readonly Color InputBg    = new(0.08f, 0.08f, 0.10f, 1f);
+        public static readonly Color Success    = new(0.25f, 0.85f, 0.35f, 1f);
+        public static readonly Color Warning    = new(1f, 0.80f, 0.20f, 1f);
+        public static readonly Color Error      = new(1f, 0.30f, 0.30f, 1f);
+        public static readonly Color TextWhite  = new(0.90f, 0.90f, 0.92f, 1f);
+        public static readonly Color TextDim    = new(0.55f, 0.55f, 0.60f, 1f);
 
+        // ────────────────────────────────────────────────────────
+        //  CANVAS
+        // ────────────────────────────────────────────────────────
         public static Canvas CreateCanvas(string name = "DebugCanvas")
         {
             var go = new GameObject(name);
             var canvas = go.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
-            go.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            go.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
+            var scaler = go.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
             go.AddComponent<GraphicRaycaster>();
             return canvas;
         }
 
-        public static RectTransform CreatePanel(Transform parent, string name,
-            float anchorMinX, float anchorMinY, float anchorMaxX, float anchorMaxY,
-            Color? color = null)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            var rt = go.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(anchorMinX, anchorMinY);
-            rt.anchorMax = new Vector2(anchorMaxX, anchorMaxY);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
+        // ────────────────────────────────────────────────────────
+        //  CONTENEURS DE LAYOUT
+        // ────────────────────────────────────────────────────────
 
-            var img = go.AddComponent<Image>();
-            img.color = color ?? PanelDark;
-            return rt;
-        }
-
-        public static ScrollRect CreateScrollView(Transform parent, string name = "ScrollView")
+        /// <summary>
+        /// Crée un GO qui remplit entièrement son parent via anchors (0,0)→(1,1).
+        /// Utilisé UNIQUEMENT pour le Root du Canvas et les viewports de ScrollView.
+        /// </summary>
+        public static RectTransform CreateStretchFill(Transform parent, string name)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
@@ -56,28 +66,111 @@ namespace DonGeonMaster.MapGeneration
             rt.anchorMax = Vector2.one;
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
+            return rt;
+        }
+
+        /// <summary>
+        /// Panel générique piloté par LayoutElement (jamais d'anchors manuels).
+        /// Utiliser preferredWidth/Height pour taille fixe, flexibleWidth/Height pour remplir.
+        /// </summary>
+        public static RectTransform CreateLayoutPanel(Transform parent, string name, Color color,
+            float preferredW = -1, float preferredH = -1, float flexW = -1, float flexH = -1)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+
+            var le = go.AddComponent<LayoutElement>();
+            if (preferredW >= 0) le.preferredWidth = preferredW;
+            if (preferredH >= 0) le.preferredHeight = preferredH;
+            if (flexW >= 0) le.flexibleWidth = flexW;
+            if (flexH >= 0) le.flexibleHeight = flexH;
+
+            var img = go.AddComponent<Image>();
+            img.color = color;
+            return rt;
+        }
+
+        /// <summary>HorizontalLayoutGroup row.</summary>
+        public static RectTransform CreateHGroup(Transform parent, float height = -1,
+            float spacing = 4, RectOffset padding = null)
+        {
+            var go = new GameObject("HGroup");
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+
+            if (height > 0)
+            {
+                var le = go.AddComponent<LayoutElement>();
+                le.preferredHeight = height;
+            }
+
+            var hlg = go.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = spacing;
+            hlg.padding = padding ?? new RectOffset(0, 0, 0, 0);
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.childControlWidth = true;
+            hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = true;   // enfants partagent l'espace
+            hlg.childForceExpandHeight = true;
+            return rt;
+        }
+
+        /// <summary>VerticalLayoutGroup container.</summary>
+        public static RectTransform CreateVGroup(Transform parent, float spacing = 2,
+            RectOffset padding = null, float flexH = -1, float prefH = -1)
+        {
+            var go = new GameObject("VGroup");
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+
+            if (flexH >= 0 || prefH >= 0)
+            {
+                var le = go.AddComponent<LayoutElement>();
+                if (flexH >= 0) le.flexibleHeight = flexH;
+                if (prefH >= 0) le.preferredHeight = prefH;
+            }
+
+            var vlg = go.AddComponent<VerticalLayoutGroup>();
+            vlg.spacing = spacing;
+            vlg.padding = padding ?? new RectOffset(0, 0, 0, 0);
+            vlg.childAlignment = TextAnchor.UpperLeft;
+            vlg.childControlWidth = true;
+            vlg.childControlHeight = false;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            return rt;
+        }
+
+        // ────────────────────────────────────────────────────────
+        //  SCROLL VIEW
+        // ────────────────────────────────────────────────────────
+        public static ScrollRect CreateScrollView(Transform parent, float flexH = 1)
+        {
+            var go = new GameObject("ScrollView");
+            go.transform.SetParent(parent, false);
+            go.AddComponent<RectTransform>();
+            var le = go.AddComponent<LayoutElement>();
+            le.flexibleHeight = flexH;
+            le.flexibleWidth = 1;
+
+            var img = go.AddComponent<Image>();
+            img.color = Color.clear;
 
             var scroll = go.AddComponent<ScrollRect>();
             scroll.horizontal = false;
             scroll.movementType = ScrollRect.MovementType.Clamped;
-            scroll.scrollSensitivity = 30f;
+            scroll.scrollSensitivity = 40f;
 
-            // Viewport
-            var viewport = new GameObject("Viewport");
-            viewport.transform.SetParent(go.transform, false);
-            var vpRT = viewport.AddComponent<RectTransform>();
-            vpRT.anchorMin = Vector2.zero;
-            vpRT.anchorMax = Vector2.one;
-            vpRT.offsetMin = Vector2.zero;
-            vpRT.offsetMax = Vector2.zero;
-            var vpImg = viewport.AddComponent<Image>();
-            vpImg.color = Color.clear;
-            viewport.AddComponent<Mask>().showMaskGraphic = false;
+            // Viewport (stretch-fill le ScrollView)
+            var vpRT = CreateStretchFill(go.transform, "Viewport");
+            vpRT.gameObject.AddComponent<Image>().color = Color.clear;
+            vpRT.gameObject.AddComponent<RectMask2D>();
             scroll.viewport = vpRT;
 
-            // Content
+            // Content (ancré en haut, largeur 100%, hauteur auto)
             var content = new GameObject("Content");
-            content.transform.SetParent(viewport.transform, false);
+            content.transform.SetParent(vpRT, false);
             var cRT = content.AddComponent<RectTransform>();
             cRT.anchorMin = new Vector2(0, 1);
             cRT.anchorMax = new Vector2(1, 1);
@@ -86,8 +179,8 @@ namespace DonGeonMaster.MapGeneration
             cRT.offsetMax = Vector2.zero;
 
             var vlg = content.AddComponent<VerticalLayoutGroup>();
-            vlg.padding = new RectOffset(6, 6, 6, 6);
-            vlg.spacing = 4;
+            vlg.spacing = 2;
+            vlg.padding = new RectOffset(4, 4, 4, 4);
             vlg.childControlWidth = true;
             vlg.childControlHeight = false;
             vlg.childForceExpandWidth = true;
@@ -96,104 +189,73 @@ namespace DonGeonMaster.MapGeneration
             content.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             scroll.content = cRT;
 
-            // Scrollbar
-            var scrollbar = CreateScrollbar(go.transform);
-            scroll.verticalScrollbar = scrollbar;
-            scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
-
             return scroll;
         }
 
-        static Scrollbar CreateScrollbar(Transform parent)
-        {
-            var go = new GameObject("Scrollbar");
-            go.transform.SetParent(parent, false);
-            var rt = go.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(1, 0);
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(-8, 0);
-            rt.offsetMax = Vector2.zero;
-
-            var img = go.AddComponent<Image>();
-            img.color = new Color(0.1f, 0.1f, 0.1f, 0.5f);
-
-            var sb = go.AddComponent<Scrollbar>();
-            sb.direction = Scrollbar.Direction.BottomToTop;
-
-            var handle = new GameObject("Handle");
-            handle.transform.SetParent(go.transform, false);
-            var hRT = handle.AddComponent<RectTransform>();
-            hRT.anchorMin = Vector2.zero;
-            hRT.anchorMax = Vector2.one;
-            var hImg = handle.AddComponent<Image>();
-            hImg.color = new Color(0.4f, 0.4f, 0.5f, 0.8f);
-            sb.handleRect = hRT;
-            sb.targetGraphic = hImg;
-
-            return sb;
-        }
-
+        // ────────────────────────────────────────────────────────
+        //  SECTION REPLIABLE
+        // ────────────────────────────────────────────────────────
         public static (RectTransform header, RectTransform content) CreateCollapsibleSection(
             Transform parent, string title)
         {
-            var section = new GameObject($"Section_{title}");
+            var section = new GameObject($"Sec_{title}");
             section.transform.SetParent(parent, false);
-            var sRT = section.AddComponent<RectTransform>();
+            section.AddComponent<RectTransform>();
             var sVLG = section.AddComponent<VerticalLayoutGroup>();
-            sVLG.spacing = 2;
+            sVLG.spacing = 0;
             sVLG.childControlWidth = true;
             sVLG.childControlHeight = false;
             sVLG.childForceExpandWidth = true;
             sVLG.childForceExpandHeight = false;
             section.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            // Header button
+            // Header
             var headerGo = new GameObject("Header");
             headerGo.transform.SetParent(section.transform, false);
-            var headerRT = headerGo.AddComponent<RectTransform>();
-            headerRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 28);
-            var headerImg = headerGo.AddComponent<Image>();
-            headerImg.color = HeaderColor;
+            headerGo.AddComponent<RectTransform>();
+            headerGo.AddComponent<LayoutElement>().preferredHeight = 26;
+            headerGo.AddComponent<Image>().color = HeaderBg;
             var headerBtn = headerGo.AddComponent<Button>();
-            var headerLE = headerGo.AddComponent<LayoutElement>();
-            headerLE.preferredHeight = 28;
+            var bc = headerBtn.colors;
+            bc.highlightedColor = new Color(0.18f, 0.26f, 0.42f);
+            headerBtn.colors = bc;
 
-            var headerText = CreateTextDirect(headerGo.transform, $"▼ {title}", 13, TextAlignmentOptions.MidlineLeft);
+            var headerText = CreateTextDirect(headerGo.transform, $"  \u25bc {title}", 12);
             headerText.fontStyle = FontStyles.Bold;
-            headerText.margin = new Vector4(8, 0, 0, 0);
+            headerText.color = TextWhite;
 
-            // Content container
-            var contentGo = new GameObject("Content");
+            // Content
+            var contentGo = new GameObject("Body");
             contentGo.transform.SetParent(section.transform, false);
             var contentRT = contentGo.AddComponent<RectTransform>();
-            var contentVLG = contentGo.AddComponent<VerticalLayoutGroup>();
-            contentVLG.padding = new RectOffset(4, 4, 2, 4);
-            contentVLG.spacing = 3;
-            contentVLG.childControlWidth = true;
-            contentVLG.childControlHeight = false;
-            contentVLG.childForceExpandWidth = true;
-            contentVLG.childForceExpandHeight = false;
+            var cVLG = contentGo.AddComponent<VerticalLayoutGroup>();
+            cVLG.spacing = 3;
+            cVLG.padding = new RectOffset(6, 6, 4, 6);
+            cVLG.childControlWidth = true;
+            cVLG.childControlHeight = false;
+            cVLG.childForceExpandWidth = true;
+            cVLG.childForceExpandHeight = false;
             contentGo.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            contentGo.AddComponent<Image>().color = BgMid;
 
-            var contentBg = contentGo.AddComponent<Image>();
-            contentBg.color = PanelMid;
-
-            // Toggle collapse
             headerBtn.onClick.AddListener(() =>
             {
-                bool active = !contentGo.activeSelf;
-                contentGo.SetActive(active);
-                headerText.text = (active ? "▼ " : "► ") + title;
+                bool show = !contentGo.activeSelf;
+                contentGo.SetActive(show);
+                headerText.text = $"  {(show ? "\u25bc" : "\u25b6")} {title}";
             });
 
-            return (headerRT, contentRT);
+            return (headerGo.GetComponent<RectTransform>(), contentRT);
         }
 
+        // ────────────────────────────────────────────────────────
+        //  TEXTE
+        // ────────────────────────────────────────────────────────
         public static TextMeshProUGUI CreateLabel(Transform parent, string text,
             int fontSize = 12, TextAlignmentOptions align = TextAlignmentOptions.MidlineLeft,
             float height = 20)
         {
-            var go = new GameObject("Label");
+            var go = new GameObject("Lbl");
             go.transform.SetParent(parent, false);
             go.AddComponent<RectTransform>();
             go.AddComponent<LayoutElement>().preferredHeight = height;
@@ -203,7 +265,7 @@ namespace DonGeonMaster.MapGeneration
         public static TextMeshProUGUI CreateTextDirect(Transform parent, string text,
             int fontSize = 12, TextAlignmentOptions align = TextAlignmentOptions.MidlineLeft)
         {
-            var go = new GameObject("Text");
+            var go = new GameObject("Txt");
             go.transform.SetParent(parent, false);
             var rt = go.AddComponent<RectTransform>();
             rt.anchorMin = Vector2.zero;
@@ -214,283 +276,240 @@ namespace DonGeonMaster.MapGeneration
             tmp.text = text;
             tmp.fontSize = fontSize;
             tmp.alignment = align;
-            tmp.color = Color.white;
+            tmp.color = TextWhite;
             tmp.overflowMode = TextOverflowModes.Ellipsis;
             return tmp;
         }
 
+        // ────────────────────────────────────────────────────────
+        //  INPUT FIELD
+        // ────────────────────────────────────────────────────────
         public static (TMP_InputField field, TextMeshProUGUI label) CreateInputFieldWithLabel(
             Transform parent, string labelText, string defaultValue = "",
-            string placeholder = "", float height = 26)
+            string placeholder = "", float height = 24)
         {
-            var row = CreateHorizontalGroup(parent, height);
+            var row = CreateHGroup(parent, height, spacing: 4);
 
-            var labelGo = new GameObject("Label");
+            // Label fixe
+            var labelGo = new GameObject("Lbl");
             labelGo.transform.SetParent(row, false);
-            var labelLE = labelGo.AddComponent<LayoutElement>();
-            labelLE.preferredWidth = 110;
-            labelLE.flexibleWidth = 0;
+            var lLE = labelGo.AddComponent<LayoutElement>();
+            lLE.preferredWidth = 100;
+            lLE.flexibleWidth = 0;
             var label = CreateTextDirect(labelGo.transform, labelText, 11);
+            label.color = TextDim;
 
+            // InputField flex
             var field = CreateInputField(row, defaultValue, placeholder, height);
             return (field, label);
         }
 
         public static TMP_InputField CreateInputField(Transform parent,
-            string defaultValue = "", string placeholder = "", float height = 26)
+            string defaultValue = "", string placeholder = "", float height = 24)
         {
-            var go = new GameObject("InputField");
+            var go = new GameObject("Input");
             go.transform.SetParent(parent, false);
-            var rt = go.AddComponent<RectTransform>();
+            go.AddComponent<RectTransform>();
             var le = go.AddComponent<LayoutElement>();
             le.preferredHeight = height;
             le.flexibleWidth = 1;
 
-            var img = go.AddComponent<Image>();
-            img.color = InputBg;
-
+            go.AddComponent<Image>().color = InputBg;
             var input = go.AddComponent<TMP_InputField>();
 
-            var textArea = new GameObject("TextArea");
-            textArea.transform.SetParent(go.transform, false);
-            var taRT = textArea.AddComponent<RectTransform>();
+            // Text Area
+            var ta = new GameObject("TextArea");
+            ta.transform.SetParent(go.transform, false);
+            var taRT = ta.AddComponent<RectTransform>();
             taRT.anchorMin = Vector2.zero;
             taRT.anchorMax = Vector2.one;
-            taRT.offsetMin = new Vector2(6, 2);
-            taRT.offsetMax = new Vector2(-6, -2);
-            textArea.AddComponent<RectMask2D>();
+            taRT.offsetMin = new Vector2(6, 1);
+            taRT.offsetMax = new Vector2(-6, -1);
+            ta.AddComponent<RectMask2D>();
 
             var textGo = new GameObject("Text");
-            textGo.transform.SetParent(textArea.transform, false);
-            var textRT = textGo.AddComponent<RectTransform>();
-            textRT.anchorMin = Vector2.zero;
-            textRT.anchorMax = Vector2.one;
-            textRT.offsetMin = Vector2.zero;
-            textRT.offsetMax = Vector2.zero;
-            var text = textGo.AddComponent<TextMeshProUGUI>();
-            text.fontSize = 12;
-            text.color = Color.white;
-            text.enableWordWrapping = false;
+            textGo.transform.SetParent(ta.transform, false);
+            var tRT = textGo.AddComponent<RectTransform>();
+            tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+            tRT.offsetMin = Vector2.zero; tRT.offsetMax = Vector2.zero;
+            var txt = textGo.AddComponent<TextMeshProUGUI>();
+            txt.fontSize = 11; txt.color = TextWhite; txt.enableWordWrapping = false;
 
             var phGo = new GameObject("Placeholder");
-            phGo.transform.SetParent(textArea.transform, false);
-            var phRT = phGo.AddComponent<RectTransform>();
-            phRT.anchorMin = Vector2.zero;
-            phRT.anchorMax = Vector2.one;
-            phRT.offsetMin = Vector2.zero;
-            phRT.offsetMax = Vector2.zero;
+            phGo.transform.SetParent(ta.transform, false);
+            var pRT = phGo.AddComponent<RectTransform>();
+            pRT.anchorMin = Vector2.zero; pRT.anchorMax = Vector2.one;
+            pRT.offsetMin = Vector2.zero; pRT.offsetMax = Vector2.zero;
             var ph = phGo.AddComponent<TextMeshProUGUI>();
-            ph.text = placeholder;
-            ph.fontSize = 12;
-            ph.color = new Color(0.5f, 0.5f, 0.5f, 0.6f);
-            ph.fontStyle = FontStyles.Italic;
+            ph.text = string.IsNullOrEmpty(placeholder) ? "..." : placeholder;
+            ph.fontSize = 11; ph.color = TextDim; ph.fontStyle = FontStyles.Italic;
             ph.enableWordWrapping = false;
 
             input.textViewport = taRT;
-            input.textComponent = text;
+            input.textComponent = txt;
             input.placeholder = ph;
             input.text = defaultValue;
             input.caretColor = Color.white;
-            input.selectionColor = new Color(0.3f, 0.5f, 0.8f, 0.5f);
-
+            input.selectionColor = new Color(0.3f, 0.5f, 0.8f, 0.4f);
             return input;
         }
 
+        // ────────────────────────────────────────────────────────
+        //  BOUTON
+        // ────────────────────────────────────────────────────────
         public static Button CreateButton(Transform parent, string text,
-            UnityAction onClick = null, float height = 30, Color? color = null)
+            UnityAction onClick = null, float height = 28, Color? color = null)
         {
             var go = new GameObject($"Btn_{text}");
             go.transform.SetParent(parent, false);
             go.AddComponent<RectTransform>();
-            go.AddComponent<LayoutElement>().preferredHeight = height;
+            var le = go.AddComponent<LayoutElement>();
+            le.preferredHeight = height;
+            le.flexibleWidth = 1;
 
-            var img = go.AddComponent<Image>();
-            img.color = color ?? ButtonColor;
+            go.AddComponent<Image>().color = color ?? BtnNormal;
 
             var btn = go.AddComponent<Button>();
-            var colors = btn.colors;
-            colors.highlightedColor = ButtonHover;
-            colors.pressedColor = new Color(0.2f, 0.2f, 0.35f);
-            btn.colors = colors;
+            var c = btn.colors;
+            c.highlightedColor = BtnHover;
+            c.pressedColor = BtnPressed;
+            c.fadeDuration = 0.05f;
+            btn.colors = c;
 
             if (onClick != null) btn.onClick.AddListener(onClick);
 
-            var label = CreateTextDirect(go.transform, text, 12, TextAlignmentOptions.Center);
-            label.fontStyle = FontStyles.Bold;
-
+            var lbl = CreateTextDirect(go.transform, text, 11, TextAlignmentOptions.Center);
+            lbl.fontStyle = FontStyles.Bold;
             return btn;
         }
 
+        // ────────────────────────────────────────────────────────
+        //  TOGGLE
+        // ────────────────────────────────────────────────────────
         public static Toggle CreateToggle(Transform parent, string label,
-            bool defaultValue = true, UnityAction<bool> onChanged = null, float height = 22)
+            bool defaultValue = true, UnityAction<bool> onChanged = null, float height = 20)
         {
-            var go = new GameObject($"Toggle_{label}");
+            var go = new GameObject($"Tgl_{label}");
             go.transform.SetParent(parent, false);
             go.AddComponent<RectTransform>();
             go.AddComponent<LayoutElement>().preferredHeight = height;
             var hlg = go.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 6;
-            hlg.childControlWidth = false;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = true;
             hlg.padding = new RectOffset(4, 0, 0, 0);
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.childControlWidth = false;
+            hlg.childControlHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childForceExpandHeight = false;
 
-            // Checkbox background
-            var bgGo = new GameObject("Background");
+            // Box
+            var bgGo = new GameObject("Bg");
             bgGo.transform.SetParent(go.transform, false);
-            var bgLE = bgGo.AddComponent<LayoutElement>();
-            bgLE.preferredWidth = 18;
-            bgLE.preferredHeight = 18;
+            bgGo.AddComponent<LayoutElement>().preferredWidth = 16;
+            bgGo.AddComponent<LayoutElement>().preferredHeight = 16;
+            var bgRT = bgGo.AddComponent<RectTransform>();
+            bgRT.sizeDelta = new Vector2(16, 16);
             var bgImg = bgGo.AddComponent<Image>();
             bgImg.color = InputBg;
 
-            // Checkmark
-            var checkGo = new GameObject("Checkmark");
-            checkGo.transform.SetParent(bgGo.transform, false);
-            var checkRT = checkGo.AddComponent<RectTransform>();
-            checkRT.anchorMin = new Vector2(0.15f, 0.15f);
-            checkRT.anchorMax = new Vector2(0.85f, 0.85f);
-            checkRT.offsetMin = Vector2.zero;
-            checkRT.offsetMax = Vector2.zero;
-            var checkImg = checkGo.AddComponent<Image>();
-            checkImg.color = SuccessColor;
+            var chkGo = new GameObject("Check");
+            chkGo.transform.SetParent(bgGo.transform, false);
+            var chkRT = chkGo.AddComponent<RectTransform>();
+            chkRT.anchorMin = new Vector2(0.2f, 0.2f);
+            chkRT.anchorMax = new Vector2(0.8f, 0.8f);
+            chkRT.offsetMin = Vector2.zero;
+            chkRT.offsetMax = Vector2.zero;
+            var chkImg = chkGo.AddComponent<Image>();
+            chkImg.color = Success;
 
             // Label
-            var labelGo = new GameObject("Label");
-            labelGo.transform.SetParent(go.transform, false);
-            labelGo.AddComponent<LayoutElement>().flexibleWidth = 1;
-            CreateTextDirect(labelGo.transform, label, 11);
+            var lblGo = new GameObject("Lbl");
+            lblGo.transform.SetParent(go.transform, false);
+            var lblRT = lblGo.AddComponent<RectTransform>();
+            lblRT.sizeDelta = new Vector2(280, height);
+            CreateTextDirect(lblGo.transform, label, 11).color = TextWhite;
 
             var toggle = go.AddComponent<Toggle>();
             toggle.isOn = defaultValue;
-            toggle.graphic = checkImg;
+            toggle.graphic = chkImg;
             toggle.targetGraphic = bgImg;
             if (onChanged != null) toggle.onValueChanged.AddListener(onChanged);
-
             return toggle;
         }
 
+        // ────────────────────────────────────────────────────────
+        //  SLIDER
+        // ────────────────────────────────────────────────────────
         public static (Slider slider, TextMeshProUGUI valueLabel) CreateSliderWithLabel(
             Transform parent, string label, float min, float max, float defaultValue,
-            bool wholeNumbers = false, float height = 26)
+            bool wholeNumbers = false, float height = 24)
         {
-            var row = new GameObject($"Slider_{label}");
-            row.transform.SetParent(parent, false);
-            row.AddComponent<RectTransform>();
-            row.AddComponent<LayoutElement>().preferredHeight = height;
-            var hlg = row.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 6;
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = true;
+            var row = CreateHGroup(parent, height, spacing: 4);
 
-            // Label
-            var labelGo = new GameObject("Label");
-            labelGo.transform.SetParent(row.transform, false);
-            var labelLE = labelGo.AddComponent<LayoutElement>();
-            labelLE.preferredWidth = 110;
-            CreateTextDirect(labelGo.transform, label, 11);
+            // Label fixe
+            var lblGo = new GameObject("Lbl");
+            lblGo.transform.SetParent(row, false);
+            var lLE = lblGo.AddComponent<LayoutElement>();
+            lLE.preferredWidth = 100; lLE.flexibleWidth = 0;
+            CreateTextDirect(lblGo.transform, label, 11).color = TextDim;
 
-            // Slider
-            var sliderGo = new GameObject("Slider");
-            sliderGo.transform.SetParent(row.transform, false);
-            sliderGo.AddComponent<LayoutElement>().flexibleWidth = 1;
+            // Slider flex
+            var sGo = new GameObject("Slider");
+            sGo.transform.SetParent(row, false);
+            sGo.AddComponent<LayoutElement>().flexibleWidth = 1;
+            sGo.AddComponent<Image>().color = InputBg;
 
-            var bgImg = sliderGo.AddComponent<Image>();
-            bgImg.color = InputBg;
-
-            var fillArea = new GameObject("Fill Area");
-            fillArea.transform.SetParent(sliderGo.transform, false);
+            var fillArea = new GameObject("FillArea");
+            fillArea.transform.SetParent(sGo.transform, false);
             var faRT = fillArea.AddComponent<RectTransform>();
-            faRT.anchorMin = new Vector2(0, 0.3f);
-            faRT.anchorMax = new Vector2(1, 0.7f);
-            faRT.offsetMin = new Vector2(4, 0);
-            faRT.offsetMax = new Vector2(-4, 0);
+            faRT.anchorMin = new Vector2(0, 0.25f);
+            faRT.anchorMax = new Vector2(1, 0.75f);
+            faRT.offsetMin = new Vector2(2, 0);
+            faRT.offsetMax = new Vector2(-2, 0);
 
             var fill = new GameObject("Fill");
             fill.transform.SetParent(fillArea.transform, false);
             var fRT = fill.AddComponent<RectTransform>();
-            fRT.anchorMin = Vector2.zero;
-            fRT.anchorMax = Vector2.one;
-            fRT.offsetMin = Vector2.zero;
-            fRT.offsetMax = Vector2.zero;
-            var fillImg = fill.AddComponent<Image>();
-            fillImg.color = new Color(0.3f, 0.5f, 0.8f);
+            fRT.anchorMin = Vector2.zero; fRT.anchorMax = Vector2.one;
+            fRT.offsetMin = Vector2.zero; fRT.offsetMax = Vector2.zero;
+            fill.AddComponent<Image>().color = new Color(0.3f, 0.5f, 0.75f);
 
-            var slider = sliderGo.AddComponent<Slider>();
-            slider.minValue = min;
-            slider.maxValue = max;
-            slider.wholeNumbers = wholeNumbers;
-            slider.value = defaultValue;
+            var slider = sGo.AddComponent<Slider>();
+            slider.minValue = min; slider.maxValue = max;
+            slider.wholeNumbers = wholeNumbers; slider.value = defaultValue;
             slider.fillRect = fRT;
 
-            // Value display
-            var valGo = new GameObject("Value");
-            valGo.transform.SetParent(row.transform, false);
-            var valLE = valGo.AddComponent<LayoutElement>();
-            valLE.preferredWidth = 45;
-            var valText = CreateTextDirect(valGo.transform,
-                wholeNumbers ? defaultValue.ToString("F0") : defaultValue.ToString("F2"), 11,
-                TextAlignmentOptions.Center);
+            // Valeur fixe
+            var vGo = new GameObject("Val");
+            vGo.transform.SetParent(row, false);
+            var vLE = vGo.AddComponent<LayoutElement>();
+            vLE.preferredWidth = 40; vLE.flexibleWidth = 0;
+            var vTxt = CreateTextDirect(vGo.transform,
+                wholeNumbers ? defaultValue.ToString("F0") : defaultValue.ToString("F2"),
+                11, TextAlignmentOptions.Center);
 
             slider.onValueChanged.AddListener(v =>
-            {
-                valText.text = wholeNumbers ? v.ToString("F0") : v.ToString("F2");
-            });
+                vTxt.text = wholeNumbers ? v.ToString("F0") : v.ToString("F2"));
 
-            return (slider, valText);
+            return (slider, vTxt);
         }
 
-        public static RectTransform CreateHorizontalGroup(Transform parent, float height = 30)
+        // ────────────────────────────────────────────────────────
+        //  UTILITAIRES COULEUR
+        // ────────────────────────────────────────────────────────
+        public static Color GetStatusColor(GenerationStatus s) => s switch
         {
-            var go = new GameObject("HGroup");
-            go.transform.SetParent(parent, false);
-            var rt = go.AddComponent<RectTransform>();
-            go.AddComponent<LayoutElement>().preferredHeight = height;
-            var hlg = go.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 4;
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = true;
-            return rt;
-        }
+            GenerationStatus.Succes => Success,
+            GenerationStatus.SuccesAvecWarnings => Warning,
+            GenerationStatus.Echec => Error,
+            _ => TextWhite
+        };
 
-        public static TextMeshProUGUI CreateStatusLabel(Transform parent, string text,
-            GenerationStatus status)
+        public static Color GetSeverityColor(ValidationSeverity s) => s switch
         {
-            var label = CreateLabel(parent, text, 13);
-            label.color = status switch
-            {
-                GenerationStatus.Succes => SuccessColor,
-                GenerationStatus.SuccesAvecWarnings => WarningColor,
-                GenerationStatus.Echec => ErrorColor,
-                _ => Color.white
-            };
-            return label;
-        }
-
-        public static Color GetStatusColor(GenerationStatus status)
-        {
-            return status switch
-            {
-                GenerationStatus.Succes => SuccessColor,
-                GenerationStatus.SuccesAvecWarnings => WarningColor,
-                GenerationStatus.Echec => ErrorColor,
-                _ => Color.white
-            };
-        }
-
-        public static Color GetSeverityColor(ValidationSeverity severity)
-        {
-            return severity switch
-            {
-                ValidationSeverity.Erreur => ErrorColor,
-                ValidationSeverity.Warning => WarningColor,
-                _ => new Color(0.6f, 0.8f, 1f)
-            };
-        }
+            ValidationSeverity.Erreur => Error,
+            ValidationSeverity.Warning => Warning,
+            _ => new Color(0.55f, 0.75f, 1f)
+        };
     }
 }

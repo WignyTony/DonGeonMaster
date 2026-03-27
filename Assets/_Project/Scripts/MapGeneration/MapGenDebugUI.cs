@@ -6,532 +6,597 @@ using UnityEngine.UI;
 
 namespace DonGeonMaster.MapGeneration
 {
+    /// <summary>
+    /// Construit et gère l'UI de debug MapGen en 3 zones :
+    ///   Gauche  = sidebar config (scrollable)
+    ///   Droite  = metrics bar + panels info + logs
+    /// Tout le layout est piloté par LayoutElement + LayoutGroups.
+    /// </summary>
     public class MapGenDebugUI : MonoBehaviour
     {
         MapGenDebugController controller;
-        ScrollRect mainScroll;
-        RectTransform scrollContent;
 
-        // Champs de saisie
-        TMP_InputField fieldMapWidth, fieldMapHeight, fieldCellSize, fieldBorderMargin;
-        TMP_InputField fieldMinRooms, fieldMaxRooms, fieldMinRoomSize, fieldMaxRoomSize;
-        TMP_InputField fieldCorridorWidth, fieldMinSpawnExitDist;
-        Slider sliderVegDensity, sliderRockDensity, sliderDecorDensity;
-        TMP_InputField fieldSeed;
-        Toggle toggleRandomSeed, toggleLockSeed;
-        Toggle toggleForceBiome, toggleEnsureAccess, toggleValidate;
-        Toggle toggleForceBoss, toggleForceSpecial;
-        TMP_InputField fieldBatchCount, fieldPresetName;
-
-        // Sélecteurs de mode (remplacent les dropdowns fragiles)
-        int currentModeIndex, currentLayoutIndex, currentBiomeIndex;
-        TextMeshProUGUI lblModeValue, lblLayoutValue, lblBiomeValue;
+        // ── Champs sidebar ──
+        TMP_InputField fSeed, fMapW, fMapH, fCellSize, fMargin;
+        TMP_InputField fMinRooms, fMaxRooms, fMinRoom, fMaxRoom, fCorridorW, fMinDist;
+        Slider sVeg, sRock, sDecor;
+        Toggle tRandomSeed, tLockSeed, tForceBiome, tAccess, tValidate, tBoss, tSpecial;
+        TMP_InputField fBatchCount, fPresetName;
+        int iMode, iLayout, iBiome;
+        TextMeshProUGUI txtMode, txtLayout, txtBiome;
         static readonly string[] ModeNames = Enum.GetNames(typeof(GenerationMode));
         static readonly string[] LayoutNames = Enum.GetNames(typeof(LayoutType));
         static readonly string[] BiomeNames = Enum.GetNames(typeof(BiomeType));
+        Dictionary<string, Toggle> catToggles = new();
+        RectTransform catContainer;
 
-        // Catégories
-        Dictionary<string, Toggle> categoryToggles = new();
-        RectTransform categoriesContent;
+        // ── Metrics bar (droite, haut) ──
+        TextMeshProUGUI mStatus, mSeed, mTime, mRooms, mObjects, mErrors, mWarnings;
 
-        // Affichage résultats
-        TextMeshProUGUI lblStatus, lblSeed, lblTime, lblRooms, lblCorridors;
-        TextMeshProUGUI lblObjects, lblErrors, lblWarnings, lblSpawn, lblExit;
-        TextMeshProUGUI lblDistance, lblBatchStatus;
-        RectTransform logContent, seedHistoryContent;
+        // ── Panels centre ──
+        RectTransform summaryContent, validationContent;
+        TextMeshProUGUI lblBatch;
 
+        // ── Log panel (droite, bas) ──
+        RectTransform logContent;
+
+        // ── Historique seeds ──
         List<int> seedHistory = new();
-        const int MaxSeedHistory = 15;
 
+        // ────────────────────────────────────────────────────────
         public void Initialize(MapGenDebugController ctrl)
         {
             controller = ctrl;
-            try
-            {
-                BuildUI();
-                Debug.Log("[MapGenDebugUI] UI construite avec succès");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[MapGenDebugUI] ERREUR lors de la construction de l'UI: {e}");
-            }
+            try { BuildUI(); }
+            catch (Exception e) { Debug.LogError($"[MapGenDebugUI] {e}"); }
         }
 
+        // ════════════════════════════════════════════════════════
+        //  CONSTRUCTION UI
+        // ════════════════════════════════════════════════════════
         void BuildUI()
         {
-            var leftPanel = DebugUIBuilder.CreatePanel(transform, "LeftPanel", 0, 0, 0.30f, 1);
-            Debug.Log("[MapGenDebugUI] LeftPanel créé");
+            // Root stretch-fills le Canvas, HLG pour split gauche/droite
+            var root = DebugUIBuilder.CreateStretchFill(transform, "Root");
+            var rootHLG = root.gameObject.AddComponent<HorizontalLayoutGroup>();
+            rootHLG.spacing = 2;
+            rootHLG.childControlWidth = true;
+            rootHLG.childControlHeight = true;
+            rootHLG.childForceExpandWidth = false;
+            rootHLG.childForceExpandHeight = true;
 
-            // Titre
-            var titleBar = DebugUIBuilder.CreatePanel(leftPanel, "TitleBar", 0, 0.96f, 1, 1,
-                new Color(0.15f, 0.3f, 0.5f));
-            DebugUIBuilder.CreateTextDirect(titleBar, "MAP GEN DEBUG", 16,
-                TextAlignmentOptions.Center).fontStyle = FontStyles.Bold;
-
-            // ScrollView dans la zone sous le titre
-            var scrollPanel = DebugUIBuilder.CreatePanel(leftPanel, "ScrollPanel", 0, 0, 1, 0.96f,
-                new Color(0f, 0f, 0f, 0f));
-            mainScroll = DebugUIBuilder.CreateScrollView(scrollPanel, "ConfigScroll");
-            scrollContent = mainScroll.content;
-
-            BuildActionsSection();
-            BuildSizeSection();
-            BuildSeedSection();
-            BuildModeSection();
-            BuildConstraintsSection();
-            BuildCategoriesSection();
-            BuildStatsSection();
-            BuildLogSection();
-            BuildPresetSection();
-            BuildBatchSection();
-            BuildSeedHistorySection();
-
-            Debug.Log("[MapGenDebugUI] Toutes les sections construites");
+            BuildLeftSidebar(root);
+            BuildRightArea(root);
         }
 
-        // ===================== SECTIONS =====================
-
-        void BuildActionsSection()
+        // ────────────────── SIDEBAR GAUCHE ──────────────────
+        void BuildLeftSidebar(Transform root)
         {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "ACTIONS");
+            // Container sidebar
+            var sidebar = DebugUIBuilder.CreateLayoutPanel(root, "Sidebar",
+                DebugUIBuilder.BgDark, preferredW: 390, flexW: 0, flexH: 1);
+            var sVLG = sidebar.gameObject.AddComponent<VerticalLayoutGroup>();
+            sVLG.spacing = 0;
+            sVLG.childControlWidth = true;
+            sVLG.childControlHeight = false;
+            sVLG.childForceExpandWidth = true;
+            sVLG.childForceExpandHeight = false;
 
-            var row1 = DebugUIBuilder.CreateHorizontalGroup(content, 38);
-            DebugUIBuilder.CreateButton(row1, "GÉNÉRER (F5)", () => controller.Generate(),
-                color: new Color(0.2f, 0.6f, 0.3f));
-            DebugUIBuilder.CreateButton(row1, "REGÉNÉRER (F6)", () => controller.Regenerate(),
-                color: new Color(0.3f, 0.5f, 0.6f));
+            // Header
+            var header = DebugUIBuilder.CreateLayoutPanel(sidebar, "Header",
+                DebugUIBuilder.HeaderBg, prefH: 36);
+            var hTxt = DebugUIBuilder.CreateTextDirect(header, "MAP GEN DEBUG", 15,
+                TextAlignmentOptions.Center);
+            hTxt.fontStyle = FontStyles.Bold;
 
-            var row2 = DebugUIBuilder.CreateHorizontalGroup(content, 32);
-            DebugUIBuilder.CreateButton(row2, "Même Seed", () => controller.GenerateSameSeed());
-            DebugUIBuilder.CreateButton(row2, "Nettoyer (F7)", () => controller.ClearMap(),
-                color: new Color(0.6f, 0.3f, 0.2f));
+            // ScrollView pour le contenu
+            var scroll = DebugUIBuilder.CreateScrollView(sidebar);
+            var content = scroll.content;
 
-            var row3 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
-            DebugUIBuilder.CreateButton(row3, "Spawn (F8)", () => controller.SpawnPlayer());
-            DebugUIBuilder.CreateButton(row3, "Respawn", () => controller.RespawnPlayer());
-
-            var row4 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
-            DebugUIBuilder.CreateButton(row4, "Validation", () => controller.RunValidation());
-            DebugUIBuilder.CreateButton(row4, "Screenshot (F9)", () => controller.TakeScreenshot());
-
-            var row5 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
-            DebugUIBuilder.CreateButton(row5, "Exporter Log", () => controller.ExportLog());
-            DebugUIBuilder.CreateButton(row5, "Ouvrir Logs", () => GenerationLogger.OpenLogFolder());
-
-            var row6 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
-            DebugUIBuilder.CreateButton(row6, "Copier Résumé", () => controller.CopySummary());
-            DebugUIBuilder.CreateButton(row6, "Vue (F10)", () => controller.ToggleCameraMode());
+            BuildActionsSection(content);
+            BuildSeedSection(content);
+            BuildDimensionsSection(content);
+            BuildModeSection(content);
+            BuildConstraintsSection(content);
+            BuildCategoriesSection(content);
+            BuildPresetsSection(content);
+            BuildBatchSection(content);
         }
 
-        void BuildSizeSection()
+        // ────────────────── ZONE DROITE ──────────────────
+        void BuildRightArea(Transform root)
         {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "TAILLE DE LA MAP");
+            // Container droite (prend tout l'espace restant)
+            var right = DebugUIBuilder.CreateLayoutPanel(root, "RightArea",
+                DebugUIBuilder.BgDarkest, flexW: 1, flexH: 1);
+            var rVLG = right.gameObject.AddComponent<VerticalLayoutGroup>();
+            rVLG.spacing = 2;
+            rVLG.padding = new RectOffset(2, 2, 2, 2);
+            rVLG.childControlWidth = true;
+            rVLG.childControlHeight = false;
+            rVLG.childForceExpandWidth = true;
+            rVLG.childForceExpandHeight = false;
 
-            (fieldMapWidth, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Largeur", "30");
-            fieldMapWidth.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldMapHeight, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Hauteur", "30");
-            fieldMapHeight.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldCellSize, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Taille cellule", "6");
-            fieldCellSize.contentType = TMP_InputField.ContentType.DecimalNumber;
-            (fieldBorderMargin, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Marge bord", "2");
-            fieldBorderMargin.contentType = TMP_InputField.ContentType.IntegerNumber;
-
-            (fieldMinRooms, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Salles min", "5");
-            fieldMinRooms.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldMaxRooms, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Salles max", "12");
-            fieldMaxRooms.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldMinRoomSize, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Taille salle min", "3");
-            fieldMinRoomSize.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldMaxRoomSize, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Taille salle max", "8");
-            fieldMaxRoomSize.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldCorridorWidth, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Larg. couloir", "2");
-            fieldCorridorWidth.contentType = TMP_InputField.ContentType.IntegerNumber;
-
-            (sliderVegDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Végétation", 0, 1, 0.6f);
-            (sliderRockDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Roches", 0, 1, 0.2f);
-            (sliderDecorDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Décor", 0, 1, 0.3f);
+            BuildMetricsBar(right);
+            BuildInfoPanels(right);
+            BuildLogPanel(right);
         }
 
-        void BuildSeedSection()
+        // ──────── METRICS BAR ────────
+        void BuildMetricsBar(Transform parent)
         {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "SEED");
+            var bar = DebugUIBuilder.CreateLayoutPanel(parent, "MetricsBar",
+                new Color(0.12f, 0.12f, 0.16f), prefH: 34);
+            var hlg = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 16;
+            hlg.padding = new RectOffset(12, 12, 0, 0);
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.childControlWidth = false;
+            hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = false;
+            hlg.childForceExpandHeight = true;
 
-            (fieldSeed, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Seed", "0");
-            fieldSeed.contentType = TMP_InputField.ContentType.IntegerNumber;
+            mStatus   = MetricLabel(bar, "Statut: en attente", 13, true);
+            mSeed     = MetricLabel(bar, "Seed: -");
+            mTime     = MetricLabel(bar, "Temps: -");
+            mRooms    = MetricLabel(bar, "Salles: -");
+            mObjects  = MetricLabel(bar, "Objets: -");
+            mErrors   = MetricLabel(bar, "Erreurs: 0");
+            mWarnings = MetricLabel(bar, "Warn: 0");
+        }
 
-            toggleRandomSeed = DebugUIBuilder.CreateToggle(content, "Seed aléatoire", true);
-            toggleLockSeed = DebugUIBuilder.CreateToggle(content, "Verrouiller la seed", false);
+        TextMeshProUGUI MetricLabel(Transform parent, string text, int size = 11, bool bold = false)
+        {
+            var go = new GameObject("M");
+            go.transform.SetParent(parent, false);
+            go.AddComponent<RectTransform>().sizeDelta = new Vector2(140, 30);
+            var tmp = DebugUIBuilder.CreateTextDirect(go.transform, text, size);
+            if (bold) tmp.fontStyle = FontStyles.Bold;
+            return tmp;
+        }
 
-            var btnRow = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(btnRow, "Seed Aléatoire", () =>
+        // ──────── INFO PANELS (centre) ────────
+        void BuildInfoPanels(Transform parent)
+        {
+            // Row horizontale : Summary | Validation
+            var row = DebugUIBuilder.CreateLayoutPanel(parent, "InfoPanels",
+                Color.clear, flexH: 1);
+            var hlg = row.gameObject.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 2;
+            hlg.childControlWidth = true;
+            hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = true;
+            hlg.childForceExpandHeight = true;
+
+            // Summary panel
+            summaryContent = BuildInfoCard(row, "Résumé Génération");
+            // Validation panel
+            validationContent = BuildInfoCard(row, "Résultats Validation");
+        }
+
+        RectTransform BuildInfoCard(Transform parent, string title)
+        {
+            var card = DebugUIBuilder.CreateLayoutPanel(parent, title.Replace(" ", ""),
+                DebugUIBuilder.BgDark, flexW: 1, flexH: 1);
+            var vlg = card.gameObject.AddComponent<VerticalLayoutGroup>();
+            vlg.spacing = 0;
+            vlg.childControlWidth = true;
+            vlg.childControlHeight = false;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+
+            // Header
+            var hdr = DebugUIBuilder.CreateLayoutPanel(card, "Hdr",
+                DebugUIBuilder.HeaderBg, prefH: 26);
+            var hTxt = DebugUIBuilder.CreateTextDirect(hdr, $"  {title}", 12);
+            hTxt.fontStyle = FontStyles.Bold;
+
+            // Scroll content
+            var scroll = DebugUIBuilder.CreateScrollView(card);
+            return scroll.content;
+        }
+
+        // ──────── LOG PANEL (bas) ────────
+        void BuildLogPanel(Transform parent)
+        {
+            var panel = DebugUIBuilder.CreateLayoutPanel(parent, "LogPanel",
+                DebugUIBuilder.BgDark, prefH: 200);
+            var vlg = panel.gameObject.AddComponent<VerticalLayoutGroup>();
+            vlg.spacing = 0;
+            vlg.childControlWidth = true;
+            vlg.childControlHeight = false;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+
+            // Header avec bouton clear
+            var hdr = DebugUIBuilder.CreateLayoutPanel(panel, "LogHdr",
+                DebugUIBuilder.HeaderBg, prefH: 26);
+            var hHLG = hdr.gameObject.AddComponent<HorizontalLayoutGroup>();
+            hHLG.padding = new RectOffset(8, 4, 0, 0);
+            hHLG.childAlignment = TextAnchor.MiddleLeft;
+            hHLG.childControlWidth = true;
+            hHLG.childControlHeight = true;
+            hHLG.childForceExpandWidth = false;
+            hHLG.childForceExpandHeight = true;
+
+            var logTitle = DebugUIBuilder.CreateTextDirect(hdr, "LOGS", 12);
+            logTitle.fontStyle = FontStyles.Bold;
+            logTitle.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+            // Hack: le texte est créé en overlay. On met un LayoutElement pour qu'il prenne l'espace.
+            var ltGo = logTitle.transform.parent.gameObject;
+            // On crée un label propre à la place
+            // Supprimer le texte auto et recréer proprement
+            Destroy(logTitle.gameObject);
+
+            var lblGo = new GameObject("LblLog");
+            lblGo.transform.SetParent(hdr, false);
+            lblGo.AddComponent<RectTransform>();
+            lblGo.AddComponent<LayoutElement>().flexibleWidth = 1;
+            var lt = lblGo.AddComponent<TextMeshProUGUI>();
+            lt.text = "  LOGS";
+            lt.fontSize = 12;
+            lt.fontStyle = FontStyles.Bold;
+            lt.color = DebugUIBuilder.TextWhite;
+            lt.alignment = TextAlignmentOptions.MidlineLeft;
+
+            DebugUIBuilder.CreateButton(hdr, "Clear", () => ClearLogs(), 24, DebugUIBuilder.BtnRed);
+
+            // Scroll pour les logs
+            var scroll = DebugUIBuilder.CreateScrollView(panel, flexH: 1);
+            logContent = scroll.content;
+
+            DebugUIBuilder.CreateLabel(logContent, "En attente de génération...", 10,
+                height: 16).color = DebugUIBuilder.TextDim;
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  SECTIONS SIDEBAR
+        // ════════════════════════════════════════════════════════
+
+        void BuildActionsSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "ACTIONS");
+            Row(c, ("GÉNÉRER (F5)", () => controller.Generate(), DebugUIBuilder.BtnGreen),
+                    ("REGÉNÉRER (F6)", () => controller.Regenerate(), (Color?)null));
+            Row(c, ("Même Seed", () => controller.GenerateSameSeed(), (Color?)null),
+                    ("Nettoyer (F7)", () => controller.ClearMap(), DebugUIBuilder.BtnRed));
+            Row(c, ("Spawn (F8)", () => controller.SpawnPlayer(), (Color?)null),
+                    ("Respawn", () => controller.RespawnPlayer(), (Color?)null));
+            Row(c, ("Validation", () => controller.RunValidation(), (Color?)null),
+                    ("Screenshot", () => controller.TakeScreenshot(), (Color?)null));
+            Row(c, ("Export Log", () => controller.ExportLog(), (Color?)null),
+                    ("Ouvrir Logs", () => GenerationLogger.OpenLogFolder(), (Color?)null));
+            Row(c, ("Copier Résumé", () => controller.CopySummary(), (Color?)null),
+                    ("Vue caméra (F10)", () => controller.ToggleCameraMode(), (Color?)null));
+        }
+
+        void BuildSeedSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "SEED");
+            (fSeed, _) = DebugUIBuilder.CreateInputFieldWithLabel(c, "Seed", "0");
+            fSeed.contentType = TMP_InputField.ContentType.IntegerNumber;
+            tRandomSeed = DebugUIBuilder.CreateToggle(c, "Seed aléatoire", true);
+            tLockSeed = DebugUIBuilder.CreateToggle(c, "Verrouiller seed", false);
+            Row(c, ("Random", () => {
+                    fSeed.text = UnityEngine.Random.Range(int.MinValue, int.MaxValue).ToString();
+                    tRandomSeed.isOn = false;
+                }, (Color?)null),
+                ("Copier", () => {
+                    GUIUtility.systemCopyBuffer = fSeed.text;
+                }, (Color?)null));
+        }
+
+        void BuildDimensionsSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "DIMENSIONS");
+            fMapW = IntField(c, "Largeur map", "30");
+            fMapH = IntField(c, "Hauteur map", "30");
+            fCellSize = FloatField(c, "Taille cellule", "6");
+            fMargin = IntField(c, "Marge bord", "2");
+            fMinRooms = IntField(c, "Salles min", "5");
+            fMaxRooms = IntField(c, "Salles max", "12");
+            fMinRoom = IntField(c, "Taille salle min", "3");
+            fMaxRoom = IntField(c, "Taille salle max", "8");
+            fCorridorW = IntField(c, "Largeur couloir", "2");
+            (sVeg, _) = DebugUIBuilder.CreateSliderWithLabel(c, "Végétation", 0, 1, 0.6f);
+            (sRock, _) = DebugUIBuilder.CreateSliderWithLabel(c, "Roches", 0, 1, 0.2f);
+            (sDecor, _) = DebugUIBuilder.CreateSliderWithLabel(c, "Décor", 0, 1, 0.3f);
+        }
+
+        void BuildModeSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "MODE");
+            txtMode = CycleSelector(c, "Mode", ModeNames, i => iMode = i);
+            txtLayout = CycleSelector(c, "Layout", LayoutNames, i => iLayout = i);
+            txtBiome = CycleSelector(c, "Biome", BiomeNames, i => iBiome = i);
+            tForceBiome = DebugUIBuilder.CreateToggle(c, "Forcer le biome", false);
+        }
+
+        void BuildConstraintsSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "CONTRAINTES");
+            tAccess = DebugUIBuilder.CreateToggle(c, "Accessibilité complète", true);
+            tValidate = DebugUIBuilder.CreateToggle(c, "Valider après génération", true);
+            tBoss = DebugUIBuilder.CreateToggle(c, "Forcer salle de boss", false);
+            tSpecial = DebugUIBuilder.CreateToggle(c, "Forcer salle spéciale", false);
+            fMinDist = FloatField(c, "Dist min S→E", "15");
+        }
+
+        void BuildCategoriesSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "CATÉGORIES D'ASSETS");
+            catContainer = c;
+            Row(c, ("Tout cocher", () => SetAllCat(true), (Color?)null),
+                   ("Tout décocher", () => SetAllCat(false), (Color?)null));
+        }
+
+        void BuildPresetsSection(Transform parent)
+        {
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "PRESETS");
+            (fPresetName, _) = DebugUIBuilder.CreateInputFieldWithLabel(c, "Nom preset", "", "MonPreset");
+            Row(c, ("Sauver", () => {
+                    string n = fPresetName.text;
+                    if (string.IsNullOrWhiteSpace(n)) n = "P_" + DateTime.Now.ToString("HHmmss");
+                    controller.SavePreset(n);
+                }, (Color?)null),
+                ("Défaut", () => controller.ResetToDefaults(), (Color?)null));
+
+            DebugUIBuilder.CreateLabel(c, "— Presets rapides —", 10, height: 18).color = DebugUIBuilder.TextDim;
+            foreach (var p in PresetManager.GetDefaultPresets())
             {
-                int newSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-                fieldSeed.text = newSeed.ToString();
-                toggleRandomSeed.isOn = false;
-            });
-            DebugUIBuilder.CreateButton(btnRow, "Copier Seed", () =>
-            {
-                GUIUtility.systemCopyBuffer = fieldSeed.text;
-                Debug.Log($"Seed copiée: {fieldSeed.text}");
-            });
-        }
-
-        void BuildModeSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "MODE DE GÉNÉRATION");
-
-            // Sélecteurs à cycle (clic = option suivante) - remplace les TMP_Dropdown fragiles
-            lblModeValue = CreateCycleSelector(content, "Mode", ModeNames, 0,
-                i => currentModeIndex = i);
-            lblLayoutValue = CreateCycleSelector(content, "Layout", LayoutNames, 0,
-                i => currentLayoutIndex = i);
-            lblBiomeValue = CreateCycleSelector(content, "Biome forcé", BiomeNames, 0,
-                i => currentBiomeIndex = i);
-            toggleForceBiome = DebugUIBuilder.CreateToggle(content, "Forcer le biome", false);
-        }
-
-        void BuildConstraintsSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "CONTRAINTES");
-
-            toggleEnsureAccess = DebugUIBuilder.CreateToggle(content, "Accessibilité complète", true);
-            toggleValidate = DebugUIBuilder.CreateToggle(content, "Valider après génération", true);
-            toggleForceBoss = DebugUIBuilder.CreateToggle(content, "Forcer salle de boss", false);
-            toggleForceSpecial = DebugUIBuilder.CreateToggle(content, "Forcer salle spéciale", false);
-
-            (fieldMinSpawnExitDist, _) = DebugUIBuilder.CreateInputFieldWithLabel(
-                content, "Dist min S→E", "15");
-            fieldMinSpawnExitDist.contentType = TMP_InputField.ContentType.DecimalNumber;
-        }
-
-        void BuildCategoriesSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "CATÉGORIES D'ASSETS");
-            categoriesContent = content;
-
-            var btnRow = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(btnRow, "Tout cocher", () => SetAllCategories(true));
-            DebugUIBuilder.CreateButton(btnRow, "Tout décocher", () => SetAllCategories(false));
-        }
-
-        void BuildStatsSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "STATISTIQUES");
-
-            lblStatus = DebugUIBuilder.CreateLabel(content, "Statut: en attente", 14);
-            lblSeed = DebugUIBuilder.CreateLabel(content, "Seed: -", 11);
-            lblTime = DebugUIBuilder.CreateLabel(content, "Temps: -", 11);
-            lblRooms = DebugUIBuilder.CreateLabel(content, "Salles: -", 11);
-            lblCorridors = DebugUIBuilder.CreateLabel(content, "Couloirs: -", 11);
-            lblObjects = DebugUIBuilder.CreateLabel(content, "Objets: -", 11);
-            lblErrors = DebugUIBuilder.CreateLabel(content, "Erreurs: -", 11);
-            lblWarnings = DebugUIBuilder.CreateLabel(content, "Warnings: -", 11);
-            lblSpawn = DebugUIBuilder.CreateLabel(content, "Spawn: -", 11);
-            lblExit = DebugUIBuilder.CreateLabel(content, "Sortie: -", 11);
-            lblDistance = DebugUIBuilder.CreateLabel(content, "Distance S→E: -", 11);
-        }
-
-        void BuildLogSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "LOG RÉCENT");
-            logContent = content;
-            DebugUIBuilder.CreateLabel(content, "Aucune génération", 10);
-        }
-
-        void BuildPresetSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "PRESETS");
-
-            (fieldPresetName, _) = DebugUIBuilder.CreateInputFieldWithLabel(
-                content, "Nom", "", "MonPreset");
-
-            var row1 = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(row1, "Sauver", () =>
-            {
-                string name = fieldPresetName.text;
-                if (string.IsNullOrWhiteSpace(name)) name = "Preset_" + DateTime.Now.ToString("HHmmss");
-                controller.SavePreset(name);
-            });
-            DebugUIBuilder.CreateButton(row1, "Défaut", () => controller.ResetToDefaults());
-
-            DebugUIBuilder.CreateLabel(content, "Presets rapides :", 11);
-            foreach (var preset in PresetManager.GetDefaultPresets())
-            {
-                var p = preset;
-                DebugUIBuilder.CreateButton(content, p.presetName, () =>
-                {
-                    ApplyConfig(p.config);
-                    Debug.Log($"Preset chargé: {p.presetName}");
-                }, 24);
+                var preset = p;
+                DebugUIBuilder.CreateButton(c, preset.presetName, () => ApplyConfig(preset.config), 22);
             }
         }
 
-        void BuildBatchSection()
+        void BuildBatchSection(Transform parent)
         {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "BATCH TEST");
-
-            (fieldBatchCount, _) = DebugUIBuilder.CreateInputFieldWithLabel(
-                content, "Itérations", "100");
-            fieldBatchCount.contentType = TMP_InputField.ContentType.IntegerNumber;
-
-            var row = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(row, "Lancer Batch", () =>
-            {
-                int count = ParseInt(fieldBatchCount.text, 100);
-                controller.RunBatchTest(count);
-            }, color: new Color(0.6f, 0.4f, 0.1f));
-            DebugUIBuilder.CreateButton(row, "Annuler", () => controller.CancelBatch(),
-                color: new Color(0.6f, 0.2f, 0.2f));
-
-            lblBatchStatus = DebugUIBuilder.CreateLabel(content, "Aucun batch en cours", 11);
+            var (_, c) = DebugUIBuilder.CreateCollapsibleSection(parent, "BATCH TEST");
+            fBatchCount = IntField(c, "Itérations", "100");
+            Row(c, ("Lancer Batch", () => controller.RunBatchTest(ParseInt(fBatchCount.text, 100)),
+                    DebugUIBuilder.BtnOrange),
+                ("Annuler", () => controller.CancelBatch(), DebugUIBuilder.BtnRed));
+            lblBatch = DebugUIBuilder.CreateLabel(c, "Aucun batch en cours", 10, height: 18);
+            lblBatch.color = DebugUIBuilder.TextDim;
         }
 
-        void BuildSeedHistorySection()
+        // ════════════════════════════════════════════════════════
+        //  HELPERS DE CONSTRUCTION
+        // ════════════════════════════════════════════════════════
+
+        void Row(Transform parent, (string text, Action act, Color? col) a,
+                                   (string text, Action act, Color? col) b)
         {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "HISTORIQUE SEEDS");
-            seedHistoryContent = content;
-            DebugUIBuilder.CreateLabel(content, "Aucun historique", 10);
+            var r = DebugUIBuilder.CreateHGroup(parent, 26, spacing: 3);
+            DebugUIBuilder.CreateButton(r, a.text, () => a.act(), 26, a.col);
+            DebugUIBuilder.CreateButton(r, b.text, () => b.act(), 26, b.col);
         }
 
-        // ===================== CYCLE SELECTOR (remplacement robuste des dropdowns) =====================
-
-        TextMeshProUGUI CreateCycleSelector(Transform parent, string label, string[] options,
-            int startIndex, Action<int> onChanged)
+        TMP_InputField IntField(Transform parent, string label, string def)
         {
-            var row = DebugUIBuilder.CreateHorizontalGroup(parent, 28);
+            var (f, _) = DebugUIBuilder.CreateInputFieldWithLabel(parent, label, def);
+            f.contentType = TMP_InputField.ContentType.IntegerNumber;
+            return f;
+        }
 
-            // Label
-            var labelGo = new GameObject("Label");
-            labelGo.transform.SetParent(row, false);
-            var le = labelGo.AddComponent<LayoutElement>();
-            le.preferredWidth = 90;
-            le.flexibleWidth = 0;
-            DebugUIBuilder.CreateTextDirect(labelGo.transform, label, 11);
+        TMP_InputField FloatField(Transform parent, string label, string def)
+        {
+            var (f, _) = DebugUIBuilder.CreateInputFieldWithLabel(parent, label, def);
+            f.contentType = TMP_InputField.ContentType.DecimalNumber;
+            return f;
+        }
 
-            // Bouton précédent
-            DebugUIBuilder.CreateButton(row, "<", null, 28, new Color(0.25f, 0.25f, 0.35f));
+        TextMeshProUGUI CycleSelector(Transform parent, string label, string[] opts, Action<int> onChanged)
+        {
+            var row = DebugUIBuilder.CreateHGroup(parent, 24, spacing: 2);
 
-            // Valeur actuelle
-            var valueGo = new GameObject("Value");
-            valueGo.transform.SetParent(row, false);
-            valueGo.AddComponent<LayoutElement>().flexibleWidth = 1;
-            var valueBg = valueGo.AddComponent<Image>();
-            valueBg.color = new Color(0.12f, 0.12f, 0.16f);
-            var valueText = DebugUIBuilder.CreateTextDirect(valueGo.transform,
-                options[startIndex], 11, TextAlignmentOptions.Center);
+            // Label fixe
+            var lGo = new GameObject("Lbl");
+            lGo.transform.SetParent(row, false);
+            lGo.AddComponent<RectTransform>();
+            var lLE = lGo.AddComponent<LayoutElement>();
+            lLE.preferredWidth = 100; lLE.flexibleWidth = 0;
+            DebugUIBuilder.CreateTextDirect(lGo.transform, label, 11).color = DebugUIBuilder.TextDim;
 
-            // Bouton suivant
-            DebugUIBuilder.CreateButton(row, ">", null, 28, new Color(0.25f, 0.25f, 0.35f));
+            // Bouton <
+            var btnPrev = DebugUIBuilder.CreateButton(row, "<", null, 24);
+            btnPrev.GetComponent<LayoutElement>().flexibleWidth = 0;
+            btnPrev.GetComponent<LayoutElement>().preferredWidth = 26;
 
-            // Connecter les boutons (les récupérer par index)
-            int currentIndex = startIndex;
-            var prevBtn = row.GetChild(1).GetComponent<Button>();
-            var nextBtn = row.GetChild(3).GetComponent<Button>();
+            // Valeur
+            var vGo = new GameObject("Val");
+            vGo.transform.SetParent(row, false);
+            vGo.AddComponent<RectTransform>();
+            vGo.AddComponent<LayoutElement>().flexibleWidth = 1;
+            vGo.AddComponent<Image>().color = DebugUIBuilder.InputBg;
+            var vTxt = DebugUIBuilder.CreateTextDirect(vGo.transform, opts[0], 11,
+                TextAlignmentOptions.Center);
 
-            prevBtn.onClick.AddListener(() =>
-            {
-                currentIndex = (currentIndex - 1 + options.Length) % options.Length;
-                valueText.text = options[currentIndex];
-                onChanged(currentIndex);
+            // Bouton >
+            var btnNext = DebugUIBuilder.CreateButton(row, ">", null, 24);
+            btnNext.GetComponent<LayoutElement>().flexibleWidth = 0;
+            btnNext.GetComponent<LayoutElement>().preferredWidth = 26;
+
+            int idx = 0;
+            btnPrev.onClick.AddListener(() => {
+                idx = (idx - 1 + opts.Length) % opts.Length;
+                vTxt.text = opts[idx]; onChanged(idx);
             });
-            nextBtn.onClick.AddListener(() =>
-            {
-                currentIndex = (currentIndex + 1) % options.Length;
-                valueText.text = options[currentIndex];
-                onChanged(currentIndex);
+            btnNext.onClick.AddListener(() => {
+                idx = (idx + 1) % opts.Length;
+                vTxt.text = opts[idx]; onChanged(idx);
             });
 
-            // Fixe la largeur des boutons < et >
-            row.GetChild(1).GetComponent<LayoutElement>().preferredWidth = 28;
-            row.GetChild(1).GetComponent<LayoutElement>().flexibleWidth = 0;
-            row.GetChild(3).GetComponent<LayoutElement>().preferredWidth = 28;
-            row.GetChild(3).GetComponent<LayoutElement>().flexibleWidth = 0;
-
-            return valueText;
+            return vTxt;
         }
 
-        // ===================== LECTURE / APPLICATION CONFIG =====================
+        // ════════════════════════════════════════════════════════
+        //  LECTURE / APPLICATION CONFIG
+        // ════════════════════════════════════════════════════════
 
         public MapGenConfig ReadConfig()
         {
-            var cfg = new MapGenConfig
+            var c = new MapGenConfig
             {
-                mapWidth = ParseInt(fieldMapWidth.text, 30),
-                mapHeight = ParseInt(fieldMapHeight.text, 30),
-                cellSize = ParseFloat(fieldCellSize.text, 6f),
-                borderMargin = ParseInt(fieldBorderMargin.text, 2),
-                minRooms = ParseInt(fieldMinRooms.text, 5),
-                maxRooms = ParseInt(fieldMaxRooms.text, 12),
-                minRoomSize = ParseInt(fieldMinRoomSize.text, 3),
-                maxRoomSize = ParseInt(fieldMaxRoomSize.text, 8),
-                corridorWidth = ParseInt(fieldCorridorWidth.text, 2),
-                vegetationDensity = sliderVegDensity.value,
-                rockDensity = sliderRockDensity.value,
-                decorDensity = sliderDecorDensity.value,
-                seed = ParseInt(fieldSeed.text, 0),
-                useRandomSeed = toggleRandomSeed.isOn,
-                lockSeed = toggleLockSeed.isOn,
-                mode = (GenerationMode)currentModeIndex,
-                layoutType = (LayoutType)currentLayoutIndex,
-                forcedBiome = (BiomeType)currentBiomeIndex,
-                useForcedBiome = toggleForceBiome.isOn,
-                ensureAccessibility = toggleEnsureAccess.isOn,
-                validateAfterGeneration = toggleValidate.isOn,
-                forceBossRoom = toggleForceBoss.isOn,
-                forceSpecialRoom = toggleForceSpecial.isOn,
-                minSpawnToExitDistance = ParseFloat(fieldMinSpawnExitDist.text, 15f)
+                mapWidth = P(fMapW, 30), mapHeight = P(fMapH, 30),
+                cellSize = PF(fCellSize, 6f), borderMargin = P(fMargin, 2),
+                minRooms = P(fMinRooms, 5), maxRooms = P(fMaxRooms, 12),
+                minRoomSize = P(fMinRoom, 3), maxRoomSize = P(fMaxRoom, 8),
+                corridorWidth = P(fCorridorW, 2),
+                vegetationDensity = sVeg.value, rockDensity = sRock.value, decorDensity = sDecor.value,
+                seed = P(fSeed, 0), useRandomSeed = tRandomSeed.isOn, lockSeed = tLockSeed.isOn,
+                mode = (GenerationMode)iMode, layoutType = (LayoutType)iLayout,
+                forcedBiome = (BiomeType)iBiome, useForcedBiome = tForceBiome.isOn,
+                ensureAccessibility = tAccess.isOn, validateAfterGeneration = tValidate.isOn,
+                forceBossRoom = tBoss.isOn, forceSpecialRoom = tSpecial.isOn,
+                minSpawnToExitDistance = PF(fMinDist, 15f)
             };
-
-            cfg.enabledCategories.Clear();
-            foreach (var kvp in categoryToggles)
-                if (kvp.Value.isOn) cfg.enabledCategories.Add(kvp.Key);
-
-            return cfg;
+            c.enabledCategories.Clear();
+            foreach (var kv in catToggles) if (kv.Value.isOn) c.enabledCategories.Add(kv.Key);
+            return c;
         }
 
-        public void ApplyConfig(MapGenConfig cfg)
+        public void ApplyConfig(MapGenConfig c)
         {
-            fieldMapWidth.text = cfg.mapWidth.ToString();
-            fieldMapHeight.text = cfg.mapHeight.ToString();
-            fieldCellSize.text = cfg.cellSize.ToString("F1");
-            fieldBorderMargin.text = cfg.borderMargin.ToString();
-            fieldMinRooms.text = cfg.minRooms.ToString();
-            fieldMaxRooms.text = cfg.maxRooms.ToString();
-            fieldMinRoomSize.text = cfg.minRoomSize.ToString();
-            fieldMaxRoomSize.text = cfg.maxRoomSize.ToString();
-            fieldCorridorWidth.text = cfg.corridorWidth.ToString();
-            sliderVegDensity.value = cfg.vegetationDensity;
-            sliderRockDensity.value = cfg.rockDensity;
-            sliderDecorDensity.value = cfg.decorDensity;
-            fieldSeed.text = cfg.seed.ToString();
-            toggleRandomSeed.isOn = cfg.useRandomSeed;
-            toggleLockSeed.isOn = cfg.lockSeed;
-
-            currentModeIndex = (int)cfg.mode;
-            if (lblModeValue != null) lblModeValue.text = ModeNames[currentModeIndex];
-            currentLayoutIndex = (int)cfg.layoutType;
-            if (lblLayoutValue != null) lblLayoutValue.text = LayoutNames[currentLayoutIndex];
-            currentBiomeIndex = (int)cfg.forcedBiome;
-            if (lblBiomeValue != null) lblBiomeValue.text = BiomeNames[currentBiomeIndex];
-
-            toggleForceBiome.isOn = cfg.useForcedBiome;
-            toggleEnsureAccess.isOn = cfg.ensureAccessibility;
-            toggleValidate.isOn = cfg.validateAfterGeneration;
-            toggleForceBoss.isOn = cfg.forceBossRoom;
-            toggleForceSpecial.isOn = cfg.forceSpecialRoom;
-            fieldMinSpawnExitDist.text = cfg.minSpawnToExitDistance.ToString("F0");
-
-            foreach (var kvp in categoryToggles)
-                kvp.Value.isOn = cfg.enabledCategories.Count == 0 || cfg.enabledCategories.Contains(kvp.Key);
+            fMapW.text = c.mapWidth.ToString(); fMapH.text = c.mapHeight.ToString();
+            fCellSize.text = c.cellSize.ToString("F1"); fMargin.text = c.borderMargin.ToString();
+            fMinRooms.text = c.minRooms.ToString(); fMaxRooms.text = c.maxRooms.ToString();
+            fMinRoom.text = c.minRoomSize.ToString(); fMaxRoom.text = c.maxRoomSize.ToString();
+            fCorridorW.text = c.corridorWidth.ToString();
+            sVeg.value = c.vegetationDensity; sRock.value = c.rockDensity; sDecor.value = c.decorDensity;
+            fSeed.text = c.seed.ToString();
+            tRandomSeed.isOn = c.useRandomSeed; tLockSeed.isOn = c.lockSeed;
+            iMode = (int)c.mode; if (txtMode) txtMode.text = ModeNames[iMode];
+            iLayout = (int)c.layoutType; if (txtLayout) txtLayout.text = LayoutNames[iLayout];
+            iBiome = (int)c.forcedBiome; if (txtBiome) txtBiome.text = BiomeNames[iBiome];
+            tForceBiome.isOn = c.useForcedBiome;
+            tAccess.isOn = c.ensureAccessibility; tValidate.isOn = c.validateAfterGeneration;
+            tBoss.isOn = c.forceBossRoom; tSpecial.isOn = c.forceSpecialRoom;
+            fMinDist.text = c.minSpawnToExitDistance.ToString("F0");
+            foreach (var kv in catToggles)
+                kv.Value.isOn = c.enabledCategories.Count == 0 || c.enabledCategories.Contains(kv.Key);
         }
 
-        // ===================== MISE À JOUR RÉSULTATS =====================
+        // ════════════════════════════════════════════════════════
+        //  MISE À JOUR (appelé après chaque génération)
+        // ════════════════════════════════════════════════════════
 
-        public void UpdateResults(GenerationResult result)
+        public void UpdateResults(GenerationResult r)
         {
-            if (result == null) return;
+            if (r == null) return;
 
-            lblStatus.text = $"Statut: {result.status}";
-            lblStatus.color = DebugUIBuilder.GetStatusColor(result.status);
-            lblSeed.text = $"Seed: {result.seed}";
-            lblTime.text = $"Temps: {result.generationTimeMs:F1} ms";
-            lblRooms.text = $"Salles: {result.roomCount}";
-            lblCorridors.text = $"Couloirs: {result.corridorCount}";
-            lblObjects.text = $"Objets placés: {result.totalObjectsPlaced}";
-            lblErrors.text = $"Erreurs: {result.errorCount}";
-            lblErrors.color = result.errorCount > 0 ? Color.red : Color.white;
-            lblWarnings.text = $"Warnings: {result.warningCount}";
-            lblWarnings.color = result.warningCount > 0 ? new Color(1f, 0.8f, 0.2f) : Color.white;
-            lblSpawn.text = $"Spawn: ({result.spawnCell.x}, {result.spawnCell.y})";
-            lblExit.text = $"Sortie: ({result.exitCell.x}, {result.exitCell.y})";
-            lblDistance.text = $"Distance S→E: {result.spawnToExitDistance:F1}";
+            // Metrics bar
+            mStatus.text = $"Statut: {r.status}";
+            mStatus.color = DebugUIBuilder.GetStatusColor(r.status);
+            mSeed.text = $"Seed: {r.seed}";
+            mTime.text = $"Temps: {r.generationTimeMs:F1}ms";
+            mRooms.text = $"Salles: {r.roomCount}";
+            mObjects.text = $"Objets: {r.totalObjectsPlaced}";
+            mErrors.text = $"Erreurs: {r.errorCount}";
+            mErrors.color = r.errorCount > 0 ? DebugUIBuilder.Error : DebugUIBuilder.TextWhite;
+            mWarnings.text = $"Warn: {r.warningCount}";
+            mWarnings.color = r.warningCount > 0 ? DebugUIBuilder.Warning : DebugUIBuilder.TextWhite;
 
-            fieldSeed.text = result.seed.ToString();
-            UpdateLogDisplay(result);
-            AddToSeedHistory(result.seed);
-        }
+            fSeed.text = r.seed.ToString();
 
-        public void UpdateBatchStatus(string status)
-        {
-            if (lblBatchStatus != null) lblBatchStatus.text = status;
-        }
-
-        void UpdateLogDisplay(GenerationResult result)
-        {
-            for (int i = logContent.childCount - 1; i >= 0; i--)
-                Destroy(logContent.GetChild(i).gameObject);
-
-            int maxLines = 25;
-            int shown = 0;
-            foreach (var entry in result.validationEntries)
+            // Summary panel
+            RefreshContent(summaryContent, c =>
             {
-                if (shown >= maxLines) break;
-                var lbl = DebugUIBuilder.CreateLabel(logContent, entry.ToString(), 9, height: 16);
-                lbl.color = DebugUIBuilder.GetSeverityColor(entry.severity);
-                shown++;
-            }
-            foreach (var step in result.pipelineSteps)
-            {
-                if (shown >= maxLines) break;
-                DebugUIBuilder.CreateLabel(logContent, step, 9, height: 16);
-                shown++;
-            }
-        }
-
-        void AddToSeedHistory(int seed)
-        {
-            seedHistory.Remove(seed);
-            seedHistory.Insert(0, seed);
-            if (seedHistory.Count > MaxSeedHistory)
-                seedHistory.RemoveAt(seedHistory.Count - 1);
-
-            for (int i = seedHistoryContent.childCount - 1; i >= 0; i--)
-                Destroy(seedHistoryContent.GetChild(i).gameObject);
-
-            foreach (int s in seedHistory)
-            {
-                int captured = s;
-                DebugUIBuilder.CreateButton(seedHistoryContent, $"Seed: {s}", () =>
+                AddLine(c, $"Seed: {r.seed}", 11);
+                AddLine(c, $"Temps: {r.generationTimeMs:F1} ms", 11);
+                AddLine(c, $"Salles: {r.roomCount}  |  Couloirs: {r.corridorCount}", 11);
+                AddLine(c, $"Cellules marchables: {r.walkableCellCount}", 11);
+                AddLine(c, $"Cellules mur: {r.wallCellCount}  |  Eau: {r.waterCellCount}", 11);
+                AddLine(c, $"Objets placés: {r.totalObjectsPlaced}", 11);
+                AddLine(c, $"Spawn: ({r.spawnCell.x},{r.spawnCell.y})  →  Sortie: ({r.exitCell.x},{r.exitCell.y})", 11);
+                AddLine(c, $"Distance spawn→sortie: {r.spawnToExitDistance:F1}", 11);
+                if (r.objectsPerCategory.Count > 0)
                 {
-                    fieldSeed.text = captured.ToString();
-                    toggleRandomSeed.isOn = false;
-                    controller.GenerateSameSeed();
-                }, 22);
-            }
+                    AddLine(c, "— Par catégorie —", 10).color = DebugUIBuilder.TextDim;
+                    foreach (var kv in r.objectsPerCategory)
+                        AddLine(c, $"  {kv.Key}: {kv.Value}", 10);
+                }
+            });
+
+            // Validation panel
+            RefreshContent(validationContent, c =>
+            {
+                if (r.validationEntries.Count == 0)
+                {
+                    AddLine(c, "Aucune entrée de validation", 10).color = DebugUIBuilder.TextDim;
+                    return;
+                }
+                foreach (var e in r.validationEntries)
+                    AddLine(c, e.ToString(), 10).color = DebugUIBuilder.GetSeverityColor(e.severity);
+            });
+
+            // Logs
+            RefreshContent(logContent, c =>
+            {
+                foreach (var e in r.validationEntries)
+                    AddLine(c, e.ToString(), 9).color = DebugUIBuilder.GetSeverityColor(e.severity);
+                foreach (var s in r.pipelineSteps)
+                    AddLine(c, s, 9).color = DebugUIBuilder.TextDim;
+            });
+
+            // Seed history
+            seedHistory.Remove(r.seed);
+            seedHistory.Insert(0, r.seed);
+            if (seedHistory.Count > 15) seedHistory.RemoveAt(seedHistory.Count - 1);
         }
 
-        // ===================== CATÉGORIES =====================
-
-        public void RefreshCategories(AssetCategoryRegistry registry)
+        public void UpdateBatchStatus(string s)
         {
-            if (categoriesContent == null) return;
+            if (lblBatch) lblBatch.text = s;
+        }
 
-            for (int i = categoriesContent.childCount - 1; i >= 1; i--)
-                Destroy(categoriesContent.GetChild(i).gameObject);
+        // ════════════════════════════════════════════════════════
+        //  CATÉGORIES
+        // ════════════════════════════════════════════════════════
 
-            categoryToggles.Clear();
-            if (registry == null) return;
-
-            foreach (var cat in registry.categories)
+        public void RefreshCategories(AssetCategoryRegistry reg)
+        {
+            if (catContainer == null || reg == null) return;
+            // Supprimer les toggles existants (garder le premier enfant = row boutons)
+            for (int i = catContainer.childCount - 1; i >= 1; i--)
+                Destroy(catContainer.GetChild(i).gameObject);
+            catToggles.Clear();
+            foreach (var cat in reg.categories)
             {
                 if (cat == null) continue;
-                var toggle = DebugUIBuilder.CreateToggle(categoriesContent, cat.displayName, true);
-                categoryToggles[cat.categoryId] = toggle;
+                catToggles[cat.categoryId] = DebugUIBuilder.CreateToggle(catContainer, cat.displayName, true);
             }
-            Debug.Log($"[MapGenDebugUI] {categoryToggles.Count} catégories chargées");
         }
 
-        void SetAllCategories(bool value)
+        void SetAllCat(bool v) { foreach (var t in catToggles.Values) t.isOn = v; }
+
+        // ════════════════════════════════════════════════════════
+        //  UTILITAIRES
+        // ════════════════════════════════════════════════════════
+
+        void ClearLogs()
         {
-            foreach (var toggle in categoryToggles.Values)
-                toggle.isOn = value;
+            RefreshContent(logContent, c =>
+                AddLine(c, "Logs effacés", 10).color = DebugUIBuilder.TextDim);
         }
 
-        // ===================== UTILITAIRES =====================
+        void RefreshContent(RectTransform content, Action<RectTransform> build)
+        {
+            for (int i = content.childCount - 1; i >= 0; i--)
+                Destroy(content.GetChild(i).gameObject);
+            build(content);
+        }
 
-        static int ParseInt(string s, int fallback) => int.TryParse(s, out int v) ? v : fallback;
-        static float ParseFloat(string s, float fallback) => float.TryParse(s, out float v) ? v : fallback;
+        TextMeshProUGUI AddLine(Transform parent, string text, int size)
+        {
+            return DebugUIBuilder.CreateLabel(parent, text, size, height: 16);
+        }
 
+        static int P(TMP_InputField f, int fb) => int.TryParse(f.text, out int v) ? v : fb;
+        static float PF(TMP_InputField f, float fb) => float.TryParse(f.text, out float v) ? v : fb;
+        static int ParseInt(string s, int fb) => int.TryParse(s, out int v) ? v : fb;
+
+        // Raccourcis clavier
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.F5)) controller.Generate();
@@ -541,15 +606,8 @@ namespace DonGeonMaster.MapGeneration
             if (Input.GetKeyDown(KeyCode.F9)) controller.TakeScreenshot();
             if (Input.GetKeyDown(KeyCode.F10)) controller.ToggleCameraMode();
             if (Input.GetKeyDown(KeyCode.F12)) controller.ExportLog();
-
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                if (transform.childCount > 0)
-                {
-                    var leftPanel = transform.GetChild(0);
-                    leftPanel.gameObject.SetActive(!leftPanel.gameObject.activeSelf);
-                }
-            }
+            if (Input.GetKeyDown(KeyCode.Tab) && transform.childCount > 0)
+                transform.GetChild(0).gameObject.SetActive(!transform.GetChild(0).gameObject.activeSelf);
         }
     }
 }
