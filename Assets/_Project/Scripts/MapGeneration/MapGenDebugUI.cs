@@ -15,6 +15,7 @@ namespace DonGeonMaster.MapGeneration
     public class MapGenDebugUI : MonoBehaviour
     {
         MapGenDebugController controller;
+        GameObject sidebarGO;
 
         // ── Champs sidebar ──
         TMP_InputField fSeed, fMapW, fMapH, fCellSize, fMargin;
@@ -74,7 +75,8 @@ namespace DonGeonMaster.MapGeneration
         {
             // Container sidebar
             var sidebar = DebugUIBuilder.CreateLayoutPanel(root, "Sidebar",
-                DebugUIBuilder.BgDark, preferredW: 390, flexW: 0, flexH: 1);
+                new Color(0.10f, 0.10f, 0.13f, 0.92f), preferredW: 390, flexW: 0, flexH: 1);
+            sidebarGO = sidebar.gameObject;
             var sVLG = sidebar.gameObject.AddComponent<VerticalLayoutGroup>();
             sVLG.spacing = 0;
             sVLG.childControlWidth = true;
@@ -106,9 +108,9 @@ namespace DonGeonMaster.MapGeneration
         // ────────────────── ZONE DROITE ──────────────────
         void BuildRightArea(Transform root)
         {
-            // Container droite (prend tout l'espace restant)
+            // Container droite — fond semi-transparent pour voir la map 3D à travers
             var right = DebugUIBuilder.CreateLayoutPanel(root, "RightArea",
-                DebugUIBuilder.BgDarkest, flexW: 1, flexH: 1);
+                new Color(0.07f, 0.07f, 0.09f, 0.55f), flexW: 1, flexH: 1);
             var rVLG = right.gameObject.AddComponent<VerticalLayoutGroup>();
             rVLG.spacing = 2;
             rVLG.padding = new RectOffset(2, 2, 2, 2);
@@ -126,7 +128,7 @@ namespace DonGeonMaster.MapGeneration
         void BuildMetricsBar(Transform parent)
         {
             var bar = DebugUIBuilder.CreateLayoutPanel(parent, "MetricsBar",
-                new Color(0.12f, 0.12f, 0.16f), preferredH: 34);
+                new Color(0.10f, 0.10f, 0.14f, 0.85f), preferredH: 34);
             var hlg = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 16;
             hlg.padding = new RectOffset(12, 12, 0, 0);
@@ -177,7 +179,7 @@ namespace DonGeonMaster.MapGeneration
         RectTransform BuildInfoCard(Transform parent, string title)
         {
             var card = DebugUIBuilder.CreateLayoutPanel(parent, title.Replace(" ", ""),
-                DebugUIBuilder.BgDark, flexW: 1, flexH: 1);
+                new Color(0.10f, 0.10f, 0.13f, 0.80f), flexW: 1, flexH: 1);
             var vlg = card.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 0;
             vlg.childControlWidth = true;
@@ -200,7 +202,7 @@ namespace DonGeonMaster.MapGeneration
         void BuildLogPanel(Transform parent)
         {
             var panel = DebugUIBuilder.CreateLayoutPanel(parent, "LogPanel",
-                DebugUIBuilder.BgDark, preferredH: 200);
+                new Color(0.10f, 0.10f, 0.13f, 0.80f), preferredH: 200);
             var vlg = panel.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 0;
             vlg.childControlWidth = true;
@@ -571,6 +573,15 @@ namespace DonGeonMaster.MapGeneration
         void SetAllCat(bool v) { foreach (var t in catToggles.Values) t.isOn = v; }
 
         // ════════════════════════════════════════════════════════
+        //  SIDEBAR TOGGLE
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>Cache la sidebar pour voir la map. Tab pour la réafficher.</summary>
+        public void HideSidebar() { if (sidebarGO) sidebarGO.SetActive(false); }
+        public void ShowSidebar() { if (sidebarGO) sidebarGO.SetActive(true); }
+        public void ToggleSidebar() { if (sidebarGO) sidebarGO.SetActive(!sidebarGO.activeSelf); }
+
+        // ════════════════════════════════════════════════════════
         //  UTILITAIRES
         // ════════════════════════════════════════════════════════
 
@@ -606,8 +617,8 @@ namespace DonGeonMaster.MapGeneration
             if (Input.GetKeyDown(KeyCode.F9)) controller.TakeScreenshot();
             if (Input.GetKeyDown(KeyCode.F10)) controller.ToggleCameraMode();
             if (Input.GetKeyDown(KeyCode.F12)) controller.ExportLog();
-            if (Input.GetKeyDown(KeyCode.Tab) && transform.childCount > 0)
-                transform.GetChild(0).gameObject.SetActive(!transform.GetChild(0).gameObject.activeSelf);
+            if (Input.GetKeyDown(KeyCode.Tab))
+                ToggleSidebar();
         }
     }
 }

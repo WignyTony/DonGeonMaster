@@ -310,7 +310,8 @@ namespace DonGeonMaster.MapGeneration
             // Mise à jour UI
             debugUI.UpdateResults(result);
 
-            // Ajuster la caméra
+            // Masquer la sidebar et ajuster la caméra pour voir la map
+            debugUI.HideSidebar();
             FitCameraToMap();
 
             // Screenshot auto si échec
