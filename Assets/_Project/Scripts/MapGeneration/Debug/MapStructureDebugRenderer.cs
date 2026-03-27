@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DonGeonMaster.MapGeneration.Debug
+namespace DonGeonMaster.MapGeneration.DebugTools
 {
     /// <summary>
     /// Affiche la structure generee (MapData) en runtime avec des cubes/quads colores.

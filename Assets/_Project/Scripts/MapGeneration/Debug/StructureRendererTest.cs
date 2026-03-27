@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace DonGeonMaster.MapGeneration.Debug
+namespace DonGeonMaster.MapGeneration.DebugTools
 {
     /// <summary>
     /// Script de test Phase 1 : valide MapStructureDebugRenderer en isolation.
@@ -10,7 +10,7 @@ namespace DonGeonMaster.MapGeneration.Debug
     /// </summary>
     public class StructureRendererTest : MonoBehaviour
     {
-        MapStructureDebugRenderer renderer;
+        MapStructureDebugRenderer structureRenderer;
         MapGenerator generator;
         Camera cam;
         MapGenConfig config;
@@ -18,10 +18,8 @@ namespace DonGeonMaster.MapGeneration.Debug
 
         void Start()
         {
-            // Creer le renderer
-            renderer = gameObject.AddComponent<MapStructureDebugRenderer>();
+            structureRenderer = gameObject.AddComponent<MapStructureDebugRenderer>();
 
-            // Creer la camera top-down
             var camGO = GameObject.Find("Main Camera");
             if (camGO == null)
             {
@@ -38,7 +36,6 @@ namespace DonGeonMaster.MapGeneration.Debug
             cam.transform.position = new Vector3(90, 100, 90);
             cam.transform.rotation = Quaternion.Euler(90, 0, 0);
 
-            // Lumiere
             if (FindAnyObjectByType<Light>() == null)
             {
                 var lightGO = new GameObject("Light");
@@ -76,11 +73,10 @@ namespace DonGeonMaster.MapGeneration.Debug
 
             if (kb.f7Key.wasPressedThisFrame)
             {
-                renderer.Clear();
+                structureRenderer.Clear();
                 UnityEngine.Debug.Log("[Phase1Test] Clear OK");
             }
 
-            // Zoom molette
             var mouse = Mouse.current;
             if (mouse != null && cam != null && cam.orthographic)
             {
@@ -99,39 +95,35 @@ namespace DonGeonMaster.MapGeneration.Debug
 
         void GenerateAndRender()
         {
-            // Clear precedent
-            renderer.Clear();
+            structureRenderer.Clear();
 
-            // Generer
             var (map, result) = generator.Generate(config);
             lastMap = map;
 
-            // Rendre la structure
-            renderer.Render(map, config);
+            structureRenderer.Render(map, config);
 
-            // Cadrer la camera
             cam.transform.position = new Vector3(
-                renderer.StructureCenter.x, 100, renderer.StructureCenter.z);
-            cam.orthographicSize = Mathf.Max(renderer.StructureSize.x, renderer.StructureSize.z) * 0.55f;
+                structureRenderer.StructureCenter.x, 100, structureRenderer.StructureCenter.z);
+            cam.orthographicSize = Mathf.Max(
+                structureRenderer.StructureSize.x, structureRenderer.StructureSize.z) * 0.55f;
 
-            // Validation Phase 1
             UnityEngine.Debug.Log($"[Phase1Test] === VALIDATION ===");
             UnityEngine.Debug.Log($"  Seed: {result.seed}");
             UnityEngine.Debug.Log($"  Salles: {result.roomCount}, Couloirs: {result.corridorCount}");
-            UnityEngine.Debug.Log($"  HasRendered: {renderer.HasRendered}");
-            UnityEngine.Debug.Log($"  CellsRendered: {renderer.RenderedCellCount}");
-            UnityEngine.Debug.Log($"  Floors: {renderer.RenderedFloorCount}");
-            UnityEngine.Debug.Log($"  Walls: {renderer.RenderedWallCount}");
-            UnityEngine.Debug.Log($"  Center: {renderer.StructureCenter}");
-            UnityEngine.Debug.Log($"  Size: {renderer.StructureSize}");
+            UnityEngine.Debug.Log($"  HasRendered: {structureRenderer.HasRendered}");
+            UnityEngine.Debug.Log($"  CellsRendered: {structureRenderer.RenderedCellCount}");
+            UnityEngine.Debug.Log($"  Floors: {structureRenderer.RenderedFloorCount}");
+            UnityEngine.Debug.Log($"  Walls: {structureRenderer.RenderedWallCount}");
+            UnityEngine.Debug.Log($"  Center: {structureRenderer.StructureCenter}");
+            UnityEngine.Debug.Log($"  Size: {structureRenderer.StructureSize}");
             UnityEngine.Debug.Log($"  Spawn: ({map.spawnCell.x},{map.spawnCell.y})");
             UnityEngine.Debug.Log($"  Exit: ({map.exitCell.x},{map.exitCell.y})");
 
-            bool ok = renderer.HasRendered
-                      && renderer.RenderedFloorCount > 0
-                      && renderer.RenderedWallCount > 0
-                      && renderer.StructureCenter.magnitude > 0
-                      && renderer.StructureSize.magnitude > 0
+            bool ok = structureRenderer.HasRendered
+                      && structureRenderer.RenderedFloorCount > 0
+                      && structureRenderer.RenderedWallCount > 0
+                      && structureRenderer.StructureCenter.magnitude > 0
+                      && structureRenderer.StructureSize.magnitude > 0
                       && map.spawnCell.x >= 0
                       && map.exitCell.x >= 0;
 
