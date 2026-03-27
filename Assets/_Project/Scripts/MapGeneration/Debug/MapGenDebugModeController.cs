@@ -1,7 +1,5 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
@@ -13,19 +11,20 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         MapData currentMap;
         GenerationResult currentResult;
         MapGenConfig currentConfig;
-        MapGenConfig defaultConfig;
 
         MapGenerator generator;
         GenerationValidator validator;
         MapStructureDebugRenderer structureRenderer;
         HeroDebugBridge heroBridge;
+        MapDebugSidebarUI sidebar;
+        MapDebugOverlayUI overlay;
         Camera cam;
-        GameObject sidebarPanel;
 
         void Start()
         {
             generator = new MapGenerator();
             validator = new GenerationValidator();
+
             structureRenderer = gameObject.GetComponent<MapStructureDebugRenderer>();
             if (structureRenderer == null)
                 structureRenderer = gameObject.AddComponent<MapStructureDebugRenderer>();
@@ -34,21 +33,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             if (heroBridge == null)
                 heroBridge = gameObject.AddComponent<HeroDebugBridge>();
 
-            defaultConfig = new MapGenConfig
-            {
-                mapWidth = 30, mapHeight = 30, cellSize = 6,
-                minRooms = 5, maxRooms = 10,
-                minRoomSize = 3, maxRoomSize = 8,
-                borderMargin = 2, corridorWidth = 2,
-                useRandomSeed = true, validateAfterGeneration = true
-            };
-
             SetupCamera();
-
-            try { CreateSidebarPlaceholder(); }
-            catch (System.Exception e) { UnityEngine.Debug.LogError($"[ModeController] Sidebar UI: {e.Message}"); }
-
+            BuildUI();
             SetMode(DebugMode.Config);
+
             UnityEngine.Debug.Log("[ModeController] Pret. F5=generer Tab=sidebar F10=heros");
         }
 
@@ -87,73 +75,17 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             }
         }
 
-        void CreateSidebarPlaceholder()
+        void BuildUI()
         {
-            var canvasGO = new GameObject("DebugCanvas");
-            var canvas = canvasGO.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 50;
-            var scaler = canvasGO.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
-            canvasGO.AddComponent<GraphicRaycaster>();
+            sidebar = gameObject.AddComponent<MapDebugSidebarUI>();
+            sidebar.Build();
+            sidebar.OnGenerate = Generate;
+            sidebar.OnRegenerate = Regenerate;
+            sidebar.OnClear = Clear;
+            sidebar.OnHero = EnterHeroMode;
 
-            sidebarPanel = new GameObject("SidebarPlaceholder");
-            sidebarPanel.transform.SetParent(canvasGO.transform, false);
-            var rt = sidebarPanel.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(0, 1);
-            rt.pivot = new Vector2(0, 0.5f);
-            rt.sizeDelta = new Vector2(350, 0);
-            sidebarPanel.AddComponent<Image>().color = new Color(0.08f, 0.08f, 0.12f, 0.92f);
-
-            var titleGO = new GameObject("Title");
-            titleGO.transform.SetParent(sidebarPanel.transform, false);
-            var titleRT = titleGO.AddComponent<RectTransform>();
-            titleRT.anchorMin = new Vector2(0, 0.92f);
-            titleRT.anchorMax = new Vector2(1, 1);
-            titleRT.offsetMin = Vector2.zero;
-            titleRT.offsetMax = Vector2.zero;
-            titleGO.AddComponent<Image>().color = new Color(0.12f, 0.20f, 0.35f);
-
-            var titleTextGO = new GameObject("TitleText");
-            titleTextGO.transform.SetParent(titleGO.transform, false);
-            var ttRT = titleTextGO.AddComponent<RectTransform>();
-            ttRT.anchorMin = Vector2.zero;
-            ttRT.anchorMax = Vector2.one;
-            ttRT.offsetMin = Vector2.zero;
-            ttRT.offsetMax = Vector2.zero;
-            var titleTxt = titleTextGO.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "MAP GEN DEBUG";
-            titleTxt.fontSize = 18;
-            titleTxt.fontStyle = FontStyles.Bold;
-            titleTxt.color = Color.white;
-            titleTxt.alignment = TextAlignmentOptions.Center;
-
-            var infoGO = new GameObject("Info");
-            infoGO.transform.SetParent(sidebarPanel.transform, false);
-            var infoRT = infoGO.AddComponent<RectTransform>();
-            infoRT.anchorMin = new Vector2(0, 0.45f);
-            infoRT.anchorMax = new Vector2(1, 0.85f);
-            infoRT.offsetMin = new Vector2(16, 0);
-            infoRT.offsetMax = new Vector2(-16, 0);
-            var infoTxt = infoGO.AddComponent<TextMeshProUGUI>();
-            infoTxt.text =
-                "F5   Generer la map\n" +
-                "Tab  Toggle ce panneau\n" +
-                "F10  Mode heros (vrai joueur)\n\n" +
-                "Apres F5 :\n" +
-                "  Molette = Zoom\n" +
-                "  Clic droit = Pan\n\n" +
-                "Apres F10 :\n" +
-                "  WASD = Deplacer\n" +
-                "  Shift = Courir\n" +
-                "  Espace = Sauter\n\n" +
-                "Config 30x30, 5-10 salles";
-            infoTxt.fontSize = 13;
-            infoTxt.color = new Color(0.7f, 0.7f, 0.75f);
-            infoTxt.alignment = TextAlignmentOptions.TopLeft;
+            overlay = gameObject.AddComponent<MapDebugOverlayUI>();
+            overlay.Build();
         }
 
         // ════════════════════════════════════════════
@@ -162,17 +94,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
         public void Generate()
         {
-            if (defaultConfig == null)
-            {
-                UnityEngine.Debug.LogError("[ModeController] defaultConfig null");
-                return;
-            }
-
-            // Desactiver le heros avant cleanup
             heroBridge.Deactivate(cam);
             heroBridge.DestroyHero();
 
-            currentConfig = defaultConfig.Clone();
+            // Lire config depuis la sidebar
+            currentConfig = sidebar.ReadConfig();
             structureRenderer.Clear();
 
             var (map, result) = generator.Generate(currentConfig);
@@ -186,11 +112,37 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             FitCamera();
             SetMode(DebugMode.TopDown);
 
+            // Mettre a jour l'overlay et le champ seed de la sidebar
+            overlay.UpdateStats(result);
+            sidebar.WriteSeed(result.seed);
+
             UnityEngine.Debug.Log(
                 $"[ModeController] {result.status} | Seed:{result.seed} | " +
                 $"Salles:{result.roomCount} Couloirs:{result.corridorCount} | " +
                 $"Cells:{structureRenderer.RenderedCellCount} | " +
                 $"E:{result.errorCount} W:{result.warningCount}");
+        }
+
+        void Regenerate()
+        {
+            // Forcer une nouvelle seed
+            var cfg = sidebar.ReadConfig();
+            cfg.useRandomSeed = true;
+            cfg.seed = 0;
+            // Ecrire seed 0 pour forcer random, puis generer
+            sidebar.WriteSeed(0);
+            Generate();
+        }
+
+        void Clear()
+        {
+            heroBridge.Deactivate(cam);
+            heroBridge.DestroyHero();
+            structureRenderer.Clear();
+            currentMap = null;
+            currentResult = null;
+            FitCamera();
+            SetMode(DebugMode.Config);
         }
 
         // ════════════════════════════════════════════
@@ -201,13 +153,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             if (currentMap == null)
             {
-                UnityEngine.Debug.LogWarning("[ModeController] F5 d'abord pour generer une map");
+                UnityEngine.Debug.LogWarning("[ModeController] F5 d'abord");
                 return;
             }
-
             heroBridge.Activate(currentMap, currentConfig, cam);
-            if (!heroBridge.IsActive) return; // activation echouee
-
+            if (!heroBridge.IsActive) return;
             SetMode(DebugMode.Hero);
         }
 
@@ -225,14 +175,37 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         void SetMode(DebugMode mode)
         {
             currentMode = mode;
-            bool showSidebar = mode == DebugMode.Config;
-            if (sidebarPanel != null) sidebarPanel.SetActive(showSidebar);
+
+            switch (mode)
+            {
+                case DebugMode.Config:
+                    sidebar.Show();
+                    overlay.Hide();
+                    break;
+                case DebugMode.TopDown:
+                    sidebar.Hide();
+                    overlay.Show();
+                    break;
+                case DebugMode.Hero:
+                    sidebar.Hide();
+                    overlay.Hide();
+                    break;
+            }
         }
 
         void ToggleSidebar()
         {
-            if (currentMode == DebugMode.Hero) return; // pas de sidebar en mode heros
-            SetMode(currentMode == DebugMode.Config ? DebugMode.TopDown : DebugMode.Config);
+            if (currentMode == DebugMode.Hero) return;
+            if (sidebar.IsVisible)
+            {
+                sidebar.Hide();
+                if (currentResult != null) overlay.Show();
+            }
+            else
+            {
+                sidebar.Show();
+                overlay.Hide();
+            }
         }
 
         // ════════════════════════════════════════════
@@ -241,14 +214,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
         void FitCamera()
         {
-            if (cam == null || !structureRenderer.HasRendered) return;
+            if (cam == null) return;
             cam.enabled = true;
             cam.orthographic = true;
-            var c = structureRenderer.StructureCenter;
-            var s = structureRenderer.StructureSize;
-            cam.transform.position = new Vector3(c.x, 120, c.z);
-            cam.orthographicSize = Mathf.Max(s.x, s.z) * 0.6f;
             cam.transform.rotation = Quaternion.Euler(90, 0, 0);
+
+            if (structureRenderer.HasRendered)
+            {
+                var c = structureRenderer.StructureCenter;
+                var s = structureRenderer.StructureSize;
+                cam.transform.position = new Vector3(c.x, 120, c.z);
+                cam.orthographicSize = Mathf.Max(s.x, s.z) * 0.6f;
+            }
         }
 
         // ════════════════════════════════════════════
@@ -261,18 +238,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             if (kb != null)
             {
                 if (kb.f5Key.wasPressedThisFrame) Generate();
+                if (kb.f6Key.wasPressedThisFrame) Regenerate();
+                if (kb.f7Key.wasPressedThisFrame) Clear();
                 if (kb.tabKey.wasPressedThisFrame) ToggleSidebar();
                 if (kb.f10Key.wasPressedThisFrame)
                 {
-                    if (currentMode == DebugMode.Hero)
-                        ExitHeroMode();
-                    else
-                        EnterHeroMode();
+                    if (currentMode == DebugMode.Hero) ExitHeroMode();
+                    else EnterHeroMode();
                 }
             }
 
-            // Zoom + pan en TopDown uniquement
-            if (currentMode != DebugMode.TopDown || cam == null) return;
+            // Zoom + pan en TopDown ou Config (pas en Hero)
+            if (currentMode == DebugMode.Hero || cam == null || !cam.orthographic) return;
 
             var mouse = Mouse.current;
             if (mouse == null) return;
