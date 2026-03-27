@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 
 namespace DonGeonMaster.MapGeneration
 {
@@ -53,7 +54,7 @@ namespace DonGeonMaster.MapGeneration
             {
                 var es = new GameObject("EventSystem");
                 es.AddComponent<EventSystem>();
-                es.AddComponent<StandaloneInputModule>();
+                es.AddComponent<InputSystemUIInputModule>();
             }
 
             var canvas = FindAnyObjectByType<Canvas>();

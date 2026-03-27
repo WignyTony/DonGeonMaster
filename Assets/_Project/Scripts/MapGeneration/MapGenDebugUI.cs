@@ -8,67 +8,120 @@ namespace DonGeonMaster.MapGeneration
 {
     public class MapGenDebugUI : MonoBehaviour
     {
-        // Références internes
         MapGenDebugController controller;
         ScrollRect mainScroll;
         RectTransform scrollContent;
 
-        // === Champs de saisie ===
+        // Champs de saisie
         TMP_InputField fieldMapWidth, fieldMapHeight, fieldCellSize, fieldBorderMargin;
         TMP_InputField fieldMinRooms, fieldMaxRooms, fieldMinRoomSize, fieldMaxRoomSize;
         TMP_InputField fieldCorridorWidth, fieldMinSpawnExitDist;
         Slider sliderVegDensity, sliderRockDensity, sliderDecorDensity;
         TMP_InputField fieldSeed;
         Toggle toggleRandomSeed, toggleLockSeed;
-        TMP_Dropdown dropdownMode, dropdownLayout, dropdownBiome;
         Toggle toggleForceBiome, toggleEnsureAccess, toggleValidate;
         Toggle toggleForceBoss, toggleForceSpecial;
-        TMP_InputField fieldBatchCount;
-        TMP_InputField fieldPresetName;
+        TMP_InputField fieldBatchCount, fieldPresetName;
 
-        // === Catégories ===
+        // Sélecteurs de mode (remplacent les dropdowns fragiles)
+        int currentModeIndex, currentLayoutIndex, currentBiomeIndex;
+        TextMeshProUGUI lblModeValue, lblLayoutValue, lblBiomeValue;
+        static readonly string[] ModeNames = Enum.GetNames(typeof(GenerationMode));
+        static readonly string[] LayoutNames = Enum.GetNames(typeof(LayoutType));
+        static readonly string[] BiomeNames = Enum.GetNames(typeof(BiomeType));
+
+        // Catégories
         Dictionary<string, Toggle> categoryToggles = new();
         RectTransform categoriesContent;
 
-        // === Affichage résultats ===
+        // Affichage résultats
         TextMeshProUGUI lblStatus, lblSeed, lblTime, lblRooms, lblCorridors;
         TextMeshProUGUI lblObjects, lblErrors, lblWarnings, lblSpawn, lblExit;
         TextMeshProUGUI lblDistance, lblBatchStatus;
-        RectTransform logContent;
-        RectTransform seedHistoryContent;
+        RectTransform logContent, seedHistoryContent;
 
-        // === Historique seeds ===
         List<int> seedHistory = new();
         const int MaxSeedHistory = 15;
 
         public void Initialize(MapGenDebugController ctrl)
         {
             controller = ctrl;
-            BuildUI();
+            try
+            {
+                BuildUI();
+                Debug.Log("[MapGenDebugUI] UI construite avec succès");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[MapGenDebugUI] ERREUR lors de la construction de l'UI: {e}");
+            }
         }
 
         void BuildUI()
         {
-            // Panel gauche (configuration) : 25% de l'écran
-            var leftPanel = DebugUIBuilder.CreatePanel(transform, "LeftPanel", 0, 0, 0.28f, 1);
+            var leftPanel = DebugUIBuilder.CreatePanel(transform, "LeftPanel", 0, 0, 0.30f, 1);
+            Debug.Log("[MapGenDebugUI] LeftPanel créé");
 
-            mainScroll = DebugUIBuilder.CreateScrollView(leftPanel, "ConfigScroll");
+            // Titre
+            var titleBar = DebugUIBuilder.CreatePanel(leftPanel, "TitleBar", 0, 0.96f, 1, 1,
+                new Color(0.15f, 0.3f, 0.5f));
+            DebugUIBuilder.CreateTextDirect(titleBar, "MAP GEN DEBUG", 16,
+                TextAlignmentOptions.Center).fontStyle = FontStyles.Bold;
+
+            // ScrollView dans la zone sous le titre
+            var scrollPanel = DebugUIBuilder.CreatePanel(leftPanel, "ScrollPanel", 0, 0, 1, 0.96f,
+                new Color(0f, 0f, 0f, 0f));
+            mainScroll = DebugUIBuilder.CreateScrollView(scrollPanel, "ConfigScroll");
             scrollContent = mainScroll.content;
 
+            BuildActionsSection();
             BuildSizeSection();
             BuildSeedSection();
             BuildModeSection();
             BuildConstraintsSection();
             BuildCategoriesSection();
-            BuildActionsSection();
-            BuildPresetSection();
-            BuildBatchSection();
             BuildStatsSection();
             BuildLogSection();
+            BuildPresetSection();
+            BuildBatchSection();
             BuildSeedHistorySection();
+
+            Debug.Log("[MapGenDebugUI] Toutes les sections construites");
         }
 
         // ===================== SECTIONS =====================
+
+        void BuildActionsSection()
+        {
+            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "ACTIONS");
+
+            var row1 = DebugUIBuilder.CreateHorizontalGroup(content, 38);
+            DebugUIBuilder.CreateButton(row1, "GÉNÉRER (F5)", () => controller.Generate(),
+                color: new Color(0.2f, 0.6f, 0.3f));
+            DebugUIBuilder.CreateButton(row1, "REGÉNÉRER (F6)", () => controller.Regenerate(),
+                color: new Color(0.3f, 0.5f, 0.6f));
+
+            var row2 = DebugUIBuilder.CreateHorizontalGroup(content, 32);
+            DebugUIBuilder.CreateButton(row2, "Même Seed", () => controller.GenerateSameSeed());
+            DebugUIBuilder.CreateButton(row2, "Nettoyer (F7)", () => controller.ClearMap(),
+                color: new Color(0.6f, 0.3f, 0.2f));
+
+            var row3 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
+            DebugUIBuilder.CreateButton(row3, "Spawn (F8)", () => controller.SpawnPlayer());
+            DebugUIBuilder.CreateButton(row3, "Respawn", () => controller.RespawnPlayer());
+
+            var row4 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
+            DebugUIBuilder.CreateButton(row4, "Validation", () => controller.RunValidation());
+            DebugUIBuilder.CreateButton(row4, "Screenshot (F9)", () => controller.TakeScreenshot());
+
+            var row5 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
+            DebugUIBuilder.CreateButton(row5, "Exporter Log", () => controller.ExportLog());
+            DebugUIBuilder.CreateButton(row5, "Ouvrir Logs", () => GenerationLogger.OpenLogFolder());
+
+            var row6 = DebugUIBuilder.CreateHorizontalGroup(content, 28);
+            DebugUIBuilder.CreateButton(row6, "Copier Résumé", () => controller.CopySummary());
+            DebugUIBuilder.CreateButton(row6, "Vue (F10)", () => controller.ToggleCameraMode());
+        }
 
         void BuildSizeSection()
         {
@@ -91,12 +144,12 @@ namespace DonGeonMaster.MapGeneration
             fieldMinRoomSize.contentType = TMP_InputField.ContentType.IntegerNumber;
             (fieldMaxRoomSize, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Taille salle max", "8");
             fieldMaxRoomSize.contentType = TMP_InputField.ContentType.IntegerNumber;
-            (fieldCorridorWidth, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Largeur couloir", "2");
+            (fieldCorridorWidth, _) = DebugUIBuilder.CreateInputFieldWithLabel(content, "Larg. couloir", "2");
             fieldCorridorWidth.contentType = TMP_InputField.ContentType.IntegerNumber;
 
-            (sliderVegDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Densité végét.", 0, 1, 0.6f);
-            (sliderRockDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Densité roches", 0, 1, 0.2f);
-            (sliderDecorDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Densité décor", 0, 1, 0.3f);
+            (sliderVegDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Végétation", 0, 1, 0.6f);
+            (sliderRockDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Roches", 0, 1, 0.2f);
+            (sliderDecorDensity, _) = DebugUIBuilder.CreateSliderWithLabel(content, "Décor", 0, 1, 0.3f);
         }
 
         void BuildSeedSection()
@@ -127,17 +180,13 @@ namespace DonGeonMaster.MapGeneration
         {
             var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "MODE DE GÉNÉRATION");
 
-            // Dropdown Mode
-            dropdownMode = CreateDropdown(content, "Mode",
-                Enum.GetNames(typeof(GenerationMode)));
-
-            // Dropdown Layout
-            dropdownLayout = CreateDropdown(content, "Layout",
-                Enum.GetNames(typeof(LayoutType)));
-
-            // Dropdown Biome
-            dropdownBiome = CreateDropdown(content, "Biome forcé",
-                Enum.GetNames(typeof(BiomeType)));
+            // Sélecteurs à cycle (clic = option suivante) - remplace les TMP_Dropdown fragiles
+            lblModeValue = CreateCycleSelector(content, "Mode", ModeNames, 0,
+                i => currentModeIndex = i);
+            lblLayoutValue = CreateCycleSelector(content, "Layout", LayoutNames, 0,
+                i => currentLayoutIndex = i);
+            lblBiomeValue = CreateCycleSelector(content, "Biome forcé", BiomeNames, 0,
+                i => currentBiomeIndex = i);
             toggleForceBiome = DebugUIBuilder.CreateToggle(content, "Forcer le biome", false);
         }
 
@@ -165,36 +214,28 @@ namespace DonGeonMaster.MapGeneration
             DebugUIBuilder.CreateButton(btnRow, "Tout décocher", () => SetAllCategories(false));
         }
 
-        void BuildActionsSection()
+        void BuildStatsSection()
         {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "ACTIONS");
+            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "STATISTIQUES");
 
-            var row1 = DebugUIBuilder.CreateHorizontalGroup(content, 35);
-            DebugUIBuilder.CreateButton(row1, "GÉNÉRER", () => controller.Generate(),
-                color: new Color(0.2f, 0.6f, 0.3f));
-            DebugUIBuilder.CreateButton(row1, "REGÉNÉRER", () => controller.Regenerate(),
-                color: new Color(0.3f, 0.5f, 0.6f));
+            lblStatus = DebugUIBuilder.CreateLabel(content, "Statut: en attente", 14);
+            lblSeed = DebugUIBuilder.CreateLabel(content, "Seed: -", 11);
+            lblTime = DebugUIBuilder.CreateLabel(content, "Temps: -", 11);
+            lblRooms = DebugUIBuilder.CreateLabel(content, "Salles: -", 11);
+            lblCorridors = DebugUIBuilder.CreateLabel(content, "Couloirs: -", 11);
+            lblObjects = DebugUIBuilder.CreateLabel(content, "Objets: -", 11);
+            lblErrors = DebugUIBuilder.CreateLabel(content, "Erreurs: -", 11);
+            lblWarnings = DebugUIBuilder.CreateLabel(content, "Warnings: -", 11);
+            lblSpawn = DebugUIBuilder.CreateLabel(content, "Spawn: -", 11);
+            lblExit = DebugUIBuilder.CreateLabel(content, "Sortie: -", 11);
+            lblDistance = DebugUIBuilder.CreateLabel(content, "Distance S→E: -", 11);
+        }
 
-            var row2 = DebugUIBuilder.CreateHorizontalGroup(content, 35);
-            DebugUIBuilder.CreateButton(row2, "Même Seed", () => controller.GenerateSameSeed());
-            DebugUIBuilder.CreateButton(row2, "Nettoyer", () => controller.ClearMap(),
-                color: new Color(0.6f, 0.3f, 0.2f));
-
-            var row3 = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(row3, "Spawn Joueur", () => controller.SpawnPlayer());
-            DebugUIBuilder.CreateButton(row3, "Respawn", () => controller.RespawnPlayer());
-
-            var row4 = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(row4, "Validation", () => controller.RunValidation());
-            DebugUIBuilder.CreateButton(row4, "Screenshot", () => controller.TakeScreenshot());
-
-            var row5 = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(row5, "Exporter Log", () => controller.ExportLog());
-            DebugUIBuilder.CreateButton(row5, "Ouvrir Logs", () => GenerationLogger.OpenLogFolder());
-
-            var row6 = DebugUIBuilder.CreateHorizontalGroup(content);
-            DebugUIBuilder.CreateButton(row6, "Copier Résumé", () => controller.CopySummary());
-            DebugUIBuilder.CreateButton(row6, "Vue d'ensemble", () => controller.ToggleCameraMode());
+        void BuildLogSection()
+        {
+            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "LOG RÉCENT");
+            logContent = content;
+            DebugUIBuilder.CreateLabel(content, "Aucune génération", 10);
         }
 
         void BuildPresetSection()
@@ -213,33 +254,14 @@ namespace DonGeonMaster.MapGeneration
             });
             DebugUIBuilder.CreateButton(row1, "Défaut", () => controller.ResetToDefaults());
 
-            // Presets par défaut
             DebugUIBuilder.CreateLabel(content, "Presets rapides :", 11);
-            var defaultPresets = PresetManager.GetDefaultPresets();
-            foreach (var preset in defaultPresets)
+            foreach (var preset in PresetManager.GetDefaultPresets())
             {
-                DebugUIBuilder.CreateButton(content, preset.presetName, () =>
+                var p = preset;
+                DebugUIBuilder.CreateButton(content, p.presetName, () =>
                 {
-                    ApplyConfig(preset.config);
-                    Debug.Log($"Preset chargé: {preset.presetName}");
-                }, 24);
-            }
-
-            // Presets sauvegardés
-            DebugUIBuilder.CreateLabel(content, "Sauvegardés :", 11);
-            RefreshSavedPresetButtons(content);
-        }
-
-        void RefreshSavedPresetButtons(RectTransform parent)
-        {
-            var saved = PresetManager.GetAvailablePresets();
-            foreach (var name in saved)
-            {
-                var row = DebugUIBuilder.CreateHorizontalGroup(parent, 24);
-                DebugUIBuilder.CreateButton(row, name, () =>
-                {
-                    var preset = PresetManager.LoadPreset(name);
-                    if (preset != null) ApplyConfig(preset.config);
+                    ApplyConfig(p.config);
+                    Debug.Log($"Preset chargé: {p.presetName}");
                 }, 24);
             }
         }
@@ -264,30 +286,6 @@ namespace DonGeonMaster.MapGeneration
             lblBatchStatus = DebugUIBuilder.CreateLabel(content, "Aucun batch en cours", 11);
         }
 
-        void BuildStatsSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "STATISTIQUES");
-
-            lblStatus = DebugUIBuilder.CreateLabel(content, "Statut: -", 13);
-            lblSeed = DebugUIBuilder.CreateLabel(content, "Seed: -", 11);
-            lblTime = DebugUIBuilder.CreateLabel(content, "Temps: -", 11);
-            lblRooms = DebugUIBuilder.CreateLabel(content, "Salles: -", 11);
-            lblCorridors = DebugUIBuilder.CreateLabel(content, "Couloirs: -", 11);
-            lblObjects = DebugUIBuilder.CreateLabel(content, "Objets: -", 11);
-            lblErrors = DebugUIBuilder.CreateLabel(content, "Erreurs: -", 11);
-            lblWarnings = DebugUIBuilder.CreateLabel(content, "Warnings: -", 11);
-            lblSpawn = DebugUIBuilder.CreateLabel(content, "Spawn: -", 11);
-            lblExit = DebugUIBuilder.CreateLabel(content, "Sortie: -", 11);
-            lblDistance = DebugUIBuilder.CreateLabel(content, "Distance S→E: -", 11);
-        }
-
-        void BuildLogSection()
-        {
-            var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "LOG RÉCENT");
-            logContent = content;
-            DebugUIBuilder.CreateLabel(content, "Aucune génération", 10);
-        }
-
         void BuildSeedHistorySection()
         {
             var (_, content) = DebugUIBuilder.CreateCollapsibleSection(scrollContent, "HISTORIQUE SEEDS");
@@ -295,7 +293,64 @@ namespace DonGeonMaster.MapGeneration
             DebugUIBuilder.CreateLabel(content, "Aucun historique", 10);
         }
 
-        // ===================== LECTURE CONFIG =====================
+        // ===================== CYCLE SELECTOR (remplacement robuste des dropdowns) =====================
+
+        TextMeshProUGUI CreateCycleSelector(Transform parent, string label, string[] options,
+            int startIndex, Action<int> onChanged)
+        {
+            var row = DebugUIBuilder.CreateHorizontalGroup(parent, 28);
+
+            // Label
+            var labelGo = new GameObject("Label");
+            labelGo.transform.SetParent(row, false);
+            var le = labelGo.AddComponent<LayoutElement>();
+            le.preferredWidth = 90;
+            le.flexibleWidth = 0;
+            DebugUIBuilder.CreateTextDirect(labelGo.transform, label, 11);
+
+            // Bouton précédent
+            DebugUIBuilder.CreateButton(row, "<", null, 28, new Color(0.25f, 0.25f, 0.35f));
+
+            // Valeur actuelle
+            var valueGo = new GameObject("Value");
+            valueGo.transform.SetParent(row, false);
+            valueGo.AddComponent<LayoutElement>().flexibleWidth = 1;
+            var valueBg = valueGo.AddComponent<Image>();
+            valueBg.color = new Color(0.12f, 0.12f, 0.16f);
+            var valueText = DebugUIBuilder.CreateTextDirect(valueGo.transform,
+                options[startIndex], 11, TextAlignmentOptions.Center);
+
+            // Bouton suivant
+            DebugUIBuilder.CreateButton(row, ">", null, 28, new Color(0.25f, 0.25f, 0.35f));
+
+            // Connecter les boutons (les récupérer par index)
+            int currentIndex = startIndex;
+            var prevBtn = row.GetChild(1).GetComponent<Button>();
+            var nextBtn = row.GetChild(3).GetComponent<Button>();
+
+            prevBtn.onClick.AddListener(() =>
+            {
+                currentIndex = (currentIndex - 1 + options.Length) % options.Length;
+                valueText.text = options[currentIndex];
+                onChanged(currentIndex);
+            });
+            nextBtn.onClick.AddListener(() =>
+            {
+                currentIndex = (currentIndex + 1) % options.Length;
+                valueText.text = options[currentIndex];
+                onChanged(currentIndex);
+            });
+
+            // Fixe la largeur des boutons < et >
+            row.GetChild(1).GetComponent<LayoutElement>().preferredWidth = 28;
+            row.GetChild(1).GetComponent<LayoutElement>().flexibleWidth = 0;
+            row.GetChild(3).GetComponent<LayoutElement>().preferredWidth = 28;
+            row.GetChild(3).GetComponent<LayoutElement>().flexibleWidth = 0;
+
+            return valueText;
+        }
+
+        // ===================== LECTURE / APPLICATION CONFIG =====================
 
         public MapGenConfig ReadConfig()
         {
@@ -316,9 +371,9 @@ namespace DonGeonMaster.MapGeneration
                 seed = ParseInt(fieldSeed.text, 0),
                 useRandomSeed = toggleRandomSeed.isOn,
                 lockSeed = toggleLockSeed.isOn,
-                mode = (GenerationMode)dropdownMode.value,
-                layoutType = (LayoutType)dropdownLayout.value,
-                forcedBiome = (BiomeType)dropdownBiome.value,
+                mode = (GenerationMode)currentModeIndex,
+                layoutType = (LayoutType)currentLayoutIndex,
+                forcedBiome = (BiomeType)currentBiomeIndex,
                 useForcedBiome = toggleForceBiome.isOn,
                 ensureAccessibility = toggleEnsureAccess.isOn,
                 validateAfterGeneration = toggleValidate.isOn,
@@ -327,13 +382,9 @@ namespace DonGeonMaster.MapGeneration
                 minSpawnToExitDistance = ParseFloat(fieldMinSpawnExitDist.text, 15f)
             };
 
-            // Catégories activées
             cfg.enabledCategories.Clear();
             foreach (var kvp in categoryToggles)
-            {
-                if (kvp.Value.isOn)
-                    cfg.enabledCategories.Add(kvp.Key);
-            }
+                if (kvp.Value.isOn) cfg.enabledCategories.Add(kvp.Key);
 
             return cfg;
         }
@@ -355,9 +406,14 @@ namespace DonGeonMaster.MapGeneration
             fieldSeed.text = cfg.seed.ToString();
             toggleRandomSeed.isOn = cfg.useRandomSeed;
             toggleLockSeed.isOn = cfg.lockSeed;
-            dropdownMode.value = (int)cfg.mode;
-            dropdownLayout.value = (int)cfg.layoutType;
-            dropdownBiome.value = (int)cfg.forcedBiome;
+
+            currentModeIndex = (int)cfg.mode;
+            if (lblModeValue != null) lblModeValue.text = ModeNames[currentModeIndex];
+            currentLayoutIndex = (int)cfg.layoutType;
+            if (lblLayoutValue != null) lblLayoutValue.text = LayoutNames[currentLayoutIndex];
+            currentBiomeIndex = (int)cfg.forcedBiome;
+            if (lblBiomeValue != null) lblBiomeValue.text = BiomeNames[currentBiomeIndex];
+
             toggleForceBiome.isOn = cfg.useForcedBiome;
             toggleEnsureAccess.isOn = cfg.ensureAccessibility;
             toggleValidate.isOn = cfg.validateAfterGeneration;
@@ -365,7 +421,6 @@ namespace DonGeonMaster.MapGeneration
             toggleForceSpecial.isOn = cfg.forceSpecialRoom;
             fieldMinSpawnExitDist.text = cfg.minSpawnToExitDistance.ToString("F0");
 
-            // Catégories
             foreach (var kvp in categoryToggles)
                 kvp.Value.isOn = cfg.enabledCategories.Count == 0 || cfg.enabledCategories.Contains(kvp.Key);
         }
@@ -378,7 +433,6 @@ namespace DonGeonMaster.MapGeneration
 
             lblStatus.text = $"Statut: {result.status}";
             lblStatus.color = DebugUIBuilder.GetStatusColor(result.status);
-
             lblSeed.text = $"Seed: {result.seed}";
             lblTime.text = $"Temps: {result.generationTimeMs:F1} ms";
             lblRooms.text = $"Salles: {result.roomCount}";
@@ -387,52 +441,39 @@ namespace DonGeonMaster.MapGeneration
             lblErrors.text = $"Erreurs: {result.errorCount}";
             lblErrors.color = result.errorCount > 0 ? Color.red : Color.white;
             lblWarnings.text = $"Warnings: {result.warningCount}";
-            lblWarnings.color = result.warningCount > 0
-                ? new Color(1f, 0.8f, 0.2f)
-                : Color.white;
+            lblWarnings.color = result.warningCount > 0 ? new Color(1f, 0.8f, 0.2f) : Color.white;
             lblSpawn.text = $"Spawn: ({result.spawnCell.x}, {result.spawnCell.y})";
             lblExit.text = $"Sortie: ({result.exitCell.x}, {result.exitCell.y})";
             lblDistance.text = $"Distance S→E: {result.spawnToExitDistance:F1}";
 
-            // Mettre à jour le champ seed
             fieldSeed.text = result.seed.ToString();
-
-            // Log récent
             UpdateLogDisplay(result);
-
-            // Historique seeds
             AddToSeedHistory(result.seed);
         }
 
         public void UpdateBatchStatus(string status)
         {
-            if (lblBatchStatus != null)
-                lblBatchStatus.text = status;
+            if (lblBatchStatus != null) lblBatchStatus.text = status;
         }
 
         void UpdateLogDisplay(GenerationResult result)
         {
-            // Nettoyer le contenu existant
             for (int i = logContent.childCount - 1; i >= 0; i--)
                 Destroy(logContent.GetChild(i).gameObject);
 
-            int maxLines = 30;
+            int maxLines = 25;
             int shown = 0;
-
             foreach (var entry in result.validationEntries)
             {
                 if (shown >= maxLines) break;
-                var lbl = DebugUIBuilder.CreateLabel(logContent, entry.ToString(), 9,
-                    height: 16);
+                var lbl = DebugUIBuilder.CreateLabel(logContent, entry.ToString(), 9, height: 16);
                 lbl.color = DebugUIBuilder.GetSeverityColor(entry.severity);
                 shown++;
             }
-
             foreach (var step in result.pipelineSteps)
             {
                 if (shown >= maxLines) break;
-                DebugUIBuilder.CreateLabel(logContent, step, 9,
-                    height: 16);
+                DebugUIBuilder.CreateLabel(logContent, step, 9, height: 16);
                 shown++;
             }
         }
@@ -444,7 +485,6 @@ namespace DonGeonMaster.MapGeneration
             if (seedHistory.Count > MaxSeedHistory)
                 seedHistory.RemoveAt(seedHistory.Count - 1);
 
-            // Rebuild UI
             for (int i = seedHistoryContent.childCount - 1; i >= 0; i--)
                 Destroy(seedHistoryContent.GetChild(i).gameObject);
 
@@ -464,12 +504,12 @@ namespace DonGeonMaster.MapGeneration
 
         public void RefreshCategories(AssetCategoryRegistry registry)
         {
-            // Supprimer les anciens toggles (sauf les 2 boutons tout cocher/décocher)
+            if (categoriesContent == null) return;
+
             for (int i = categoriesContent.childCount - 1; i >= 1; i--)
                 Destroy(categoriesContent.GetChild(i).gameObject);
 
             categoryToggles.Clear();
-
             if (registry == null) return;
 
             foreach (var cat in registry.categories)
@@ -478,6 +518,7 @@ namespace DonGeonMaster.MapGeneration
                 var toggle = DebugUIBuilder.CreateToggle(categoriesContent, cat.displayName, true);
                 categoryToggles[cat.categoryId] = toggle;
             }
+            Debug.Log($"[MapGenDebugUI] {categoryToggles.Count} catégories chargées");
         }
 
         void SetAllCategories(bool value)
@@ -488,126 +529,9 @@ namespace DonGeonMaster.MapGeneration
 
         // ===================== UTILITAIRES =====================
 
-        TMP_Dropdown CreateDropdown(Transform parent, string label, string[] options)
-        {
-            var row = DebugUIBuilder.CreateHorizontalGroup(parent, 28);
+        static int ParseInt(string s, int fallback) => int.TryParse(s, out int v) ? v : fallback;
+        static float ParseFloat(string s, float fallback) => float.TryParse(s, out float v) ? v : fallback;
 
-            var labelGo = new GameObject("Label");
-            labelGo.transform.SetParent(row, false);
-            labelGo.AddComponent<LayoutElement>().preferredWidth = 110;
-            DebugUIBuilder.CreateTextDirect(labelGo.transform, label, 11);
-
-            var ddGo = new GameObject($"Dropdown_{label}");
-            ddGo.transform.SetParent(row, false);
-            ddGo.AddComponent<LayoutElement>().flexibleWidth = 1;
-
-            var img = ddGo.AddComponent<Image>();
-            img.color = new Color(0.15f, 0.15f, 0.18f);
-
-            var dd = ddGo.AddComponent<TMP_Dropdown>();
-
-            // Caption
-            var captionGo = new GameObject("Label");
-            captionGo.transform.SetParent(ddGo.transform, false);
-            var cRT = captionGo.AddComponent<RectTransform>();
-            cRT.anchorMin = Vector2.zero;
-            cRT.anchorMax = Vector2.one;
-            cRT.offsetMin = new Vector2(8, 0);
-            cRT.offsetMax = new Vector2(-25, 0);
-            var captionText = captionGo.AddComponent<TextMeshProUGUI>();
-            captionText.fontSize = 11;
-            captionText.color = Color.white;
-
-            dd.captionText = captionText;
-
-            // Template (minimal)
-            var templateGo = new GameObject("Template");
-            templateGo.transform.SetParent(ddGo.transform, false);
-            var tRT = templateGo.AddComponent<RectTransform>();
-            tRT.anchorMin = new Vector2(0, 0);
-            tRT.anchorMax = new Vector2(1, 0);
-            tRT.pivot = new Vector2(0.5f, 1);
-            tRT.sizeDelta = new Vector2(0, 150);
-            templateGo.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.15f);
-            templateGo.AddComponent<ScrollRect>();
-
-            var viewport = new GameObject("Viewport");
-            viewport.transform.SetParent(templateGo.transform, false);
-            var vpRT = viewport.AddComponent<RectTransform>();
-            vpRT.anchorMin = Vector2.zero;
-            vpRT.anchorMax = Vector2.one;
-            vpRT.offsetMin = Vector2.zero;
-            vpRT.offsetMax = Vector2.zero;
-            viewport.AddComponent<Image>();
-            viewport.AddComponent<Mask>().showMaskGraphic = true;
-
-            var contentGo = new GameObject("Content");
-            contentGo.transform.SetParent(viewport.transform, false);
-            var coRT = contentGo.AddComponent<RectTransform>();
-            coRT.anchorMin = new Vector2(0, 1);
-            coRT.anchorMax = new Vector2(1, 1);
-            coRT.pivot = new Vector2(0.5f, 1);
-
-            var itemGo = new GameObject("Item");
-            itemGo.transform.SetParent(contentGo.transform, false);
-            var iRT = itemGo.AddComponent<RectTransform>();
-            iRT.sizeDelta = new Vector2(0, 24);
-            var itemToggle = itemGo.AddComponent<Toggle>();
-
-            var itemBg = new GameObject("Item Background");
-            itemBg.transform.SetParent(itemGo.transform, false);
-            var ibRT = itemBg.AddComponent<RectTransform>();
-            ibRT.anchorMin = Vector2.zero;
-            ibRT.anchorMax = Vector2.one;
-            ibRT.offsetMin = Vector2.zero;
-            ibRT.offsetMax = Vector2.zero;
-            itemBg.AddComponent<Image>().color = new Color(0.2f, 0.2f, 0.25f);
-
-            var itemCheck = new GameObject("Item Checkmark");
-            itemCheck.transform.SetParent(itemBg.transform, false);
-            var icRT = itemCheck.AddComponent<RectTransform>();
-            icRT.anchorMin = Vector2.zero;
-            icRT.anchorMax = Vector2.one;
-            icRT.offsetMin = Vector2.zero;
-            icRT.offsetMax = Vector2.zero;
-            var checkImg = itemCheck.AddComponent<Image>();
-            checkImg.color = new Color(0.3f, 0.5f, 0.8f, 0.5f);
-
-            itemToggle.targetGraphic = itemBg.GetComponent<Image>();
-            itemToggle.graphic = checkImg;
-
-            var itemLabel = new GameObject("Item Label");
-            itemLabel.transform.SetParent(itemGo.transform, false);
-            var ilRT = itemLabel.AddComponent<RectTransform>();
-            ilRT.anchorMin = Vector2.zero;
-            ilRT.anchorMax = Vector2.one;
-            ilRT.offsetMin = new Vector2(8, 0);
-            ilRT.offsetMax = Vector2.zero;
-            var itemText = itemLabel.AddComponent<TextMeshProUGUI>();
-            itemText.fontSize = 11;
-            itemText.color = Color.white;
-
-            dd.itemText = itemText;
-            dd.template = tRT;
-            templateGo.SetActive(false);
-
-            dd.ClearOptions();
-            dd.AddOptions(new List<string>(options));
-
-            return dd;
-        }
-
-        static int ParseInt(string s, int fallback)
-        {
-            return int.TryParse(s, out int v) ? v : fallback;
-        }
-
-        static float ParseFloat(string s, float fallback)
-        {
-            return float.TryParse(s, out float v) ? v : fallback;
-        }
-
-        // Raccourcis clavier
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.F5)) controller.Generate();
@@ -618,11 +542,13 @@ namespace DonGeonMaster.MapGeneration
             if (Input.GetKeyDown(KeyCode.F10)) controller.ToggleCameraMode();
             if (Input.GetKeyDown(KeyCode.F12)) controller.ExportLog();
 
-            // Tab pour toggle UI
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                var leftPanel = transform.GetChild(0);
-                leftPanel.gameObject.SetActive(!leftPanel.gameObject.activeSelf);
+                if (transform.childCount > 0)
+                {
+                    var leftPanel = transform.GetChild(0);
+                    leftPanel.gameObject.SetActive(!leftPanel.gameObject.activeSelf);
+                }
             }
         }
     }

@@ -453,7 +453,7 @@ namespace DonGeonMaster.MapGeneration
             hlg.spacing = 4;
             hlg.childControlWidth = true;
             hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = true;
+            hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = true;
             return rt;
         }
