@@ -77,9 +77,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var mouse = Mouse.current;
             if (mouse == null || cam == null) return;
 
-            float scroll = mouse.scroll.y.ReadValue() * 0.01f;
-            if (Mathf.Abs(scroll) > 0.001f)
-                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scroll, 3, 300);
+            float scroll = mouse.scroll.y.ReadValue();
+            if (scroll > 0f)
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * 0.85f, 3f, 300f);
+            else if (scroll < 0f)
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * 1.15f, 3f, 300f);
 
             if (mouse.rightButton.isPressed)
             {
