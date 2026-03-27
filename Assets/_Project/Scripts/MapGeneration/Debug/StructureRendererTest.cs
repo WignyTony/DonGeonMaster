@@ -26,7 +26,9 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 camGO = new GameObject("Main Camera");
                 camGO.tag = "MainCamera";
             }
-            cam = camGO.GetComponent<Camera>() ?? camGO.AddComponent<Camera>();
+            cam = camGO.GetComponent<Camera>();
+            if (cam == null)
+                cam = camGO.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.08f, 0.08f, 0.12f);
             cam.orthographic = true;
