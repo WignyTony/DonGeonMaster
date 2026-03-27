@@ -10,12 +10,22 @@ namespace DonGeonMaster.MapGeneration.DebugTools
     {
         GameObject panel;
         TMP_InputField fSeed, fWidth, fHeight, fCellSize, fMinRooms, fMaxRooms;
-        TMP_InputField fPresetName;
-        Transform presetListParent;
+        TMP_InputField fCorridorW, fMargin;
+        TMP_InputField fPresetName, fBatchCount;
+        Transform presetListParent, seedHistoryParent;
+        TextMeshProUGUI batchStatusText;
 
+        // Callbacks
         public Action OnGenerate, OnRegenerate, OnClear, OnHero;
         public Action<string> OnSavePreset, OnLoadPreset;
         public Action OnExportLog, OnOpenLogs, OnCopySeed;
+        public Action<int> OnBatchStart;
+        public Action OnBatchCancel;
+        public Action<int> OnReplaySeed;
+
+        // Seed history (geree en interne)
+        List<int> seedHistory = new();
+        const int MaxHistory = 12;
 
         public void Build()
         {
@@ -38,7 +48,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             prt.sizeDelta = new Vector2(320, 0);
             panel.AddComponent<Image>().color = new Color(0.07f, 0.07f, 0.10f, 0.95f);
 
-            // ScrollView
             var scrollGO = new GameObject("Scroll");
             scrollGO.transform.SetParent(panel.transform, false);
             Stretch(scrollGO);
@@ -75,17 +84,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
             var c = content.transform;
 
-            // ── Header ──
             Header(c, "MAP GEN DEBUG", 15, new Color(0.12f, 0.20f, 0.35f), 26);
 
             // ── Config ──
             Header(c, "Configuration", 10, new Color(0.13f, 0.13f, 0.18f), 20);
-            fSeed     = Row(c, "Seed", "0", TMP_InputField.ContentType.IntegerNumber);
-            fWidth    = Row(c, "Largeur", "30", TMP_InputField.ContentType.IntegerNumber);
-            fHeight   = Row(c, "Hauteur", "30", TMP_InputField.ContentType.IntegerNumber);
-            fCellSize = Row(c, "Cellule", "6", TMP_InputField.ContentType.DecimalNumber);
-            fMinRooms = Row(c, "Salles min", "5", TMP_InputField.ContentType.IntegerNumber);
-            fMaxRooms = Row(c, "Salles max", "10", TMP_InputField.ContentType.IntegerNumber);
+            fSeed      = Row(c, "Seed", "0", TMP_InputField.ContentType.IntegerNumber);
+            fWidth     = Row(c, "Largeur", "30", TMP_InputField.ContentType.IntegerNumber);
+            fHeight    = Row(c, "Hauteur", "30", TMP_InputField.ContentType.IntegerNumber);
+            fCellSize  = Row(c, "Cellule", "6", TMP_InputField.ContentType.DecimalNumber);
+            fMinRooms  = Row(c, "Salles min", "5", TMP_InputField.ContentType.IntegerNumber);
+            fMaxRooms  = Row(c, "Salles max", "10", TMP_InputField.ContentType.IntegerNumber);
+            fCorridorW = Row(c, "Couloir larg.", "2", TMP_InputField.ContentType.IntegerNumber);
+            fMargin    = Row(c, "Marge bord", "2", TMP_InputField.ContentType.IntegerNumber);
 
             // ── Actions ──
             Header(c, "Actions", 10, new Color(0.13f, 0.13f, 0.18f), 20);
@@ -101,7 +111,21 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var r3 = BtnRow(c);
             Btn(r3, "Copier Seed", new Color(0.25f, 0.25f, 0.35f), () => OnCopySeed?.Invoke());
             Btn(r3, "Export Log", new Color(0.25f, 0.25f, 0.35f), () => OnExportLog?.Invoke());
-            Btn(c, "Ouvrir dossier Logs", new Color(0.20f, 0.20f, 0.30f), () => OnOpenLogs?.Invoke());
+            Btn(c, "Ouvrir Logs", new Color(0.20f, 0.20f, 0.30f), () => OnOpenLogs?.Invoke());
+
+            // ── Batch Test ──
+            Header(c, "Batch Test", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            fBatchCount = Row(c, "Iterations", "100", TMP_InputField.ContentType.IntegerNumber);
+            var rb = BtnRow(c);
+            Btn(rb, "Lancer", new Color(0.50f, 0.35f, 0.12f), () =>
+                OnBatchStart?.Invoke(Int(fBatchCount, 100)));
+            Btn(rb, "Annuler", new Color(0.50f, 0.20f, 0.18f), () => OnBatchCancel?.Invoke());
+            batchStatusText = SmallTextReturn(c, "Aucun batch");
+
+            // ── Seed History ──
+            Header(c, "Historique Seeds", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            seedHistoryParent = c;
+            // Les boutons SH_ seront ajoutes dynamiquement
 
             // ── Presets ──
             Header(c, "Presets", 10, new Color(0.13f, 0.13f, 0.18f), 20);
@@ -119,19 +143,76 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 string n = fPresetName.text;
                 if (!string.IsNullOrWhiteSpace(n)) OnLoadPreset?.Invoke(n);
             });
-
-            // Liste des presets existants
             presetListParent = c;
             RefreshPresetList();
 
-            // ── Aide ──
             Spacer(c, 4);
             SmallText(c, "Tab=Sidebar  Molette=Zoom  Clic droit=Pan");
         }
 
+        // ════════════════════════════════════════════
+        //  SEED HISTORY
+        // ════════════════════════════════════════════
+
+        public void RecordSeed(int seed)
+        {
+            seedHistory.Remove(seed);
+            seedHistory.Insert(0, seed);
+            if (seedHistory.Count > MaxHistory)
+                seedHistory.RemoveAt(seedHistory.Count - 1);
+            RefreshSeedHistory();
+        }
+
+        void RefreshSeedHistory()
+        {
+            if (seedHistoryParent == null) return;
+            var toRemove = new List<GameObject>();
+            for (int i = 0; i < seedHistoryParent.childCount; i++)
+            {
+                var child = seedHistoryParent.GetChild(i);
+                if (child.name.StartsWith("SH_")) toRemove.Add(child.gameObject);
+            }
+            foreach (var go in toRemove) DestroyImmediate(go);
+
+            foreach (int seed in seedHistory)
+            {
+                int s = seed;
+                var go = new GameObject($"SH_{s}");
+                go.transform.SetParent(seedHistoryParent, false);
+                go.AddComponent<LayoutElement>().preferredHeight = 22;
+                go.AddComponent<Image>().color = new Color(0.10f, 0.10f, 0.15f);
+                var btn = go.AddComponent<Button>();
+                var cols = btn.colors;
+                cols.highlightedColor = new Color(0.18f, 0.18f, 0.28f);
+                btn.colors = cols;
+                btn.onClick.AddListener(() => OnReplaySeed?.Invoke(s));
+
+                var tgo = new GameObject("T");
+                tgo.transform.SetParent(go.transform, false);
+                Stretch(tgo, 6, 0);
+                var tmp = tgo.AddComponent<TextMeshProUGUI>();
+                tmp.text = $"Seed: {s}";
+                tmp.fontSize = 10;
+                tmp.color = new Color(0.65f, 0.75f, 0.90f);
+                tmp.alignment = TextAlignmentOptions.MidlineLeft;
+            }
+        }
+
+        // ════════════════════════════════════════════
+        //  BATCH STATUS
+        // ════════════════════════════════════════════
+
+        public void UpdateBatchStatus(string status)
+        {
+            if (batchStatusText != null) batchStatusText.text = status;
+        }
+
+        // ════════════════════════════════════════════
+        //  PRESET LIST
+        // ════════════════════════════════════════════
+
         void RefreshPresetList()
         {
-            // Supprimer les anciens boutons de preset (tag "PresetBtn")
             if (presetListParent == null) return;
             var toRemove = new List<GameObject>();
             for (int i = 0; i < presetListParent.childCount; i++)
@@ -141,14 +222,12 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             }
             foreach (var go in toRemove) DestroyImmediate(go);
 
-            // Ajouter les presets disponibles
-            var presets = PresetManager.GetAvailablePresets();
-            foreach (var name in presets)
+            foreach (var name in PresetManager.GetAvailablePresets())
             {
                 var n = name;
                 var go = new GameObject($"PB_{n}");
                 go.transform.SetParent(presetListParent, false);
-                go.AddComponent<LayoutElement>().preferredHeight = 24;
+                go.AddComponent<LayoutElement>().preferredHeight = 22;
                 go.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.18f);
                 var btn = go.AddComponent<Button>();
                 var cols = btn.colors;
@@ -161,7 +240,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 Stretch(tgo, 6, 0);
                 var tmp = tgo.AddComponent<TextMeshProUGUI>();
                 tmp.text = n;
-                tmp.fontSize = 11;
+                tmp.fontSize = 10;
                 tmp.color = new Color(0.7f, 0.7f, 0.75f);
                 tmp.alignment = TextAlignmentOptions.MidlineLeft;
             }
@@ -181,6 +260,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             cfg.cellSize = Flt(fCellSize, 6f);
             cfg.minRooms = Int(fMinRooms, 5);
             cfg.maxRooms = Int(fMaxRooms, 10);
+            cfg.corridorWidth = Int(fCorridorW, 2);
+            cfg.borderMargin = Int(fMargin, 2);
             cfg.validateAfterGeneration = true;
             return cfg;
         }
@@ -194,6 +275,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             fCellSize.text = cfg.cellSize.ToString("F1");
             fMinRooms.text = cfg.minRooms.ToString();
             fMaxRooms.text = cfg.maxRooms.ToString();
+            fCorridorW.text = cfg.corridorWidth.ToString();
+            fMargin.text = cfg.borderMargin.ToString();
         }
 
         public void WriteSeed(int seed) { if (fSeed != null) fSeed.text = seed.ToString(); }
@@ -205,124 +288,112 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         //  UI BUILDERS
         // ════════════════════════════════════════════
 
-        void Header(Transform parent, string text, int fontSize, Color bg, float height)
+        void Header(Transform p, string t, int fs, Color bg, float h)
         {
             var go = new GameObject("Hdr");
-            go.transform.SetParent(parent, false);
-            go.AddComponent<LayoutElement>().preferredHeight = height;
+            go.transform.SetParent(p, false);
+            go.AddComponent<LayoutElement>().preferredHeight = h;
             go.AddComponent<Image>().color = bg;
             var tgo = new GameObject("T");
             tgo.transform.SetParent(go.transform, false);
             Stretch(tgo, 8, 0);
             var tmp = tgo.AddComponent<TextMeshProUGUI>();
-            tmp.text = text;
-            tmp.fontSize = fontSize;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.color = Color.white;
+            tmp.text = t; tmp.fontSize = fs;
+            tmp.fontStyle = FontStyles.Bold; tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
         }
 
-        TMP_InputField Row(Transform parent, string label, string defaultVal,
-            TMP_InputField.ContentType contentType)
+        TMP_InputField Row(Transform p, string label, string def, TMP_InputField.ContentType ct)
         {
             var go = new GameObject($"R_{label}");
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(p, false);
             go.AddComponent<LayoutElement>().preferredHeight = 28;
             var hlg = go.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 6;
-            hlg.padding = new RectOffset(4, 4, 0, 0);
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = true;
+            hlg.spacing = 6; hlg.padding = new RectOffset(4, 4, 0, 0);
+            hlg.childControlWidth = true; hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
 
-            var lblGO = new GameObject("L");
-            lblGO.transform.SetParent(go.transform, false);
-            var lle = lblGO.AddComponent<LayoutElement>();
+            var lgo = new GameObject("L");
+            lgo.transform.SetParent(go.transform, false);
+            var lle = lgo.AddComponent<LayoutElement>();
             lle.preferredWidth = 100; lle.flexibleWidth = 0;
-            var lbl = lblGO.AddComponent<TextMeshProUGUI>();
+            var lbl = lgo.AddComponent<TextMeshProUGUI>();
             lbl.text = label; lbl.fontSize = 11;
             lbl.color = new Color(0.6f, 0.6f, 0.65f);
             lbl.alignment = TextAlignmentOptions.MidlineLeft;
 
-            var iGO = new GameObject("I");
-            iGO.transform.SetParent(go.transform, false);
-            var ile = iGO.AddComponent<LayoutElement>();
+            var igo = new GameObject("I");
+            igo.transform.SetParent(go.transform, false);
+            var ile = igo.AddComponent<LayoutElement>();
             ile.preferredWidth = 100; ile.flexibleWidth = 1;
-            iGO.AddComponent<Image>().color = new Color(0.04f, 0.04f, 0.07f);
-            var input = iGO.AddComponent<TMP_InputField>();
-            input.contentType = contentType;
+            igo.AddComponent<Image>().color = new Color(0.04f, 0.04f, 0.07f);
+            var input = igo.AddComponent<TMP_InputField>();
+            input.contentType = ct;
 
-            var taGO = new GameObject("TA");
-            taGO.transform.SetParent(iGO.transform, false);
-            Stretch(taGO, 5, 1);
-            taGO.AddComponent<RectMask2D>();
+            var ta = new GameObject("TA");
+            ta.transform.SetParent(igo.transform, false);
+            Stretch(ta, 5, 1); ta.AddComponent<RectMask2D>();
 
-            var txtGO = new GameObject("Txt");
-            txtGO.transform.SetParent(taGO.transform, false);
-            Stretch(txtGO);
-            var txt = txtGO.AddComponent<TextMeshProUGUI>();
-            txt.fontSize = 11; txt.color = Color.white;
-            txt.textWrappingMode = TextWrappingModes.NoWrap;
+            var txt = new GameObject("Txt");
+            txt.transform.SetParent(ta.transform, false);
+            Stretch(txt);
+            var t1 = txt.AddComponent<TextMeshProUGUI>();
+            t1.fontSize = 11; t1.color = Color.white;
+            t1.textWrappingMode = TextWrappingModes.NoWrap;
 
-            var phGO = new GameObject("PH");
-            phGO.transform.SetParent(taGO.transform, false);
-            Stretch(phGO);
-            var ph = phGO.AddComponent<TextMeshProUGUI>();
-            ph.text = "..."; ph.fontSize = 11;
-            ph.color = new Color(0.35f, 0.35f, 0.40f);
-            ph.fontStyle = FontStyles.Italic;
-            ph.textWrappingMode = TextWrappingModes.NoWrap;
+            var ph = new GameObject("PH");
+            ph.transform.SetParent(ta.transform, false);
+            Stretch(ph);
+            var t2 = ph.AddComponent<TextMeshProUGUI>();
+            t2.text = "..."; t2.fontSize = 11;
+            t2.color = new Color(0.35f, 0.35f, 0.40f);
+            t2.fontStyle = FontStyles.Italic;
+            t2.textWrappingMode = TextWrappingModes.NoWrap;
 
-            input.textViewport = taGO.GetComponent<RectTransform>();
-            input.textComponent = txt;
-            input.placeholder = ph;
-            input.text = defaultVal;
-            input.caretColor = Color.white;
+            input.textViewport = ta.GetComponent<RectTransform>();
+            input.textComponent = t1; input.placeholder = t2;
+            input.text = def; input.caretColor = Color.white;
             return input;
         }
 
-        Transform BtnRow(Transform parent)
+        Transform BtnRow(Transform p)
         {
             var go = new GameObject("BR");
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(p, false);
             go.AddComponent<LayoutElement>().preferredHeight = 30;
             var hlg = go.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 4;
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandWidth = true;
+            hlg.spacing = 4; hlg.childControlWidth = true;
+            hlg.childControlHeight = true; hlg.childForceExpandWidth = true;
             hlg.childForceExpandHeight = true;
             return go.transform;
         }
 
-        void Btn(Transform parent, string text, Color color, Action onClick)
+        void Btn(Transform p, string text, Color col, Action click)
         {
             var go = new GameObject("B");
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(p, false);
             go.AddComponent<LayoutElement>().flexibleWidth = 1;
-            go.AddComponent<Image>().color = color;
+            go.AddComponent<Image>().color = col;
             var btn = go.AddComponent<Button>();
-            var cols = btn.colors;
-            cols.highlightedColor = color * 1.25f;
-            cols.pressedColor = color * 0.7f;
-            cols.fadeDuration = 0.05f;
-            btn.colors = cols;
-            btn.onClick.AddListener(() => onClick());
+            var c = btn.colors;
+            c.highlightedColor = col * 1.25f;
+            c.pressedColor = col * 0.7f;
+            c.fadeDuration = 0.05f;
+            btn.colors = c;
+            btn.onClick.AddListener(() => click());
             var tgo = new GameObject("T");
             tgo.transform.SetParent(go.transform, false);
             Stretch(tgo);
             var tmp = tgo.AddComponent<TextMeshProUGUI>();
             tmp.text = text; tmp.fontSize = 10;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.color = Color.white;
+            tmp.fontStyle = FontStyles.Bold; tmp.color = Color.white;
             tmp.alignment = TextAlignmentOptions.Center;
         }
 
-        void SmallText(Transform parent, string text)
+        void SmallText(Transform p, string text)
         {
             var go = new GameObject("Help");
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(p, false);
             go.AddComponent<LayoutElement>().preferredHeight = 18;
             var tmp = go.AddComponent<TextMeshProUGUI>();
             tmp.text = text; tmp.fontSize = 9;
@@ -331,10 +402,22 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             tmp.alignment = TextAlignmentOptions.Center;
         }
 
-        void Spacer(Transform parent, float h)
+        TextMeshProUGUI SmallTextReturn(Transform p, string text)
+        {
+            var go = new GameObject("Status");
+            go.transform.SetParent(p, false);
+            go.AddComponent<LayoutElement>().preferredHeight = 18;
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            tmp.text = text; tmp.fontSize = 9;
+            tmp.color = new Color(0.5f, 0.5f, 0.55f);
+            tmp.alignment = TextAlignmentOptions.Center;
+            return tmp;
+        }
+
+        void Spacer(Transform p, float h)
         {
             var go = new GameObject("Sp");
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(p, false);
             go.AddComponent<LayoutElement>().preferredHeight = h;
         }
 

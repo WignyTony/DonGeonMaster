@@ -18,6 +18,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         GenerationValidator validator;
         MapStructureDebugRenderer structureRenderer;
         HeroDebugBridge heroBridge;
+        BatchTestRunner batchRunner;
         MapDebugSidebarUI sidebar;
         MapDebugOverlayUI overlay;
         Camera cam;
@@ -100,9 +101,24 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             sidebar.OnCopySeed = CopySeed;
             sidebar.OnSavePreset = SavePreset;
             sidebar.OnLoadPreset = LoadPreset;
+            sidebar.OnBatchStart = StartBatch;
+            sidebar.OnBatchCancel = CancelBatch;
+            sidebar.OnReplaySeed = ReplaySeed;
 
             overlay = gameObject.AddComponent<MapDebugOverlayUI>();
             overlay.Build();
+
+            // BatchTestRunner
+            batchRunner = gameObject.GetComponent<BatchTestRunner>();
+            if (batchRunner == null)
+                batchRunner = gameObject.AddComponent<BatchTestRunner>();
+            batchRunner.OnStatusUpdate += s => sidebar.UpdateBatchStatus(s);
+            batchRunner.OnBatchComplete += m =>
+            {
+                sidebar.UpdateBatchStatus(
+                    $"Termine: {m.successes}OK {m.warnings}W {m.failures}E\n" +
+                    $"Seeds echec: [{string.Join(", ", m.failedSeeds)}]");
+            };
         }
 
         // ════════════════════════════════════════════
@@ -129,9 +145,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             FitCamera();
             SetMode(DebugMode.TopDown);
 
-            // Mettre a jour l'overlay et le champ seed de la sidebar
+            // Mettre a jour l'UI
             overlay.UpdateStats(result, structureRenderer);
             sidebar.WriteSeed(result.seed);
+            sidebar.RecordSeed(result.seed);
 
             // Log automatique sur disque
             GenerationLogger.WriteLog(map, currentConfig, result);
@@ -197,6 +214,25 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             if (preset == null) return;
             sidebar.ApplyConfig(preset.config);
             UnityEngine.Debug.Log($"[ModeController] Preset charge: {name}");
+        }
+
+        void StartBatch(int iterations)
+        {
+            if (batchRunner.isRunning) return;
+            var cfg = sidebar.ReadConfig();
+            batchRunner.StartBatch(cfg, iterations);
+            sidebar.UpdateBatchStatus($"Batch demarre: {iterations} iterations...");
+        }
+
+        void CancelBatch()
+        {
+            batchRunner.Cancel();
+        }
+
+        void ReplaySeed(int seed)
+        {
+            sidebar.WriteSeed(seed);
+            Generate();
         }
 
         // ════════════════════════════════════════════
