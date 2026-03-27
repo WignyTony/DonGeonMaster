@@ -402,16 +402,15 @@ namespace DonGeonMaster.MapGeneration
             hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = false;
 
-            // Box
+            // Box — Image ajoute automatiquement RectTransform
             var bgGo = new GameObject("Bg");
             bgGo.transform.SetParent(go.transform, false);
-            var bgRT = bgGo.GetComponent<RectTransform>() ?? bgGo.AddComponent<RectTransform>();
-            bgRT.sizeDelta = new Vector2(16, 16);
+            var bgImg = bgGo.AddComponent<Image>();
+            bgImg.color = InputBg;
+            bgGo.GetComponent<RectTransform>().sizeDelta = new Vector2(16, 16);
             var bgLE = bgGo.AddComponent<LayoutElement>();
             bgLE.preferredWidth = 16;
             bgLE.preferredHeight = 16;
-            var bgImg = bgGo.AddComponent<Image>();
-            bgImg.color = InputBg;
 
             var chkGo = new GameObject("Check");
             chkGo.transform.SetParent(bgGo.transform, false);
