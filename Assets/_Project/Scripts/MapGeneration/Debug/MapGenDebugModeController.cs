@@ -266,11 +266,12 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var mouse = Mouse.current;
             if (mouse == null) return;
 
+            const float zoomStep = 0.85f;
             float scroll = mouse.scroll.y.ReadValue();
             if (scroll > 0f)
-                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * 0.85f, 3f, 300f);
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * zoomStep, 3f, 300f);
             else if (scroll < 0f)
-                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize * 1.15f, 3f, 300f);
+                cam.orthographicSize = Mathf.Clamp(cam.orthographicSize / zoomStep, 3f, 300f);
 
             if (mouse.rightButton.isPressed)
             {
