@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Epines
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Epines
+  displayName: "\xC9pines"
+  description: "Buissons \xE9pineux"
+  debugColor: {r: 0.4, g: 0.3, b: 0.2, a: 1}
+  prefabs:
+  - {fileID: 1968184330866279906, guid: 7e33c0236e5ef7d4f99800a753e74452, type: 3}
+  - {fileID: 7798189762600889615, guid: eb97697210965be4da34037e1549985f, type: 3}
+  - {fileID: 3764603647089596048, guid: bca306874361ff249be2b7908a216d0c, type: 3}
+  - {fileID: 1448526897259170939, guid: 7465ec3150b8baf47ba1e2553672e9e7, type: 3}
+  - {fileID: 352073502946510632, guid: f290e6b6d92765c4b936c7298928e6e3, type: 3}
+  - {fileID: 646071301476594351, guid: 95b67bfd5aafc67408c7a0b216dc9c9a, type: 3}
+  - {fileID: 2364802529249332254, guid: 379be9bef0e338a47aaad2cd40ac57e5, type: 3}
+  - {fileID: 8261613438990479310, guid: 0a0983fd67369754d9cc3c7e7901a205, type: 3}
+  - {fileID: 7890698013936213564, guid: 61d1ac83d33e60c41928a134ac25d490, type: 3}
+  - {fileID: 5209240530925566612, guid: af22f86902c00ec46bf56ae30dd21438, type: 3}
+  - {fileID: 7760985154907877741, guid: b57dd88497b39324f83878a2e6177cb0, type: 3}
+  - {fileID: 7874596901511111609, guid: 51431958db7e9254186b1f425d90c9ff, type: 3}
+  - {fileID: 1509937155340597374, guid: 182cd9eef74ff694e89733635590f5ee, type: 3}
+  - {fileID: 8318398713658459165, guid: fe31adbf0a8e38b49a0d84c5ecdc2e97, type: 3}
+  allowedCellTypes: 03000000
+  allowedBiomes: 0400000005000000
+  placementChance: 0.3
+  maxPerCell: 1
+  minSpacing: 1.5
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 0
+  isRequired: 0

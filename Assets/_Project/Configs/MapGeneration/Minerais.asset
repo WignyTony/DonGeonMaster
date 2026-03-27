@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Minerais
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Minerais
+  displayName: Minerais
+  description: "Nodes min\xE9raux et gemmes"
+  debugColor: {r: 0.3, g: 0.7, b: 0.9, a: 1}
+  prefabs:
+  - {fileID: 1672301981627289114, guid: b5c431aceecbc3f478fae835d68a7735, type: 3}
+  - {fileID: 2644025272676214775, guid: 7db79e60eb0bdd8428008868d270a686, type: 3}
+  - {fileID: 3585357169554188647, guid: c4c1e6c6ae9a79a41b26bd0e5c45bb36, type: 3}
+  - {fileID: 4685875152339976501, guid: 295274a998a06bc4a8e6b059c982c742, type: 3}
+  - {fileID: 4858643135987612899, guid: 6afbbf60bde21614f82819edcd71448d, type: 3}
+  - {fileID: 5562468253881135672, guid: 2ded96dfa90cf60468e24ebb650d52ef, type: 3}
+  - {fileID: 3801558149339613946, guid: ccff610ded0a0b9408f90705a218c533, type: 3}
+  - {fileID: 2860607920306730677, guid: d38868d7606f82e4b9e32e12f48ab5c7, type: 3}
+  - {fileID: 2914783853493765159, guid: d8971962d3a61384d9fbdfdaf4545f99, type: 3}
+  - {fileID: 2185839290242212474, guid: 9401872fcbdcb1b48900d55132850a7f, type: 3}
+  - {fileID: 1989551228497467314, guid: 21a4f9e0ecd27c54786a1dc82b648a39, type: 3}
+  - {fileID: 383282586856561209, guid: 3ddd6179c16b8b0419529f263b564e88, type: 3}
+  - {fileID: 3223890392997734678, guid: 820a59e0ef67ec54a9b07df1afe1bf86, type: 3}
+  - {fileID: 4969605176084426650, guid: 6e17129b6baf2ed44948932e679228bf, type: 3}
+  - {fileID: 3935588852282388327, guid: c696589a0df3b9e4994cc2751b80fe8d, type: 3}
+  - {fileID: 4187938361159758454, guid: 242d5a9a0578ec848b1aa920c7142ed8, type: 3}
+  - {fileID: 3768963559427269525, guid: 65330233a876e5641a0f72ebeac1d7a2, type: 3}
+  - {fileID: 8601731205606461540, guid: 4bd8926bb352e4b4cb899ab9304072ab, type: 3}
+  - {fileID: 8372437292610632424, guid: ecaadc5d608112140aa498e641967943, type: 3}
+  - {fileID: 2239364961537892022, guid: 615e28b34c442164b87fea2d1dbbdab3, type: 3}
+  - {fileID: 8421430371853900008, guid: f7d7d8ba6d1f6cf47ba04ab13cfa96ff, type: 3}
+  - {fileID: 7834565254558551054, guid: 32279ab18f1f99b4aa64f84b680e1753, type: 3}
+  - {fileID: 1918554113870687725, guid: 439fc710a62fb8e4291939faa5e5745a, type: 3}
+  - {fileID: 1100284108602594479, guid: 4cfda1b73ec381c488f35dc4f63b82d5, type: 3}
+  - {fileID: 2045937317598667939, guid: d2a43d060d555f444a821b412885d707, type: 3}
+  - {fileID: 3346504514012934472, guid: 4b57bae6f4754e54095287fe5ed5683a, type: 3}
+  - {fileID: 826521387320792937, guid: 9737f38f54a41ec47b57ca2ba520f084, type: 3}
+  - {fileID: 854393000619457070, guid: 7640a6d176be2c747b844ae20cbd42e1, type: 3}
+  - {fileID: 3526947998183178764, guid: bc7372bb4270f6b48915b81d2e8afd07, type: 3}
+  - {fileID: 6315060179505291371, guid: 995c9becdff14eb4d81ee994aba08b7a, type: 3}
+  - {fileID: 6057369024080188604, guid: 3fd4d58949b544e459bd76b5590f1800, type: 3}
+  - {fileID: 7648275329953544744, guid: 3ec93595431d2114982348b416eebe7e, type: 3}
+  - {fileID: 4386663333170745479, guid: 4f0749e85acd55e458ab91cd5dcf4a40, type: 3}
+  - {fileID: 8720214501187535940, guid: 0ecfb0e6c4dd3e442b162e60cf70ea25, type: 3}
+  - {fileID: 4124356743102429812, guid: a3cadb26f6e0be24dac9a2ba5d8cd894, type: 3}
+  - {fileID: 3642226890507477491, guid: 607df5bbdf40d1d4eb9f57facc37c1ff, type: 3}
+  - {fileID: 4065951605169246053, guid: 767ac6cbad6b9dd45b22bca07c16e696, type: 3}
+  - {fileID: 484034829395748375, guid: 6117c8714e88d46448226eca451a2d4a, type: 3}
+  - {fileID: 7801917834077943167, guid: 62ff32002b5c5ab41b73ce26df98f5cb, type: 3}
+  - {fileID: 3877896209445349395, guid: 81743746863ee2446b9797e0f5d58220, type: 3}
+  - {fileID: 1580572769852829837, guid: 764e4b7a1496b424fa44087fa4667a28, type: 3}
+  - {fileID: 6386913470332274612, guid: 96dcd99717846e640b49290e6b01f932, type: 3}
+  - {fileID: 1979649038604180714, guid: 31855e96a27de434ebce147d0b461030, type: 3}
+  - {fileID: 6507088621330118552, guid: 2583ed5ae8ae64e4daf7b04aefbf7297, type: 3}
+  - {fileID: 5056967507537027052, guid: 873230d633f0d374c919ee05766fb1e4, type: 3}
+  allowedCellTypes: 0100000003000000
+  allowedBiomes: 0600000007000000
+  placementChance: 0.1
+  maxPerCell: 1
+  minSpacing: 4
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 1
+  isRequired: 0

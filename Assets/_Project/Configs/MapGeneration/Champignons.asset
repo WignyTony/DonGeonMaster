@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Champignons
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Champignons
+  displayName: Champignons
+  description: "Champignons vari\xE9s"
+  debugColor: {r: 0.7, g: 0.3, b: 0.3, a: 1}
+  prefabs:
+  - {fileID: 5430213869122140374, guid: 712d2f95c99d0174ba8f12b1e60c6689, type: 3}
+  - {fileID: 400831721113087497, guid: f83ed378d7ce84b4a9f17b04bdb79c78, type: 3}
+  - {fileID: 2750792171378555062, guid: 4774d978a4455a04aac13c6c87260acc, type: 3}
+  - {fileID: 2696940029666833365, guid: c27185496d282e144a402f8842b002fe, type: 3}
+  - {fileID: 8133037186379474956, guid: 6309edc2ff3dd4f42a7f509a45ae08e2, type: 3}
+  - {fileID: 8030522142226232468, guid: 9568219ae2c91854ab14e84aed9496c7, type: 3}
+  - {fileID: 382555158459154286, guid: b53f55d45e7b9504f9b246683c38cb71, type: 3}
+  - {fileID: 8504758219789906526, guid: 56673ef45d48925478eba3aab4ecfccb, type: 3}
+  - {fileID: 808434983981790816, guid: e2d7ea7422987f14197d8befa41911ab, type: 3}
+  - {fileID: 1159182460359300126, guid: 0a62c256086fbc4499025d762f591204, type: 3}
+  - {fileID: 9154473703431767905, guid: 22cb8db82331877449a369c771d4ab9d, type: 3}
+  - {fileID: 7888382149898909619, guid: e7a069c01abf05f4aa10b9a820cb4a08, type: 3}
+  - {fileID: 4193181696207492045, guid: 15224fa48d4a7374eb34f8e81a030de2, type: 3}
+  - {fileID: 5023850687641262083, guid: 62a4402ffbba3fd4a9c9cb5e27b2497e, type: 3}
+  - {fileID: 8569581917442387223, guid: fd687a91c1157054783d49ac1a9393ff, type: 3}
+  - {fileID: 4253190267715400699, guid: 012a460279ae9d64a883031c2c1f6d27, type: 3}
+  - {fileID: 5152829988183512797, guid: 97da00da5e10d9046b12cf0bae284387, type: 3}
+  - {fileID: 916189734287681205, guid: 6c371faa67c2151459c6e8fc60262382, type: 3}
+  - {fileID: 55826992181890539, guid: 1df1d929b6e38904ea576c06799f6c5f, type: 3}
+  - {fileID: 5482788730570096671, guid: 87edec9c022084640b9dd4e82b884c9e, type: 3}
+  - {fileID: 8835027228022306679, guid: 5692e725ed547df469b67fb1748f1891, type: 3}
+  - {fileID: 5052562026221650425, guid: e45910011666f4c46ba763119b74c1a1, type: 3}
+  - {fileID: 7038409410323496158, guid: c31165541964e274daf141252b43ff98, type: 3}
+  - {fileID: 3506320792989677679, guid: cc8f0be2f5d7f7c48a48ade8bed0a7f8, type: 3}
+  - {fileID: 5398091902962256522, guid: c59d1995936c3b846bd64a9487c8745a, type: 3}
+  allowedCellTypes: 0100000003000000
+  allowedBiomes: 000000000500000007000000
+  placementChance: 0.15
+  maxPerCell: 2
+  minSpacing: 1
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 0
+  isRequired: 0

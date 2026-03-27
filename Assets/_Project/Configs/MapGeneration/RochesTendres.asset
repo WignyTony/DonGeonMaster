@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: RochesTendres
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: RochesTendres
+  displayName: Roches tendres
+  description: Petites pierres et galets
+  debugColor: {r: 0.6, g: 0.55, b: 0.5, a: 1}
+  prefabs:
+  - {fileID: 3364877638005440856, guid: 2e631824d371ffb48b7b57cdb171533e, type: 3}
+  - {fileID: 737993958962250248, guid: 6f78cf8a9e9559642936af3bb54efc5b, type: 3}
+  - {fileID: 6235498119045190369, guid: f6a6beec1377be64482ff5f951ee93e0, type: 3}
+  - {fileID: 2609833767787645910, guid: 9a940b5cdd2eae948a58bf04adb62854, type: 3}
+  - {fileID: 3848246899522849244, guid: 6d9beab3555e04347b7011d2e26308ea, type: 3}
+  - {fileID: 7551108101997874565, guid: fc2f35db53cee0c49b40776262a3d689, type: 3}
+  - {fileID: 8189521365195080414, guid: 8bd8b243b7b66a647a2094984c1b75ca, type: 3}
+  - {fileID: 2330021432362982886, guid: a1e71661455255f4f945e41092dee117, type: 3}
+  - {fileID: 7131602923296916787, guid: 31e5133e2df53ab47970453a7e782bc8, type: 3}
+  - {fileID: 4099464444816435847, guid: 31dfdc82ec1e08740b5c19f43b277465, type: 3}
+  - {fileID: 7503015212550027457, guid: 07756f7dccaeeea4a850c0bc57fe4dd3, type: 3}
+  - {fileID: 1657041051025756186, guid: c1d8f10cf69ee574f9fe9460f627c278, type: 3}
+  - {fileID: 7360021676337721558, guid: f2073434dafb5614f82369dc03343015, type: 3}
+  - {fileID: 9000929608106659564, guid: 3936941e0ad53bb4a9775f3e96bf0260, type: 3}
+  - {fileID: 1513180963883770458, guid: 1b14b57b433cc5a4f90b86d59078fbdc, type: 3}
+  - {fileID: 731741796484486171, guid: f799d2c976fb44049b8d21a46e655bbe, type: 3}
+  - {fileID: 6085784543241036300, guid: e3db05f6866fd4248a2a2a5d9cb3f638, type: 3}
+  - {fileID: 8250899058030100362, guid: 91ae9495102f35e438e61abd907ec2e7, type: 3}
+  - {fileID: 1633279766570410285, guid: 0b5aa7a3695030f439b4944c781efdc0, type: 3}
+  - {fileID: 4807033742366088318, guid: fce531448c0ec7149b5a63cb4b34f5db, type: 3}
+  - {fileID: 2455050862087283936, guid: fa03cb47320faa546afe06597bb63651, type: 3}
+  - {fileID: 7013011819984871351, guid: 7f3a4669ff1f24c45bbf9dacbb018a9f, type: 3}
+  - {fileID: 6643048306831388712, guid: ba54dbb5b0d92e7408f326d4d95100f3, type: 3}
+  - {fileID: 5232087002126641943, guid: e0a60158426252843b0a9e0a7d81a559, type: 3}
+  - {fileID: 303871553778521695, guid: 7d521e7abff16f44eb629bf1d625948a, type: 3}
+  - {fileID: 1874538287099013304, guid: ef5193f0c438ebb4697aac93770a827b, type: 3}
+  - {fileID: 5133897265577157962, guid: c1de63daefdbb904aa6d7376510e620d, type: 3}
+  - {fileID: 7866339198514336202, guid: 61734084b579d444d961c163642860bc, type: 3}
+  - {fileID: 8377781660571635289, guid: fe19396841b4f3f4a987409f4e9c7710, type: 3}
+  - {fileID: 1240683527589344202, guid: 608b06708f1daa84fb790c4b7d4aeb16, type: 3}
+  - {fileID: 7932928941037124319, guid: c43de358a671a3749878c98bba9b5df4, type: 3}
+  - {fileID: 385874866114744240, guid: 8e05911e258f2e64daa548cf4d96db54, type: 3}
+  allowedCellTypes: 010000000200000003000000
+  allowedBiomes: 
+  placementChance: 0.2
+  maxPerCell: 2
+  minSpacing: 0.5
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 0
+  isRequired: 0

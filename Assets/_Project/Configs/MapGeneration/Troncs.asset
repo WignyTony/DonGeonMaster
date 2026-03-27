@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Troncs
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Troncs
+  displayName: Troncs d'arbres
+  description: "Troncs coup\xE9s et souches"
+  debugColor: {r: 0.5, g: 0.35, b: 0.2, a: 1}
+  prefabs:
+  - {fileID: 3989861673631198041, guid: 9112056926aa22444bf9539898dd05c6, type: 3}
+  - {fileID: 2118685993299571155, guid: 6ff9def00a742db42884e633215eea1f, type: 3}
+  - {fileID: 1034634893471683958, guid: 735d82dbed4cacb43a192b6bd6ae6a81, type: 3}
+  - {fileID: 1601699012349151582, guid: 48201c2de0ef7a74e8be28f08029b15c, type: 3}
+  - {fileID: 6695575642638164458, guid: 612775c72bd7d14438b415a2cdcfd600, type: 3}
+  - {fileID: 9024816472962565704, guid: 45d4916c864799f42bb53c82865ac366, type: 3}
+  - {fileID: 2606878205669260627, guid: ce5cbf7a99500e04789aadf38bf62c05, type: 3}
+  - {fileID: 4894262339354270172, guid: 4ac468a370891d644a9adcbae2c5e74c, type: 3}
+  - {fileID: 1925903150578408597, guid: 2cbd3b977cce2ee479c71f17304c49ac, type: 3}
+  - {fileID: 4067514465816616493, guid: 56e75a34cb1d51940ac10d9718dbbedc, type: 3}
+  - {fileID: 4399801000325455945, guid: fa5b7436cecebd04ba4c2e32d367bfb6, type: 3}
+  - {fileID: 6448479609541506890, guid: a7ddfea5724b0fe4692bb07d3bc1fbed, type: 3}
+  - {fileID: 5406404046388735226, guid: ada86e4ca0ceb344880c37a6434aac2a, type: 3}
+  - {fileID: 4661483207025997962, guid: d5d63c2e7366171478dce9522dd212d1, type: 3}
+  - {fileID: 1410174138420705750, guid: e70f1fa672e55b04589aaab9339bc5e3, type: 3}
+  - {fileID: 1403263589821890393, guid: 04981ac52adeae34f9434fa830d1ab1a, type: 3}
+  - {fileID: 5499076493672710589, guid: 5b8043f7a37a4a64b918558efb93cedf, type: 3}
+  - {fileID: 2367836186765607699, guid: 2d1e429ada8711a449a9fe220081e6bc, type: 3}
+  - {fileID: 7187076980168376341, guid: 08ccd64bb2d429a44b2662bafaad372d, type: 3}
+  - {fileID: 2734832008940553823, guid: d14306978da7ce642a76c6d5941d1e49, type: 3}
+  - {fileID: 3064806096854083913, guid: cb29b42c5b25c244ea0f75b0b2e319f0, type: 3}
+  - {fileID: 7415648999914286606, guid: d76de683716a7254695b0697b6d25be7, type: 3}
+  - {fileID: 4745999256935143501, guid: eae346f34bfbe4e46a79fc60843cd9ab, type: 3}
+  - {fileID: 3718977855888681030, guid: 002cff6fb97a53644b6b91c742c99ac5, type: 3}
+  - {fileID: 7430120095320751096, guid: 39013d41fd2bb0a44ad1ddc3b1314950, type: 3}
+  - {fileID: 5191911031121427699, guid: dc7392d47691ef24a8958a5d60944c94, type: 3}
+  - {fileID: 6405936015773604046, guid: 22342758ee9af0b47a8e635ee1677c63, type: 3}
+  - {fileID: 4780347174728259980, guid: 236001d3ecbb52c489b11122420302a3, type: 3}
+  - {fileID: 4158498926705817853, guid: 0ea5545382e10c248a27d2d8f75cce89, type: 3}
+  - {fileID: 8876056336698034491, guid: fea3efe59f8df0746bac291e857cb42d, type: 3}
+  - {fileID: 3381149530085567757, guid: a19835e68df6f184fbbe7aaeb374c0fb, type: 3}
+  - {fileID: 4646536303067758937, guid: 6ed2da830a8d5474285c6f5d2d362dbd, type: 3}
+  - {fileID: 2651672640611852883, guid: e40778747d5240143930c7e51a3ffe6d, type: 3}
+  - {fileID: 8987034674833660358, guid: fce137871b378d142a8760622a68bf40, type: 3}
+  - {fileID: 5961326268669094536, guid: 47088b806df548c438c483db406f9f2a, type: 3}
+  - {fileID: 9149406591016213092, guid: 2836250164051e2419e840cc502fe56b, type: 3}
+  - {fileID: 8632811808209928016, guid: 4d4d449b2b039164094bd3b17e23c792, type: 3}
+  - {fileID: 390211557513522076, guid: 5db72f0d654202a4e8952fd5783b60ee, type: 3}
+  - {fileID: 8408745777781828231, guid: 4e410d79dddffaf4fa51f5e7f2907c52, type: 3}
+  - {fileID: 937929599640469112, guid: 554752ad2940e3b4ca282fecdc00bd2a, type: 3}
+  - {fileID: 1948166516482866467, guid: 2807b704798b1b244b4067f0685afcfa, type: 3}
+  - {fileID: 4858746375687918380, guid: 9b05be8394d7a6b4e854fed72ab0a442, type: 3}
+  - {fileID: 6503037158336973610, guid: 423296f76eb0b7e4fab58ea3db65a3d3, type: 3}
+  - {fileID: 3359603947763993947, guid: 04cf0006450dd5641b2ef391171810c0, type: 3}
+  - {fileID: 6323843080106823071, guid: ef02b50378d1a11408cecea400c52447, type: 3}
+  - {fileID: 6115178812883243093, guid: d44bb3c29ebf03c4da577571e6f292ac, type: 3}
+  - {fileID: 1621424617112203453, guid: 210f723a15858f54c94429e1ec0bb2e3, type: 3}
+  - {fileID: 675331174988769789, guid: 55205561ece7e7e4285c41c542bde2f6, type: 3}
+  - {fileID: 8154112479426383304, guid: f9c09f37c7ca513489b35cc80b601f9c, type: 3}
+  - {fileID: 296567572631621457, guid: 421ed48cba87b114d8ba23ce1fb52f32, type: 3}
+  - {fileID: 1010164436298213201, guid: 056db4c700613204cae5eb6020622bec, type: 3}
+  - {fileID: 8132925056084347651, guid: 8ab62b149ac86034a9cf92097179d6ef, type: 3}
+  - {fileID: 5871971175498920256, guid: af6590ba82492fc46adee78647c6a919, type: 3}
+  - {fileID: 2845532746210497700, guid: f2beca0b1892f384f8882415b7bfcb27, type: 3}
+  - {fileID: 8555108143357569143, guid: fa38359a6b73e7b488bfa7c5a3f93230, type: 3}
+  - {fileID: 4540700485626932108, guid: 579ec02cf123099468c21a72c6344a41, type: 3}
+  allowedCellTypes: 0100000003000000
+  allowedBiomes: 000000000100000002000000
+  placementChance: 0.15
+  maxPerCell: 1
+  minSpacing: 2
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 0
+  isRequired: 0

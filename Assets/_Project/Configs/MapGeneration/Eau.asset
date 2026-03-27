@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Eau
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Eau
+  displayName: Eau
+  description: Tiles d'eau (TileWater)
+  debugColor: {r: 0.2, g: 0.5, b: 0.9, a: 1}
+  prefabs:
+  - {fileID: 6762407958141282567, guid: 8ceb3eb853ef32f44bebfc2f2a417faa, type: 3}
+  - {fileID: 455399835661630997, guid: 1f83fbe4d96379f43b86c31ae25b4483, type: 3}
+  - {fileID: 8721621397661164313, guid: bf804eaeeb39a8a4480a7217a380f098, type: 3}
+  - {fileID: 7873664580051255202, guid: 0664ce0cc0a1ffc4ca4df2d0a015cd3f, type: 3}
+  - {fileID: 8137096598522832496, guid: 662d2d3ae3a46e04891fed5651e3ccf5, type: 3}
+  - {fileID: 8509163457468825343, guid: 363156b20070bdb4fa7ef3de0ff35821, type: 3}
+  - {fileID: 3517634187395485423, guid: eca444c7bcf6e2b488680e954d02c6ff, type: 3}
+  - {fileID: 4117298076700534669, guid: 42c6b3a4bc9863c42b33b0ed597800ff, type: 3}
+  - {fileID: 7027946988817440010, guid: 6d8061b6ef09c3c40a609e1ce96f6475, type: 3}
+  - {fileID: 6661477768339468263, guid: ec8fde63f5293824a84e92e61890be1a, type: 3}
+  - {fileID: 8778702391063232070, guid: 7e1ed37d5bcc39f48948e76b9a337c82, type: 3}
+  - {fileID: 2553941985455743842, guid: f2455064c1502104bb46a5c6554b7450, type: 3}
+  - {fileID: 1538006331220372262, guid: cf51b130295e971418e529fc31548f57, type: 3}
+  - {fileID: 7924655000841691097, guid: 92b79b81e1d83cc47aef06c0c7e19be8, type: 3}
+  - {fileID: 2712519173964293973, guid: ad7e57cfcb7f21049806d7f983a6ad1d, type: 3}
+  - {fileID: 1402829199855921617, guid: 07c5834f6a0b6d8459724c14e9c0277d, type: 3}
+  - {fileID: 2965091324213786806, guid: ca900114a5e2cf0478c21a039b9656b2, type: 3}
+  - {fileID: 5405107367404169106, guid: 64be40b9bcc43c7459066f8131cc53de, type: 3}
+  - {fileID: 8970439087748880471, guid: 8c8c54f3e2a80cb4e82090580a93db63, type: 3}
+  - {fileID: 5525439497634064517, guid: 14382d706b97fdc4a82f7c23be7d83b9, type: 3}
+  - {fileID: 1572206659721291942, guid: 1a8c6c4d57e13f049b05201432588546, type: 3}
+  - {fileID: 266897165268799170, guid: c6a11636a525e3542a8e04364dde312c, type: 3}
+  - {fileID: 58822582916990085, guid: c023a69fe49e5994c94ac922780cb6f7, type: 3}
+  allowedCellTypes: 04000000
+  allowedBiomes: 
+  placementChance: 1
+  maxPerCell: 1
+  minSpacing: 0
+  allowRotationVariation: 0
+  minScaleVariation: 1
+  maxScaleVariation: 1
+  yOffset: 0
+  isStructural: 1
+  isDecoration: 0
+  isGameplay: 0
+  isRequired: 0

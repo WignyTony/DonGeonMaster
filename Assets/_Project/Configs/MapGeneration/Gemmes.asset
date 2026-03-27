@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Gemmes
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Gemmes
+  displayName: Gemmes
+  description: "Cristaux et pierres pr\xE9cieuses"
+  debugColor: {r: 0.8, g: 0.3, b: 0.9, a: 1}
+  prefabs:
+  - {fileID: 7721170274500147585, guid: 280ccf0a74fd5d64496fd47f9767be70, type: 3}
+  - {fileID: 1187672833776523997, guid: 9bb5912f95a825b4ea3c31cea670faa3, type: 3}
+  - {fileID: 1177827331961424518, guid: c9c039832c2b01e4c9fca9fdc323c948, type: 3}
+  - {fileID: 84792197583342292, guid: 962e89c028b67054280e8a3eba79c292, type: 3}
+  - {fileID: 1609695021097556250, guid: a6d367aafa9b71c41a42e2234438c70d, type: 3}
+  - {fileID: 5031052475766681310, guid: 9c60f48efd51b7f44a488004a3fda61e, type: 3}
+  - {fileID: 7423188395330370048, guid: 2429ca21fbad9ac4d987a55217c0eb57, type: 3}
+  - {fileID: 1600414715582009799, guid: 8d9ea79900acb844a8a66654007cb838, type: 3}
+  - {fileID: 1952608696826178080, guid: 459888a64e90bca47a16928abefa2753, type: 3}
+  - {fileID: 7699999267161988258, guid: abb1ca7ca59aa174aa5a0330e21015df, type: 3}
+  - {fileID: 4999669769191296971, guid: 624d977993dc0d344aec2c678d282303, type: 3}
+  - {fileID: 5912529117714214147, guid: c5bdfddb22c2e9f46a56c6f0ef2bfb47, type: 3}
+  - {fileID: 245743906601655648, guid: 85b213274c5828e4c9f21300034b3946, type: 3}
+  - {fileID: 8439951668824516515, guid: 9d224b3dd81f9204e8b63bea778b70cd, type: 3}
+  - {fileID: 7773418802459828184, guid: a780bc1ea05053149b4cc6f42a93ee30, type: 3}
+  - {fileID: 2404863942919381745, guid: 7bff18e96d29a3f4fa6972ee38e10e9e, type: 3}
+  - {fileID: 6934313102294891113, guid: efd7bba4a27167d47b21377cc459d54a, type: 3}
+  - {fileID: 7148726086486439726, guid: 5ba22d248f4261447891beacc2a1a5fe, type: 3}
+  - {fileID: 7117921613423201625, guid: 3ebfecbfbfddf6042bb6b3e350f17ae1, type: 3}
+  - {fileID: 5693509664148073543, guid: fb52dafb78ae3934caa33d923e097121, type: 3}
+  - {fileID: 7641272459046990251, guid: 8ea2a3b829fb4d74aa7fce026edce67c, type: 3}
+  - {fileID: 7281619250079212043, guid: 8e6634759f2bb8445969e62faea93b7c, type: 3}
+  - {fileID: 8264897252512683396, guid: 13f8ea75d85a1a64c99151ccacdef26d, type: 3}
+  - {fileID: 6887640596368941007, guid: d9743b0fbdb80c2439493b8bb9e62797, type: 3}
+  - {fileID: 6031609880353264825, guid: b23db799927a80e45bd80cb894d4cfb8, type: 3}
+  - {fileID: 3742216038416726604, guid: c3ebe81e1a2ddaa4184fc0cfbcf2d689, type: 3}
+  - {fileID: 6481222317612835582, guid: 7488e983fbdd3f3469d2920e334c526f, type: 3}
+  - {fileID: 3536415276671268900, guid: a05e108a1e322524abc7bb6eca589699, type: 3}
+  - {fileID: 4151265814756182480, guid: 7e0d4cd972c017a4fb4c0870d2b36034, type: 3}
+  - {fileID: 4266961479177859322, guid: a30589b09ffe4904abbd0ef7028179b3, type: 3}
+  - {fileID: 1030036261870892961, guid: aa935c9e95919084eb955ab28b67287c, type: 3}
+  - {fileID: 1479966983909891114, guid: 1e9e9d5d8a38f1e498011e3221969437, type: 3}
+  - {fileID: 4296073431373180852, guid: 4b96b162250cb564d95aa53087ff4397, type: 3}
+  - {fileID: 8498121874786575896, guid: 49a68b77f7fa9e742bac4a1dbebaa995, type: 3}
+  - {fileID: 444502953788429765, guid: e4172436fbe41e54f9107c23b082c6a6, type: 3}
+  - {fileID: 5438390738828011325, guid: 1670dc87ddd774a429118ca88771a527, type: 3}
+  - {fileID: 8675562131320890221, guid: ae07c4d23b4418a4181b64acf153724e, type: 3}
+  - {fileID: 5296837198879940232, guid: e0659a8f366eb974ea1b054739fe05e8, type: 3}
+  - {fileID: 2255298481687449078, guid: 1d8e11c6871d0c740b713ade0b929581, type: 3}
+  - {fileID: 1123278843878043102, guid: 893984703889b6b4d841827712c6b4d3, type: 3}
+  - {fileID: 5531423018591922069, guid: 10505a3142d7e5d4b87b729ba5ceaab7, type: 3}
+  - {fileID: 7297532870882536654, guid: ace9bbeaac2559c4fa144f583c4a425e, type: 3}
+  - {fileID: 953419887492547675, guid: 85ce01a0e41bed84db5b7b3703d2f791, type: 3}
+  - {fileID: 5856430335542206263, guid: fbb5f594cf06ff5409831f19df7f71da, type: 3}
+  - {fileID: 4784241392364544851, guid: a92464a408be62b4e909e0d03c307865, type: 3}
+  allowedCellTypes: 01000000
+  allowedBiomes: 0700000006000000
+  placementChance: 0.05
+  maxPerCell: 1
+  minSpacing: 6
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 1
+  isRequired: 0

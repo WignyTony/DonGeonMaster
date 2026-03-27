@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Sols
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Sols
+  displayName: Sols
+  description: Tiles de sol (TileGround)
+  debugColor: {r: 0.5, g: 0.4, b: 0.3, a: 1}
+  prefabs:
+  - {fileID: 7335699571591753109, guid: 8a0c20969ef868e4d9c7b04d079e6611, type: 3}
+  - {fileID: 7625907953284126589, guid: e619ca4e858a00d4d8fd39639f05b762, type: 3}
+  - {fileID: 3203841511016326922, guid: 441456d5431a9a4428702255dd4f8476, type: 3}
+  - {fileID: 7074365203158332455, guid: f4ce7567f24ee1241b8606a376333aee, type: 3}
+  - {fileID: 6964061351280196023, guid: 8726980512b2b2a4ba3de5fdaee27d89, type: 3}
+  - {fileID: 6114190999430904148, guid: 51ce274245980e646b7f13322289340c, type: 3}
+  - {fileID: 6550764238458500818, guid: a667dd5476c36ad4dbb4e2dc59b90138, type: 3}
+  - {fileID: 927240289741706012, guid: 68c19dbd1ed538d47a2f7ecb29803a79, type: 3}
+  - {fileID: 1658337830363151225, guid: 7da961b3d55841e4aa00995f74bcecb0, type: 3}
+  - {fileID: 8531084678093774250, guid: e67bcaff1ecda02479337905010272ac, type: 3}
+  - {fileID: 4380172502694203930, guid: 356b8ab3738f3474982cc4ea5259c85d, type: 3}
+  - {fileID: 7640202506751513775, guid: ede885e5f99bcdb4eb1c9e67cd1f4486, type: 3}
+  - {fileID: 4103024575800218902, guid: fd6a461ef64210443ba6636ca6b89d6f, type: 3}
+  - {fileID: 4616576241479930979, guid: 648ab42aa8317a24a9e71574368087cc, type: 3}
+  - {fileID: 937521349446033854, guid: d5a38d9dc7d26b844a44b49dfcfc6f95, type: 3}
+  - {fileID: 4729789481492352889, guid: 9b14a15ae211fb44baedf764ee16f103, type: 3}
+  - {fileID: 7011808802120915109, guid: 7e4ad2a5f287a254183e0d268c6cb694, type: 3}
+  - {fileID: 9006635706358656986, guid: 07f577d7bdef9304281f171fc8ce98dc, type: 3}
+  - {fileID: 3797570503274011050, guid: 3ab08bcbef854ad42883dd6717d1de3b, type: 3}
+  - {fileID: 1567555293833897560, guid: 80f88855cd05d484bb5f6298fcdf542e, type: 3}
+  - {fileID: 8582404040918290442, guid: dfb77036990ea774b859188dd8c1a75d, type: 3}
+  - {fileID: 6602640773949296021, guid: efd73014c4488e84a98c4d9373aa7d9a, type: 3}
+  - {fileID: 5868266411881616295, guid: f52289376c23f124998df9a2bea0ef6f, type: 3}
+  - {fileID: 4026661835641399936, guid: 9d4b548ea9157e4408b9f958bab98363, type: 3}
+  - {fileID: 4859804411105037829, guid: 97b9434edc2485440beef4500b4cf95f, type: 3}
+  - {fileID: 3443661525095268039, guid: 51a4259e9f08a3546b16fb703bb744ef, type: 3}
+  - {fileID: 5084989460750174074, guid: 7e9f4e2738e466440938d9dd8687b340, type: 3}
+  - {fileID: 2722449166393059348, guid: 2a92ca261ab698c4eb6b2016241a522b, type: 3}
+  - {fileID: 5466608155523060030, guid: 197abe0a14e8e0f43b6f9ffeb2fa0590, type: 3}
+  - {fileID: 5107931394507943635, guid: 3884b1f7b80559943a0be2d1006661be, type: 3}
+  - {fileID: 4214256536781529714, guid: b94505000c33b25498af316c02967aad, type: 3}
+  - {fileID: 588210394362693825, guid: 57843443001deb042be695ea746bb77e, type: 3}
+  - {fileID: 8466547928357999337, guid: e2ab4e44b4b59da45a4045e3847f5af4, type: 3}
+  - {fileID: 3751839310173691111, guid: a2ef8c15ce3ef2c488a04ad6c8e1d879, type: 3}
+  - {fileID: 9042066170823319963, guid: 70ceec057f42a4147a3b6cc0ee4517af, type: 3}
+  - {fileID: 3263953333969339676, guid: 626cad08fdb4fc2488d7cbffc3819961, type: 3}
+  - {fileID: 2235677624600182012, guid: 6033eb34d164c3541ba5d9e224af99f3, type: 3}
+  - {fileID: 5029159939251619161, guid: 01b4d5d0d2a702c4eaee0a1476927cbc, type: 3}
+  - {fileID: 7178288454792311818, guid: 3b3aadb66d000024893d4fbffd4dabd9, type: 3}
+  - {fileID: 5741660381536869757, guid: 8aab4e40f5ead1349bb9a3d9c1b76636, type: 3}
+  - {fileID: 8610835792328067286, guid: 8a4f13a883b970343be0ab42ede217e9, type: 3}
+  - {fileID: 3066129052830138567, guid: 39868d70bdab83842b7ea57b0506068e, type: 3}
+  - {fileID: 5991668065081228033, guid: c9a2325e4db934748bc688a8b883fc36, type: 3}
+  - {fileID: 5957245373432176809, guid: a7672c759ddfa15479841db19aed0c0e, type: 3}
+  - {fileID: 5288601860634976067, guid: b5481bbd39bf82743af17128ce25c141, type: 3}
+  - {fileID: 2917730780779438019, guid: c366c62edd4640749926b6999279c6b4, type: 3}
+  - {fileID: 4147255433709688658, guid: db4c4e3c953f44640b4ac48e4355c395, type: 3}
+  - {fileID: 8184577537208582226, guid: 4d47db9e0318ca14793117d9d4255283, type: 3}
+  allowedCellTypes: 010000000200000003000000
+  allowedBiomes: 
+  placementChance: 1
+  maxPerCell: 1
+  minSpacing: 0
+  allowRotationVariation: 0
+  minScaleVariation: 1
+  maxScaleVariation: 1
+  yOffset: 0
+  isStructural: 1
+  isDecoration: 0
+  isGameplay: 0
+  isRequired: 0

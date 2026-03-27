@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 006057a543fa0f447b88f192d15d90ec, type: 3}
+  m_Name: Debris
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.AssetCategory
+  categoryId: Debris
+  displayName: "D\xE9bris"
+  description: "Os, cr\xE2nes, b\xFBches, b\xE2tons"
+  debugColor: {r: 0.6, g: 0.5, b: 0.4, a: 1}
+  prefabs:
+  - {fileID: 2094864038213025259, guid: ae1110b538793fe40ab50957f1143dd4, type: 3}
+  - {fileID: 6547896281744465490, guid: 8d7853af1b66f0e4493c6429fee91a70, type: 3}
+  - {fileID: 8199090940646691298, guid: ef6c0c771921cd345afb4758d60892ea, type: 3}
+  - {fileID: 2608264754131744774, guid: aff90eaf0345850458249b445a32b1d5, type: 3}
+  - {fileID: 7305228319952173253, guid: 7b3fadac312db27458762553d15b180b, type: 3}
+  - {fileID: 6871957704018570235, guid: 3f6fde56de2e39c4fb79b5b04a04c3e0, type: 3}
+  - {fileID: 5501612424337367392, guid: 7aa83d470d6b1a64fbea8af0e86bb28d, type: 3}
+  - {fileID: 1481601087140192404, guid: d5859bbd8c5ba724f9e1b89e4dc80236, type: 3}
+  - {fileID: 353660135426365403, guid: 68d38806b9eb7374fb04b9da14318d7a, type: 3}
+  - {fileID: 2803736223273102538, guid: 4f52f8c3927ff7d4b81b5a9b10fc27bf, type: 3}
+  - {fileID: 2694160152329504478, guid: 455595561c172334ea34e56e0eacde51, type: 3}
+  - {fileID: 1447987709244396459, guid: 64aaa8c698778aa4798fa25e58dd80d1, type: 3}
+  - {fileID: 8140620975964691567, guid: 66d759fbcd8eae14dad067e1cdcf382b, type: 3}
+  - {fileID: 8411952824353029793, guid: d47b703f8d498d9498921b1933c19ce0, type: 3}
+  - {fileID: 7525229300158187260, guid: 5778615d7db0bfa46bf5662edb95106c, type: 3}
+  - {fileID: 7566486618435783920, guid: ac7c7bb7f4daa2c43a57eda4568b5f93, type: 3}
+  - {fileID: 2270856809016811277, guid: b58be71e4795b634396c065ecb54aa89, type: 3}
+  - {fileID: 2277672990627667379, guid: 4b0c89d9fdf6cba419d8e06da5857c93, type: 3}
+  - {fileID: 6604588093428496125, guid: 6f0d11a100e50c447ab156b94d295c48, type: 3}
+  - {fileID: 2818721886266417285, guid: ce0352d8928f9b24688dae1e941e8ff0, type: 3}
+  - {fileID: 8964299191736726765, guid: 2126a50e32fc9c843868031cb6cadb19, type: 3}
+  - {fileID: 5216394446470634824, guid: a3d88a823f9d75e459d7468b729ef485, type: 3}
+  allowedCellTypes: 0100000002000000
+  allowedBiomes: 
+  placementChance: 0.08
+  maxPerCell: 1
+  minSpacing: 3
+  allowRotationVariation: 1
+  minScaleVariation: 0.9
+  maxScaleVariation: 1.1
+  yOffset: 0
+  isStructural: 0
+  isDecoration: 1
+  isGameplay: 0
+  isRequired: 0
