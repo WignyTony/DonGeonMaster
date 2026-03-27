@@ -220,7 +220,7 @@ namespace DonGeonMaster.MapGeneration
             bc.highlightedColor = new Color(0.18f, 0.26f, 0.42f);
             headerBtn.colors = bc;
 
-            var headerText = CreateTextDirect(headerGo.transform, $"  \u25bc {title}", 12);
+            var headerText = CreateTextDirect(headerGo.transform, $"  v {title}", 12);
             headerText.fontStyle = FontStyles.Bold;
             headerText.color = TextWhite;
 
@@ -242,7 +242,7 @@ namespace DonGeonMaster.MapGeneration
             {
                 bool show = !contentGo.activeSelf;
                 contentGo.SetActive(show);
-                headerText.text = $"  {(show ? "\u25bc" : "\u25b6")} {title}";
+                headerText.text = $"  {(show ? "v" : ">")} {title}";
             });
 
             return (headerGo.GetComponent<RectTransform>(), contentRT);
@@ -405,10 +405,11 @@ namespace DonGeonMaster.MapGeneration
             // Box
             var bgGo = new GameObject("Bg");
             bgGo.transform.SetParent(go.transform, false);
-            bgGo.AddComponent<LayoutElement>().preferredWidth = 16;
-            bgGo.AddComponent<LayoutElement>().preferredHeight = 16;
-            var bgRT = bgGo.AddComponent<RectTransform>();
+            var bgRT = bgGo.GetComponent<RectTransform>() ?? bgGo.AddComponent<RectTransform>();
             bgRT.sizeDelta = new Vector2(16, 16);
+            var bgLE = bgGo.AddComponent<LayoutElement>();
+            bgLE.preferredWidth = 16;
+            bgLE.preferredHeight = 16;
             var bgImg = bgGo.AddComponent<Image>();
             bgImg.color = InputBg;
 
