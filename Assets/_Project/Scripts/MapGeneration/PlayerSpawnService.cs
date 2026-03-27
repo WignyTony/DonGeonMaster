@@ -1,10 +1,10 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace DonGeonMaster.MapGeneration
 {
     public class PlayerSpawnService : MonoBehaviour
     {
-        [Header("Références")]
         [SerializeField] GameObject playerPrefab;
         [SerializeField] float spawnHeight = 1.5f;
         [SerializeField] float collisionCheckRadius = 0.5f;
@@ -20,27 +20,17 @@ namespace DonGeonMaster.MapGeneration
         {
             currentMap = map;
             currentConfig = config;
-
             DespawnPlayer();
 
             Vector3 spawnPos = FindValidSpawnPosition(map, config);
-            if (spawnPos == Vector3.negativeInfinity)
-            {
-                Debug.LogError("[PlayerSpawnService] Impossible de trouver un spawn valide");
-                return null;
-            }
 
             if (playerPrefab != null)
-            {
                 currentPlayer = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-            }
             else
-            {
                 currentPlayer = CreateDebugPlayer(spawnPos);
-            }
 
             currentPlayer.name = "DebugPlayer";
-            Debug.Log($"[PlayerSpawnService] Joueur spawné à {spawnPos}");
+            currentPlayer.tag = "Player";
             return currentPlayer;
         }
 
@@ -61,137 +51,146 @@ namespace DonGeonMaster.MapGeneration
 
         Vector3 FindValidSpawnPosition(MapData map, MapGenConfig config)
         {
-            // Essayer le spawn principal
             if (map.spawnCell.x >= 0)
             {
                 Vector3 primary = CellToWorld(map.spawnCell, config);
-                if (IsPositionValid(primary))
+                if (!Physics.CheckSphere(primary, collisionCheckRadius))
                     return primary;
             }
 
-            // Fallback: chercher dans les salles
             foreach (var room in map.rooms)
             {
-                Vector3 roomCenter = CellToWorld(room.center, config);
-                if (IsPositionValid(roomCenter))
-                    return roomCenter;
-            }
-
-            // Fallback: chercher des cellules marchables
-            var walkable = map.GetAllWalkableCells();
-            for (int i = 0; i < Mathf.Min(maxFallbackAttempts, walkable.Count); i++)
-            {
-                int idx = Random.Range(0, walkable.Count);
-                Vector3 pos = CellToWorld(walkable[idx], config);
-                if (IsPositionValid(pos))
+                Vector3 pos = CellToWorld(room.center, config);
+                if (!Physics.CheckSphere(pos, collisionCheckRadius))
                     return pos;
             }
 
-            // Dernier recours: centre de la map
-            Vector3 center = new Vector3(
+            var walkable = map.GetAllWalkableCells();
+            for (int i = 0; i < Mathf.Min(maxFallbackAttempts, walkable.Count); i++)
+            {
+                Vector3 pos = CellToWorld(walkable[Random.Range(0, walkable.Count)], config);
+                if (!Physics.CheckSphere(pos, collisionCheckRadius))
+                    return pos;
+            }
+
+            return new Vector3(
                 config.mapWidth * config.cellSize * 0.5f,
                 spawnHeight,
                 config.mapHeight * config.cellSize * 0.5f);
-            return center;
         }
 
         Vector3 CellToWorld(Vector2Int cell, MapGenConfig config)
         {
-            return new Vector3(
-                cell.x * config.cellSize,
-                spawnHeight,
-                cell.y * config.cellSize);
+            return new Vector3(cell.x * config.cellSize, spawnHeight, cell.y * config.cellSize);
         }
 
-        bool IsPositionValid(Vector3 pos)
-        {
-            return !Physics.CheckSphere(pos, collisionCheckRadius);
-        }
-
+        /// <summary>
+        /// Cree un joueur debug qui reproduit le gameplay top-down du vrai PlayerController :
+        /// WASD pour bouger, Shift pour courir, rotation smooth vers la direction, gravite.
+        /// Pas de mouse look FPS — coherent avec le jeu.
+        /// </summary>
         GameObject CreateDebugPlayer(Vector3 position)
         {
             var player = new GameObject("DebugPlayer");
             player.transform.position = position;
 
-            // Capsule visuelle
+            // Visuel : capsule verte
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.transform.SetParent(player.transform);
-            body.transform.localPosition = Vector3.zero;
-            body.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
+            body.transform.localPosition = Vector3.up; // centrer la capsule
+            body.transform.localScale = new Vector3(0.6f, 1f, 0.6f);
+            Destroy(body.GetComponent<Collider>());
 
-            var renderer = body.GetComponent<Renderer>();
-            renderer.material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            renderer.material.color = new Color(0.2f, 0.8f, 0.2f);
+            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            mat.color = new Color(0.2f, 0.8f, 0.3f);
+            body.GetComponent<Renderer>().material = mat;
 
-            // CharacterController simple
-            var cc = player.AddComponent<CharacterController>();
-            cc.height = 2f;
-            cc.radius = 0.4f;
-            cc.center = Vector3.zero;
-
-            // Script de mouvement debug
-            player.AddComponent<DebugPlayerMovement>();
-
-            // Indicateur de direction (petit cube devant)
+            // Indicateur de direction (cone devant)
             var indicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
             indicator.transform.SetParent(player.transform);
-            indicator.transform.localPosition = new Vector3(0, 0.5f, 0.5f);
-            indicator.transform.localScale = new Vector3(0.2f, 0.2f, 0.3f);
-            var indRenderer = indicator.GetComponent<Renderer>();
-            indRenderer.material = renderer.material;
-            indRenderer.material.color = Color.yellow;
-
-            // Retirer les colliders des primitives (on utilise le CharacterController)
-            Destroy(body.GetComponent<Collider>());
+            indicator.transform.localPosition = new Vector3(0, 1f, 0.6f);
+            indicator.transform.localScale = new Vector3(0.15f, 0.15f, 0.3f);
             Destroy(indicator.GetComponent<Collider>());
+            indicator.GetComponent<Renderer>().material = mat;
+            indicator.GetComponent<Renderer>().material.color = Color.yellow;
+
+            // CharacterController
+            var cc = player.AddComponent<CharacterController>();
+            cc.height = 2f;
+            cc.radius = 0.3f;
+            cc.center = Vector3.up;
+
+            // Script de mouvement top-down (comme le vrai jeu)
+            player.AddComponent<DebugTopDownMovement>();
 
             return player;
         }
     }
 
-    public class DebugPlayerMovement : MonoBehaviour
+    /// <summary>
+    /// Mouvement debug top-down identique au vrai PlayerController :
+    /// WASD = deplacement, Shift = courir, rotation smooth vers la direction.
+    /// Utilise InputSystem directement (pas KeyBindingManager pour eviter les dependances).
+    /// </summary>
+    public class DebugTopDownMovement : MonoBehaviour
     {
-        public float moveSpeed = 12f;
-        public float lookSpeed = 3f;
-        float yaw, pitch;
-        CharacterController cc;
+        public float walkSpeed = 3.5f;
+        public float runSpeed = 6f;
+        public float rotationSpeed = 10f;
+        public float gravity = -20f;
+        public float jumpForce = 7f;
 
-        void Start()
+        CharacterController cc;
+        Vector3 velocity;
+
+        void Awake()
         {
             cc = GetComponent<CharacterController>();
-            Cursor.lockState = CursorLockMode.Locked;
         }
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (!enabled || cc == null) return;
+
+            var kb = Keyboard.current;
+            if (kb == null) return;
+
+            // Mouvement WASD (axes monde, pas relatif a la camera)
+            float h = 0, v = 0;
+            if (kb.wKey.isPressed || kb.upArrowKey.isPressed) v = 1;
+            if (kb.sKey.isPressed || kb.downArrowKey.isPressed) v = -1;
+            if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) h = -1;
+            if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) h = 1;
+
+            Vector3 moveDir = new Vector3(h, 0, v).normalized;
+            bool running = kb.leftShiftKey.isPressed;
+            float speed = running ? runSpeed : walkSpeed;
+
+            // Deplacement horizontal
+            if (moveDir.magnitude > 0.1f)
             {
-                Cursor.lockState = Cursor.lockState == CursorLockMode.Locked
-                    ? CursorLockMode.None
-                    : CursorLockMode.Locked;
+                cc.Move(moveDir * (speed * Time.deltaTime));
+
+                // Rotation smooth vers la direction de mouvement
+                float targetAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
+                float smoothAngle = Mathf.LerpAngle(
+                    transform.eulerAngles.y, targetAngle, Time.deltaTime * rotationSpeed);
+                transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
             }
 
-            if (Cursor.lockState != CursorLockMode.Locked) return;
+            // Saut
+            if (cc.isGrounded)
+            {
+                velocity.y = -1f; // petite force vers le bas pour rester ground
+                if (kb.spaceKey.wasPressedThisFrame)
+                    velocity.y = jumpForce;
+            }
+            else
+            {
+                velocity.y += gravity * Time.deltaTime;
+            }
 
-            yaw += Input.GetAxis("Mouse X") * lookSpeed;
-            pitch -= Input.GetAxis("Mouse Y") * lookSpeed;
-            pitch = Mathf.Clamp(pitch, -80f, 80f);
-            transform.rotation = Quaternion.Euler(pitch, yaw, 0);
-
-            float h = Input.GetAxis("Horizontal");
-            float v = Input.GetAxis("Vertical");
-            Vector3 move = transform.right * h + transform.forward * v;
-            move.y = 0;
-
-            if (Input.GetKey(KeyCode.Space)) move.y = 0.5f;
-            if (Input.GetKey(KeyCode.LeftControl)) move.y = -0.5f;
-
-            if (!cc.enabled) return;
-            cc.Move(move * (moveSpeed * Time.deltaTime));
-
-            // Gravity
-            if (!cc.isGrounded)
-                cc.Move(Vector3.down * (9.81f * Time.deltaTime));
+            cc.Move(velocity * Time.deltaTime);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace DonGeonMaster.MapGeneration
@@ -613,14 +614,17 @@ namespace DonGeonMaster.MapGeneration
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F5)) controller.Generate();
-            if (Input.GetKeyDown(KeyCode.F6)) controller.Regenerate();
-            if (Input.GetKeyDown(KeyCode.F7)) controller.ClearMap();
-            if (Input.GetKeyDown(KeyCode.F8)) controller.SpawnPlayer();
-            if (Input.GetKeyDown(KeyCode.F9)) controller.TakeScreenshot();
-            if (Input.GetKeyDown(KeyCode.F10)) controller.EnterFPSMode();
-            if (Input.GetKeyDown(KeyCode.F12)) controller.ExportLog();
-            if (Input.GetKeyDown(KeyCode.Tab)) ToggleSidebar();
+            var kb = Keyboard.current;
+            if (kb == null) return;
+
+            if (kb.f5Key.wasPressedThisFrame) controller.Generate();
+            if (kb.f6Key.wasPressedThisFrame) controller.Regenerate();
+            if (kb.f7Key.wasPressedThisFrame) controller.ClearMap();
+            if (kb.f8Key.wasPressedThisFrame) controller.SpawnPlayer();
+            if (kb.f9Key.wasPressedThisFrame) controller.TakeScreenshot();
+            if (kb.f10Key.wasPressedThisFrame) controller.EnterFPSMode();
+            if (kb.f12Key.wasPressedThisFrame) controller.ExportLog();
+            if (kb.tabKey.wasPressedThisFrame) ToggleSidebar();
         }
     }
 }

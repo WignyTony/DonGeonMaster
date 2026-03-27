@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 
 namespace DonGeonMaster.MapGeneration
@@ -178,14 +179,15 @@ namespace DonGeonMaster.MapGeneration
                 return;
             }
 
-            // Activer mode FPS
+            // Activer mode joueur (top-down back comme le vrai jeu)
             viewMode = DebugViewMode.FPS;
             debugUI.SetMode(DebugViewMode.FPS);
             mainCamera.orthographic = false;
             mainCamera.fieldOfView = 60;
+            playerCamZoom = 1f;
 
-            // Desactiver le DebugPlayerMovement cursor lock
-            var movement = spawnService.CurrentPlayer.GetComponent<DebugPlayerMovement>();
+            // Activer mouvement
+            var movement = spawnService.CurrentPlayer.GetComponent<DebugTopDownMovement>();
             if (movement) movement.enabled = true;
         }
 
@@ -199,7 +201,7 @@ namespace DonGeonMaster.MapGeneration
             // Desactiver controles joueur
             if (spawnService.CurrentPlayer != null)
             {
-                var movement = spawnService.CurrentPlayer.GetComponent<DebugPlayerMovement>();
+                var movement = spawnService.CurrentPlayer.GetComponent<DebugTopDownMovement>();
                 if (movement) movement.enabled = false;
             }
             Cursor.lockState = CursorLockMode.None;
@@ -286,7 +288,7 @@ namespace DonGeonMaster.MapGeneration
             // Desactiver les controles joueur — on est en top-down
             if (spawnService.CurrentPlayer != null)
             {
-                var movement = spawnService.CurrentPlayer.GetComponent<DebugPlayerMovement>();
+                var movement = spawnService.CurrentPlayer.GetComponent<DebugTopDownMovement>();
                 if (movement) movement.enabled = false;
             }
 
@@ -324,32 +326,52 @@ namespace DonGeonMaster.MapGeneration
 
         // ===================== UPDATE =====================
 
+        float playerCamZoom = 1f;
+
         void LateUpdate()
         {
-            // Mode FPS : camera suit le joueur
+            if (mainCamera == null) return;
+
+            var mouse = Mouse.current;
+
+            // Mode joueur : camera top-down back (comme le vrai CameraController)
             if (viewMode == DebugViewMode.FPS && spawnService.CurrentPlayer != null)
             {
-                var target = spawnService.CurrentPlayer.transform.position;
-                mainCamera.transform.position = target + new Vector3(0, 15, -10);
-                mainCamera.transform.LookAt(target);
-            }
-
-            // Mode TopDown : zoom + pan
-            if (viewMode == DebugViewMode.TopDown && mainCamera != null && mainCamera.orthographic)
-            {
-                float scroll = Input.GetAxis("Mouse ScrollWheel");
-                if (Mathf.Abs(scroll) > 0.001f)
+                // Zoom molette
+                if (mouse != null)
                 {
-                    mainCamera.orthographicSize = Mathf.Clamp(
-                        mainCamera.orthographicSize - scroll * 15f, 5f, 200f);
+                    float scroll = mouse.scroll.y.ReadValue() * 0.001f;
+                    if (Mathf.Abs(scroll) > 0.001f)
+                        playerCamZoom = Mathf.Clamp(playerCamZoom - scroll, 0.5f, 3f);
                 }
 
-                if (Input.GetMouseButton(1))
+                // Camera top-down back identique au vrai CameraController
+                Vector3 offset = new Vector3(0, 10, -7) * playerCamZoom;
+                var target = spawnService.CurrentPlayer.transform.position;
+                mainCamera.transform.position = Vector3.Lerp(
+                    mainCamera.transform.position, target + offset, Time.deltaTime * 8f);
+                mainCamera.transform.rotation = Quaternion.Euler(55, 0, 0);
+            }
+
+            // Mode TopDown : zoom + pan avec InputSystem
+            if (viewMode == DebugViewMode.TopDown && mainCamera.orthographic)
+            {
+                if (mouse != null)
                 {
-                    float speed = mainCamera.orthographicSize * 0.004f;
-                    float dx = -Input.GetAxis("Mouse X") * speed;
-                    float dy = -Input.GetAxis("Mouse Y") * speed;
-                    mainCamera.transform.Translate(dx, 0, dy, Space.World);
+                    float scroll = mouse.scroll.y.ReadValue() * 0.01f;
+                    if (Mathf.Abs(scroll) > 0.001f)
+                    {
+                        mainCamera.orthographicSize = Mathf.Clamp(
+                            mainCamera.orthographicSize - scroll, 5f, 200f);
+                    }
+
+                    if (mouse.rightButton.isPressed)
+                    {
+                        Vector2 delta = mouse.delta.ReadValue();
+                        float speed = mainCamera.orthographicSize * 0.002f;
+                        mainCamera.transform.Translate(
+                            -delta.x * speed, 0, -delta.y * speed, Space.World);
+                    }
                 }
             }
         }
