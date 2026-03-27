@@ -84,7 +84,7 @@ namespace DonGeonMaster.MapGeneration
 
             // Header
             var header = DebugUIBuilder.CreateLayoutPanel(sidebar, "Header",
-                DebugUIBuilder.HeaderBg, prefH: 36);
+                DebugUIBuilder.HeaderBg, preferredH: 36);
             var hTxt = DebugUIBuilder.CreateTextDirect(header, "MAP GEN DEBUG", 15,
                 TextAlignmentOptions.Center);
             hTxt.fontStyle = FontStyles.Bold;
@@ -126,7 +126,7 @@ namespace DonGeonMaster.MapGeneration
         void BuildMetricsBar(Transform parent)
         {
             var bar = DebugUIBuilder.CreateLayoutPanel(parent, "MetricsBar",
-                new Color(0.12f, 0.12f, 0.16f), prefH: 34);
+                new Color(0.12f, 0.12f, 0.16f), preferredH: 34);
             var hlg = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 16;
             hlg.padding = new RectOffset(12, 12, 0, 0);
@@ -187,7 +187,7 @@ namespace DonGeonMaster.MapGeneration
 
             // Header
             var hdr = DebugUIBuilder.CreateLayoutPanel(card, "Hdr",
-                DebugUIBuilder.HeaderBg, prefH: 26);
+                DebugUIBuilder.HeaderBg, preferredH: 26);
             var hTxt = DebugUIBuilder.CreateTextDirect(hdr, $"  {title}", 12);
             hTxt.fontStyle = FontStyles.Bold;
 
@@ -200,7 +200,7 @@ namespace DonGeonMaster.MapGeneration
         void BuildLogPanel(Transform parent)
         {
             var panel = DebugUIBuilder.CreateLayoutPanel(parent, "LogPanel",
-                DebugUIBuilder.BgDark, prefH: 200);
+                DebugUIBuilder.BgDark, preferredH: 200);
             var vlg = panel.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 0;
             vlg.childControlWidth = true;
@@ -210,7 +210,7 @@ namespace DonGeonMaster.MapGeneration
 
             // Header avec bouton clear
             var hdr = DebugUIBuilder.CreateLayoutPanel(panel, "LogHdr",
-                DebugUIBuilder.HeaderBg, prefH: 26);
+                DebugUIBuilder.HeaderBg, preferredH: 26);
             var hHLG = hdr.gameObject.AddComponent<HorizontalLayoutGroup>();
             hHLG.padding = new RectOffset(8, 4, 0, 0);
             hHLG.childAlignment = TextAnchor.MiddleLeft;

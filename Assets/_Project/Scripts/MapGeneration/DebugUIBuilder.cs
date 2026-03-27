@@ -333,7 +333,7 @@ namespace DonGeonMaster.MapGeneration
             tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
             tRT.offsetMin = Vector2.zero; tRT.offsetMax = Vector2.zero;
             var txt = textGo.AddComponent<TextMeshProUGUI>();
-            txt.fontSize = 11; txt.color = TextWhite; txt.enableWordWrapping = false;
+            txt.fontSize = 11; txt.color = TextWhite; txt.textWrappingMode = TextWrappingModes.NoWrap;
 
             var phGo = new GameObject("Placeholder");
             phGo.transform.SetParent(ta.transform, false);
@@ -343,7 +343,7 @@ namespace DonGeonMaster.MapGeneration
             var ph = phGo.AddComponent<TextMeshProUGUI>();
             ph.text = string.IsNullOrEmpty(placeholder) ? "..." : placeholder;
             ph.fontSize = 11; ph.color = TextDim; ph.fontStyle = FontStyles.Italic;
-            ph.enableWordWrapping = false;
+            ph.textWrappingMode = TextWrappingModes.NoWrap;
 
             input.textViewport = taRT;
             input.textComponent = txt;
