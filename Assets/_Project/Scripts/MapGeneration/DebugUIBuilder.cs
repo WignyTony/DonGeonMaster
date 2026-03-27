@@ -136,7 +136,7 @@ namespace DonGeonMaster.MapGeneration
             vlg.padding = padding ?? new RectOffset(0, 0, 0, 0);
             vlg.childAlignment = TextAnchor.UpperLeft;
             vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
+            vlg.childControlHeight = true;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
             return rt;
@@ -182,7 +182,7 @@ namespace DonGeonMaster.MapGeneration
             vlg.spacing = 2;
             vlg.padding = new RectOffset(4, 4, 4, 4);
             vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
+            vlg.childControlHeight = true;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
 
@@ -204,7 +204,7 @@ namespace DonGeonMaster.MapGeneration
             var sVLG = section.AddComponent<VerticalLayoutGroup>();
             sVLG.spacing = 0;
             sVLG.childControlWidth = true;
-            sVLG.childControlHeight = false;
+            sVLG.childControlHeight = true;
             sVLG.childForceExpandWidth = true;
             sVLG.childForceExpandHeight = false;
             section.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -232,7 +232,7 @@ namespace DonGeonMaster.MapGeneration
             cVLG.spacing = 3;
             cVLG.padding = new RectOffset(6, 6, 4, 6);
             cVLG.childControlWidth = true;
-            cVLG.childControlHeight = false;
+            cVLG.childControlHeight = true;
             cVLG.childForceExpandWidth = true;
             cVLG.childForceExpandHeight = false;
             contentGo.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;

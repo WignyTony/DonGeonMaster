@@ -78,7 +78,7 @@ namespace DonGeonMaster.MapGeneration
             var sVLG = sidebar.gameObject.AddComponent<VerticalLayoutGroup>();
             sVLG.spacing = 0;
             sVLG.childControlWidth = true;
-            sVLG.childControlHeight = false;
+            sVLG.childControlHeight = true;
             sVLG.childForceExpandWidth = true;
             sVLG.childForceExpandHeight = false;
 
@@ -113,7 +113,7 @@ namespace DonGeonMaster.MapGeneration
             rVLG.spacing = 2;
             rVLG.padding = new RectOffset(2, 2, 2, 2);
             rVLG.childControlWidth = true;
-            rVLG.childControlHeight = false;
+            rVLG.childControlHeight = true;
             rVLG.childForceExpandWidth = true;
             rVLG.childForceExpandHeight = false;
 
@@ -181,7 +181,7 @@ namespace DonGeonMaster.MapGeneration
             var vlg = card.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 0;
             vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
+            vlg.childControlHeight = true;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
 
@@ -204,7 +204,7 @@ namespace DonGeonMaster.MapGeneration
             var vlg = panel.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.spacing = 0;
             vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
+            vlg.childControlHeight = true;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
 
