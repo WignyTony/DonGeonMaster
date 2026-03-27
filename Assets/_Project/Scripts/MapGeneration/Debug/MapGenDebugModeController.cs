@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
@@ -34,6 +36,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 heroBridge = gameObject.AddComponent<HeroDebugBridge>();
 
             SetupCamera();
+            EnsureEventSystem();
             BuildUI();
             SetMode(DebugMode.Config);
 
@@ -73,6 +76,15 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 l.color = new Color(1f, 0.95f, 0.9f);
                 lightGO.transform.rotation = Quaternion.Euler(50, -30, 0);
             }
+        }
+
+        void EnsureEventSystem()
+        {
+            if (FindAnyObjectByType<EventSystem>() != null) return;
+            var esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<InputSystemUIInputModule>();
+            UnityEngine.Debug.Log("[ModeController] EventSystem + InputSystemUIInputModule cree");
         }
 
         void BuildUI()
