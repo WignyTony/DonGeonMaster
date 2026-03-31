@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine.Rendering.Universal;
+using DonGeonMaster.MapGeneration;
 using DonGeonMaster.MapGeneration.DebugTools;
 
 public class MapGenSceneSetup
