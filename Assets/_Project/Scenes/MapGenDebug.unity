@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd56eb2adb016d54b80f6f639522ba36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.MapGeneration.DebugTools.MapGenDebugModeController
-  assetRegistry: {fileID: 0}
+  assetRegistry: {fileID: 11400000, guid: 03d9fcca83f0e7d4dbc37e76fd8ba2fe, type: 2}
 --- !u!114 &1756026999
 MonoBehaviour:
   m_ObjectHideFlags: 0
