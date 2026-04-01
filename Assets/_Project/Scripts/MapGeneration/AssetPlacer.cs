@@ -11,6 +11,27 @@ namespace DonGeonMaster.MapGeneration
         GenerationResult result;
         Dictionary<string, int> categoryCount = new();
 
+        /// <summary>
+        /// Si true, les categories structurelles (Sols, Eau) sont ignorees.
+        /// Active par le mode debug pour ne pas recouvrir le blockout colore.
+        /// </summary>
+        public bool skipStructuralCategories;
+
+        // Limite de logs detailles par categorie pour eviter le spam
+        const int MaxDetailedLogsPerCategory = 3;
+
+        // IDs de categories pour le mapping de densite
+        static readonly HashSet<string> VegetationIds = new()
+        {
+            "Arbres", "Buissons", "Herbe", "Fleurs",
+            "Cactus", "Feuillage", "Epines"
+        };
+
+        static readonly HashSet<string> RockIds = new()
+        {
+            "RochesDures", "RochesTendres", "Minerais", "Gemmes"
+        };
+
         public void Initialize(Transform root, MapGenConfig config, int seed, GenerationResult result)
         {
             this.mapRoot = root;
@@ -24,11 +45,17 @@ namespace DonGeonMaster.MapGeneration
         {
             if (registry == null)
             {
-                result.AddPipelineStep("Pas de registre d'assets - placement ignoré");
+                result.AddPipelineStep("Pas de registre d'assets - placement ignore");
                 return 0;
             }
 
-            result.AddPipelineStep("Début du placement des assets");
+            result.AddPipelineStep("Debut du placement des assets");
+
+            // Log des densites configurees
+            Debug.Log($"[AssetPlacer] Densites: veg={config.vegetationDensity:F2} " +
+                $"rock={config.rockDensity:F2} decor={config.decorDensity:F2} | " +
+                $"skipStructural={skipStructuralCategories}");
+
             int totalPlaced = 0;
 
             bool skipDecor = config.mode == GenerationMode.StructureSeule ||
@@ -37,6 +64,9 @@ namespace DonGeonMaster.MapGeneration
                                 config.mode == GenerationMode.StructureEtDecor;
 
             var enabledCategories = registry.GetEnabledCategories(config.enabledCategories);
+
+            // Compteur de logs detailles par categorie
+            Dictionary<string, int> detailedLogCount = new();
 
             for (int x = 0; x < map.width; x++)
             {
@@ -51,6 +81,9 @@ namespace DonGeonMaster.MapGeneration
                         if (skipGameplay && category.isGameplay && !category.isStructural) continue;
                         if (config.mode == GenerationMode.SansProps && category.isDecoration && !category.isStructural) continue;
 
+                        // Skip des categories structurelles en mode debug
+                        if (skipStructuralCategories && category.isStructural) continue;
+
                         if (!category.IsAllowedOnCell(cell.type, cell.biome)) continue;
 
                         float densityMul = GetDensityMultiplier(category, cell);
@@ -61,7 +94,39 @@ namespace DonGeonMaster.MapGeneration
                             if ((float)rng.NextDouble() > chance) continue;
 
                             var prefab = category.GetRandomPrefab(rng);
-                            if (prefab == null) continue;
+
+                            // Garde-fou: prefab null
+                            if (prefab == null)
+                            {
+                                Debug.LogWarning($"[AssetPlacer] Prefab null dans categorie '{category.categoryId}' " +
+                                    $"({category.prefabs.Count} prefabs declares)");
+                                continue;
+                            }
+
+                            // Garde-fou: verifier renderer/material/shader
+                            var prefabRenderer = prefab.GetComponentInChildren<Renderer>();
+                            if (prefabRenderer == null)
+                            {
+                                Debug.LogWarning($"[AssetPlacer] Pas de Renderer sur prefab '{prefab.name}' " +
+                                    $"(categorie '{category.categoryId}')");
+                            }
+                            else if (prefabRenderer.sharedMaterial == null)
+                            {
+                                Debug.LogWarning($"[AssetPlacer] Material null sur prefab '{prefab.name}' " +
+                                    $"(categorie '{category.categoryId}')");
+                            }
+                            else
+                            {
+                                string shaderName = prefabRenderer.sharedMaterial.shader.name;
+                                if (shaderName == "Standard" ||
+                                    shaderName == "Hidden/InternalErrorShader" ||
+                                    shaderName.StartsWith("Legacy Shaders/"))
+                                {
+                                    Debug.LogWarning($"[AssetPlacer] Shader incompatible URP: '{shaderName}' " +
+                                        $"sur prefab '{prefab.name}' material '{prefabRenderer.sharedMaterial.name}' " +
+                                        $"(categorie '{category.categoryId}'). Convertir en URP/Lit.");
+                                }
+                            }
 
                             Vector3 worldPos = CellToWorld(x, y);
                             worldPos += GetRandomOffset(category);
@@ -91,6 +156,25 @@ namespace DonGeonMaster.MapGeneration
                                 categoryCount[category.categoryId] = 0;
                             categoryCount[category.categoryId]++;
                             totalPlaced++;
+
+                            // Log detaille pour les premiers placements de chaque categorie
+                            if (!detailedLogCount.ContainsKey(category.categoryId))
+                                detailedLogCount[category.categoryId] = 0;
+                            if (detailedLogCount[category.categoryId] < MaxDetailedLogsPerCategory)
+                            {
+                                string shaderInfo = "N/A";
+                                var rend = go.GetComponentInChildren<Renderer>();
+                                if (rend != null && rend.sharedMaterial != null)
+                                    shaderInfo = rend.sharedMaterial.shader.name;
+
+                                Debug.Log($"[AssetPlacer] PLACE '{go.name}' | " +
+                                    $"cell=({x},{y}) type={cell.type} biome={cell.biome} | " +
+                                    $"densMul={densityMul:F2} chance={chance:F2} | " +
+                                    $"prefab='{prefab.name}' shader='{shaderInfo}' | " +
+                                    $"pos={go.transform.position} rot={go.transform.rotation.eulerAngles} " +
+                                    $"scale={go.transform.localScale}");
+                                detailedLogCount[category.categoryId]++;
+                            }
                         }
                     }
                 }
@@ -98,23 +182,43 @@ namespace DonGeonMaster.MapGeneration
 
             result.objectsPerCategory = new Dictionary<string, int>(categoryCount);
             result.totalObjectsPlaced = totalPlaced;
-            result.AddPipelineStep($"Placement terminé: {totalPlaced} objets");
+            result.AddPipelineStep($"Placement termine: {totalPlaced} objets");
 
+            // Log resume par categorie
             foreach (var kvp in categoryCount)
+            {
                 result.AddPipelineStep($"  {kvp.Key}: {kvp.Value}");
+                Debug.Log($"[AssetPlacer] Resume: {kvp.Key} = {kvp.Value} objets places");
+            }
 
             return totalPlaced;
         }
 
         float GetDensityMultiplier(AssetCategory category, MapCell cell)
         {
-            if (cell.type == CellType.Mur)
+            float baseDensity = GetCategoryDensity(category);
+            float cellFactor = cell.type == CellType.Couloir ? 0.3f : 1f;
+            return baseDensity * cellFactor;
+        }
+
+        float GetCategoryDensity(AssetCategory category)
+        {
+            // Structural → toujours 1.0
+            if (category.isStructural)
+                return 1f;
+
+            string id = category.categoryId;
+
+            // Vegetation → vegetationDensity
+            if (VegetationIds.Contains(id))
                 return config.vegetationDensity;
-            if (cell.type == CellType.Sol)
-                return config.decorDensity;
-            if (cell.type == CellType.Couloir)
-                return config.decorDensity * 0.3f;
-            return 1f;
+
+            // Rochers / minerais / gemmes → rockDensity
+            if (RockIds.Contains(id))
+                return config.rockDensity;
+
+            // Decor par defaut → decorDensity
+            return config.decorDensity;
         }
 
         Vector3 CellToWorld(int x, int y)

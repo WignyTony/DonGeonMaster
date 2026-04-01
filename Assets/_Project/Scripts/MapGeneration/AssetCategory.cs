@@ -3,6 +3,17 @@ using UnityEngine;
 
 namespace DonGeonMaster.MapGeneration
 {
+    /// <summary>
+    /// Determine quel slider de densite controle cette categorie.
+    /// </summary>
+    public enum DensityType
+    {
+        Vegetation,
+        Rock,
+        Decor,
+        Structural
+    }
+
     [CreateAssetMenu(fileName = "NewAssetCategory", menuName = "DonGeonMaster/Map Generation/Asset Category")]
     public class AssetCategory : ScriptableObject
     {
@@ -32,6 +43,10 @@ namespace DonGeonMaster.MapGeneration
         public bool isDecoration = true;
         public bool isGameplay;
         public bool isRequired;
+
+        [Header("Densité")]
+        [Tooltip("Determine quel slider de densite (vegetation/rock/decor) controle cette categorie")]
+        public DensityType densityType = DensityType.Decor;
 
         public bool IsAllowedOnCell(CellType cellType, BiomeType biome)
         {

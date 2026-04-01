@@ -158,6 +158,9 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 var rootGO = new GameObject("AssetLayer");
                 assetRoot = rootGO.transform;
                 assetPlacer.Initialize(assetRoot, currentConfig, currentConfig.seed, result);
+                // En mode debug, ne pas placer les categories structurelles (Sols, Eau)
+                // pour ne pas recouvrir le blockout colore de la structure
+                assetPlacer.skipStructuralCategories = true;
                 int placed = assetPlacer.PlaceAssets(map, assetRegistry);
                 UnityEngine.Debug.Log($"[ModeController] Assets places: {placed}");
             }
