@@ -199,7 +199,13 @@ namespace DonGeonMaster.MapGeneration
                             }
 
                             // === INSTANTIATE ===
-                            var go = Object.Instantiate(prefab, wp, Quaternion.Euler(config.assetRotation), mapRoot);
+                            // Rotation de base : structurel (tiles) utilise assetRotation (-90 X),
+                            // props utilisent identity (debout) + variation Y aleatoire
+                            Quaternion baseRot = cat.isStructural
+                                ? Quaternion.Euler(config.assetRotation)
+                                : Quaternion.identity;
+
+                            var go = Object.Instantiate(prefab, wp, baseRot, mapRoot);
 
                             Vector3 baseScale = config.assetScale * cat.scaleMultiplier;
                             rec.scaleAfterMultX = baseScale.x; rec.scaleAfterMultY = baseScale.y; rec.scaleAfterMultZ = baseScale.z;
