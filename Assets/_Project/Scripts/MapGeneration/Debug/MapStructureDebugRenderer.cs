@@ -56,6 +56,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             public float aspectRatio;         // max(W,D)/min(W,D)
             public bool looksLikeStrip;       // ratio > 2
             public bool coversCellProperly;   // both dims >= blockSize * 0.9
+            public string chosenUpAxis;       // "Y", "Z", ou "X" — axe d'epaisseur detecte
+            public string appliedRotation;    // rotation appliquee pour coucher la tile
         }
         public List<CellRenderInfo> cellRenderInfos = new();
 
@@ -250,6 +252,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                         cri.aspectRatio = t.aspectRatio;
                         cri.looksLikeStrip = t.looksLikeStrip;
                         cri.coversCellProperly = t.coversCellProperly;
+                        cri.chosenUpAxis = t.chosenUpAxis;
+                        cri.appliedRotation = t.appliedRotation;
                     }
                     cellRenderInfos.Add(cri);
 
@@ -329,13 +333,13 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             public string prefabName, matName, meshName, objName;
             public Vector3 scale, rot;
-            // Diagnostics pour le dump
             public Vector3 rawBoundsSize, finalBoundsSize;
             public float rawX, rawY, rawZ;
             public float footprintW, footprintD, footprintH;
             public float sfX, sfY, sfZ;
             public float aspectRatio;
             public bool looksLikeStrip, coversCellProperly;
+            public string chosenUpAxis, appliedRotation;
         }
 
         TilePlaceResult PlaceTile(Vector3 cellCenter, float cellSize, float blockSize, int cx, int cy, string prefix)
@@ -343,7 +347,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             int idx = tileRng.Next(floorPrefabs.Count);
             var prefab = floorPrefabs[idx];
             string pName = prefab != null ? prefab.name : "null";
-
             var res = new TilePlaceResult { prefabName = pName };
 
             if (prefab == null)
@@ -352,7 +355,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 return res;
             }
 
-            // 1) Instancier SANS rotation pour mesurer les bounds correctement
+            // 1) Instancier a identity pour mesurer les bounds bruts
             var go = Instantiate(prefab, cellCenter, Quaternion.identity, structureRoot);
             go.name = $"{prefix}_{cx}_{cy}_Tile";
             res.objName = go.name;
@@ -360,77 +363,100 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var renderers = go.GetComponentsInChildren<Renderer>();
             if (renderers.Length == 0)
             {
-                go.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
-                go.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+                go.transform.localScale = Vector3.one * (blockSize / 0.06f);
                 res.scale = go.transform.localScale;
-                res.rot = go.transform.rotation.eulerAngles;
+                res.chosenUpAxis = "?"; res.appliedRotation = "none";
                 return res;
             }
 
-            // 2) Mesurer les bounds a scale 1, rotation identity
-            //    Pandazole FBX est Z-up → a identity dans Unity :
-            //    surface du mesh dans le plan XY, epaisseur sur Z
             Bounds cb = renderers[0].bounds;
             for (int i = 1; i < renderers.Length; i++)
                 cb.Encapsulate(renderers[i].bounds);
 
-            float rawX = Mathf.Max(cb.size.x, 0.001f);
-            float rawY = Mathf.Max(cb.size.y, 0.001f);
-            float rawZ = Mathf.Max(cb.size.z, 0.001f);
+            float rX = Mathf.Max(cb.size.x, 0.0001f);
+            float rY = Mathf.Max(cb.size.y, 0.0001f);
+            float rZ = Mathf.Max(cb.size.z, 0.0001f);
             res.rawBoundsSize = cb.size;
-            res.rawX = rawX; res.rawY = rawY; res.rawZ = rawZ;
+            res.rawX = rX; res.rawY = rY; res.rawZ = rZ;
 
-            // 3) Scale NON-UNIFORME pour couvrir exactement la cellule
-            //    Apres rotation -90°X : local X → world X, local Y → world -Z
-            //    Donc on scale X et Y independamment pour que les deux = blockSize
-            //    Z (epaisseur) prend un scale moyen pour rester proportionnel
-            float sfX = blockSize / rawX;  // couvre world X
-            float sfY = blockSize / rawY;  // couvre world Z (apres rotation)
-            float sfZ = (sfX + sfY) * 0.5f; // epaisseur proportionnelle
-            res.sfX = sfX; res.sfY = sfY; res.sfZ = sfZ;
+            // 2) Detecter l'axe d'epaisseur (le plus petit) et les axes de surface
+            //    upAxis = axe d'epaisseur natif du mesh
+            //    surfA, surfB = les deux axes de surface
+            float surfA, surfB, thickness;
+            Quaternion layFlat;
 
-            go.transform.localScale = new Vector3(sfX, sfY, sfZ);
+            if (rY <= rX && rY <= rZ)
+            {
+                // Epaisseur sur Y → deja a plat dans le plan XZ
+                surfA = rX; surfB = rZ; thickness = rY;
+                layFlat = Quaternion.identity;
+                res.chosenUpAxis = "Y"; res.appliedRotation = "identity";
+            }
+            else if (rZ <= rX && rZ <= rY)
+            {
+                // Epaisseur sur Z → surface dans XY, rotation -90 X pour coucher sur XZ
+                surfA = rX; surfB = rY; thickness = rZ;
+                layFlat = Quaternion.Euler(-90f, 0f, 0f);
+                res.chosenUpAxis = "Z"; res.appliedRotation = "Euler(-90,0,0)";
+            }
+            else
+            {
+                // Epaisseur sur X → surface dans YZ, rotation 90 Z pour coucher sur XZ
+                surfA = rY; surfB = rZ; thickness = rX;
+                layFlat = Quaternion.Euler(0f, 0f, 90f);
+                res.chosenUpAxis = "X"; res.appliedRotation = "Euler(0,0,90)";
+            }
 
-            // Diagnostics d'emprise
-            res.footprintW = rawX * sfX; // = blockSize
-            res.footprintD = rawY * sfY; // = blockSize
-            res.footprintH = rawZ * sfZ; // epaisseur
-            float minSurface = Mathf.Min(rawX, rawY);
-            float maxSurface = Mathf.Max(rawX, rawY);
-            res.aspectRatio = minSurface > 0.001f ? maxSurface / minSurface : 999f;
+            // 3) Appliquer la rotation
+            go.transform.rotation = layFlat;
+
+            // 4) Remesurer les bounds apres rotation (a scale 1)
+            Bounds rotBounds = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) rotBounds.Encapsulate(r.bounds);
+            float worldSpanX = Mathf.Max(rotBounds.size.x, 0.0001f);
+            float worldSpanZ = Mathf.Max(rotBounds.size.z, 0.0001f);
+
+            // 5) Scale non-uniforme pour couvrir la cellule sur X et Z monde
+            float sX = blockSize / worldSpanX;
+            float sZ = blockSize / worldSpanZ;
+            // Pour Y (epaisseur monde), prendre un scale moyen
+            float worldSpanY = Mathf.Max(rotBounds.size.y, 0.0001f);
+            float sY = (sX + sZ) * 0.5f;
+            go.transform.localScale = new Vector3(sX, sY, sZ);
+            res.sfX = sX; res.sfY = sY; res.sfZ = sZ;
+
+            // Diagnostics
+            res.footprintW = worldSpanX * sX;
+            res.footprintD = worldSpanZ * sZ;
+            res.footprintH = worldSpanY * sY;
+            float minS = Mathf.Min(surfA, surfB);
+            float maxS = Mathf.Max(surfA, surfB);
+            res.aspectRatio = minS > 0.001f ? maxS / minS : 999f;
             res.looksLikeStrip = res.aspectRatio > 2f;
 
-            // 4) Appliquer la rotation structurelle Pandazole (-90 X)
-            go.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+            // 6) Recentrer sur la cellule
+            var nb = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) nb.Encapsulate(r.bounds);
+            Vector3 off = cellCenter - nb.center;
+            off.y = 0;
+            go.transform.position += off;
 
-            // 5) Recentrer sur la cellule apres rotation + scale
-            var newBounds = new Bounds(go.transform.position, Vector3.zero);
-            foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
-            Vector3 offset = cellCenter - newBounds.center;
-            offset.y = 0;
-            go.transform.position += offset;
+            // 7) Poser au sol
+            nb = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) nb.Encapsulate(r.bounds);
+            go.transform.position += Vector3.up * (-nb.min.y);
 
-            // 6) Poser au sol : le bas des bounds doit etre a y~0
-            newBounds = new Bounds(go.transform.position, Vector3.zero);
-            foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
-            go.transform.position += Vector3.up * (-newBounds.min.y);
+            // Bounds finales
+            var fb = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) fb.Encapsulate(r.bounds);
+            res.finalBoundsSize = fb.size;
+            res.coversCellProperly = fb.size.x >= blockSize * 0.9f && fb.size.z >= blockSize * 0.9f;
 
-            // Mesurer les bounds finales
-            var finalBounds = new Bounds(go.transform.position, Vector3.zero);
-            foreach (var r in renderers) finalBounds.Encapsulate(r.bounds);
-            res.finalBoundsSize = finalBounds.size;
-            res.coversCellProperly = finalBounds.size.x >= blockSize * 0.9f && finalBounds.size.z >= blockSize * 0.9f;
-
-            // Desactiver les MeshColliders du prefab
+            // Desactiver MeshColliders (collision ground separe)
             foreach (var mc in go.GetComponentsInChildren<MeshCollider>())
                 mc.enabled = false;
 
-            // BoxCollider pour la physique hero
-            var box = go.AddComponent<BoxCollider>();
-            box.center = Vector3.up * 0.025f;
-            box.size = new Vector3(blockSize / sfX, 0.05f / sfZ, blockSize / sfY);
-
-            // Info pour les logs
+            // Info logs
             res.scale = go.transform.localScale;
             res.rot = go.transform.rotation.eulerAngles;
 

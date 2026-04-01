@@ -441,12 +441,23 @@ namespace DonGeonMaster.MapGeneration
 
                     // Top 20 plus suspectes (par ratio aspect)
                     realTiles.Sort((a, b) => b.aspectRatio.CompareTo(a.aspectRatio));
+                    // Frequence par axe up
+                    var upFreq = new Dictionary<string, int>();
+                    foreach (var t in realTiles)
+                    {
+                        string ax = t.chosenUpAxis ?? "?";
+                        if (!upFreq.ContainsKey(ax)) upFreq[ax] = 0; upFreq[ax]++;
+                    }
+                    sb.AppendLine("  Axe up detecte:");
+                    foreach (var kvp in upFreq) sb.AppendLine($"    {kvp.Key}: {kvp.Value}");
+                    sb.AppendLine();
+
                     sb.AppendLine("  Top 20 tiles aspect ratio le plus extreme:");
                     int count = 0;
                     foreach (var t in realTiles)
                     {
                         if (count >= 20) break;
-                        sb.AppendLine($"    ({t.x},{t.y}) {t.prefabName} ratio={F(t.aspectRatio)} " +
+                        sb.AppendLine($"    ({t.x},{t.y}) {t.prefabName} ratio={F(t.aspectRatio)} upAxis={t.chosenUpAxis} rot={t.appliedRotation} " +
                             $"rawBounds=({F(t.rawBoundsSize.x)},{F(t.rawBoundsSize.y)},{F(t.rawBoundsSize.z)}) " +
                             $"sf=({F(t.scaleFactorX)},{F(t.scaleFactorY)},{F(t.scaleFactorZ)}) " +
                             $"final=({F(t.finalBoundsSize.x)},{F(t.finalBoundsSize.y)},{F(t.finalBoundsSize.z)}) " +
