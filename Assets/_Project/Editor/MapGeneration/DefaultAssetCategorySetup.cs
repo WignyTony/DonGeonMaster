@@ -43,7 +43,7 @@ public class DefaultAssetCategorySetup
             new Color(0.2f, 0.6f, 0.2f), "Tree",
             new List<CellType> { CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.ForetAutomne, BiomeType.ForetHiver, BiomeType.Prairie },
-            placementChance: 0.35f, maxPerCell: 1, minSpacing: 4f,
+            placementChance: 0.55f, maxPerCell: 1, minSpacing: 4f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.4f));
 
         // === BUISSONS ===
@@ -51,7 +51,7 @@ public class DefaultAssetCategorySetup
             new Color(0.3f, 0.5f, 0.2f), "Bush",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Prairie, BiomeType.ForetAutomne },
-            placementChance: 0.20f, maxPerCell: 1, minSpacing: 2f,
+            placementChance: 0.35f, maxPerCell: 1, minSpacing: 2f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.3f));
 
         // === HERBE ===
@@ -59,7 +59,7 @@ public class DefaultAssetCategorySetup
             new Color(0.4f, 0.7f, 0.3f), "Grass",
             new List<CellType> { CellType.Sol, CellType.Couloir },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Prairie, BiomeType.ForetAutomne },
-            placementChance: 0.15f, maxPerCell: 1, minSpacing: 1f,
+            placementChance: 0.40f, maxPerCell: 1, minSpacing: 1f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.2f));
 
         // === FLEURS ===
@@ -67,7 +67,7 @@ public class DefaultAssetCategorySetup
             new Color(0.9f, 0.4f, 0.6f), "Flower",
             new List<CellType> { CellType.Sol },
             new List<BiomeType> { BiomeType.Prairie, BiomeType.Foret, BiomeType.Fantaisie },
-            placementChance: 0.12f, maxPerCell: 1, minSpacing: 1f,
+            placementChance: 0.30f, maxPerCell: 1, minSpacing: 1f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.2f));
 
         // === ROCHES DURES ===
@@ -75,7 +75,7 @@ public class DefaultAssetCategorySetup
             new Color(0.5f, 0.5f, 0.5f), "HardRock",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Rocailleux, BiomeType.Desert, BiomeType.ForetHiver },
-            placementChance: 0.20f, maxPerCell: 1, minSpacing: 3f,
+            placementChance: 0.35f, maxPerCell: 1, minSpacing: 3f,
             densityType: DensityType.Rock, scaleMultiplier: 0.35f));
 
         // === ROCHES TENDRES ===
@@ -83,7 +83,7 @@ public class DefaultAssetCategorySetup
             new Color(0.6f, 0.55f, 0.5f), "SoftRock",
             new List<CellType> { CellType.Sol, CellType.Couloir, CellType.Mur },
             new List<BiomeType>(),
-            placementChance: 0.12f, maxPerCell: 1, minSpacing: 1.5f,
+            placementChance: 0.25f, maxPerCell: 1, minSpacing: 1.5f,
             densityType: DensityType.Rock, scaleMultiplier: 0.25f));
 
         // === CACTUS ===
@@ -91,7 +91,7 @@ public class DefaultAssetCategorySetup
             new Color(0.4f, 0.6f, 0.2f), "Cactus",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Desert },
-            placementChance: 0.25f, maxPerCell: 1, minSpacing: 3f,
+            placementChance: 0.40f, maxPerCell: 1, minSpacing: 3f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.35f));
 
         // === CHAMPIGNONS ===
@@ -99,7 +99,7 @@ public class DefaultAssetCategorySetup
             new Color(0.7f, 0.3f, 0.3f), "Mashroom",
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Marecage, BiomeType.Fantaisie },
-            placementChance: 0.08f, maxPerCell: 1, minSpacing: 2f,
+            placementChance: 0.20f, maxPerCell: 1, minSpacing: 2f,
             densityType: DensityType.Decor, scaleMultiplier: 0.2f));
 
         // === MINERAIS ===
@@ -107,7 +107,7 @@ public class DefaultAssetCategorySetup
             new Color(0.3f, 0.7f, 0.9f), "MineralNode",
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Rocailleux, BiomeType.Fantaisie },
-            placementChance: 0.08f, maxPerCell: 1, minSpacing: 5f,
+            placementChance: 0.15f, maxPerCell: 1, minSpacing: 4f,
             isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.3f));
 
         // === GEMMES ===
@@ -115,7 +115,7 @@ public class DefaultAssetCategorySetup
             new Color(0.8f, 0.3f, 0.9f), "Jem",
             new List<CellType> { CellType.Sol },
             new List<BiomeType> { BiomeType.Fantaisie, BiomeType.Rocailleux },
-            placementChance: 0.04f, maxPerCell: 1, minSpacing: 7f,
+            placementChance: 0.08f, maxPerCell: 1, minSpacing: 6f,
             isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.2f));
 
         // === TRONCS ===
@@ -123,7 +123,7 @@ public class DefaultAssetCategorySetup
             new Color(0.5f, 0.35f, 0.2f), "TreeTrunk",
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.ForetAutomne, BiomeType.ForetHiver },
-            placementChance: 0.10f, maxPerCell: 1, minSpacing: 3f,
+            placementChance: 0.20f, maxPerCell: 1, minSpacing: 3f,
             densityType: DensityType.Decor, scaleMultiplier: 0.3f));
 
         // === ÉPINES ===
@@ -131,7 +131,7 @@ public class DefaultAssetCategorySetup
             new Color(0.4f, 0.3f, 0.2f), "Thorns",
             new List<CellType> { CellType.Mur },
             new List<BiomeType> { BiomeType.Desert, BiomeType.Marecage },
-            placementChance: 0.15f, maxPerCell: 1, minSpacing: 2f,
+            placementChance: 0.30f, maxPerCell: 1, minSpacing: 2f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
 
         // === FEUILLAGE ===
@@ -139,7 +139,7 @@ public class DefaultAssetCategorySetup
             new Color(0.3f, 0.55f, 0.2f), "Foliage",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Marecage },
-            placementChance: 0.12f, maxPerCell: 1, minSpacing: 2f,
+            placementChance: 0.25f, maxPerCell: 1, minSpacing: 2f,
             densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
 
         // === DÉBRIS ===
@@ -148,7 +148,7 @@ public class DefaultAssetCategorySetup
             new Color(0.6f, 0.5f, 0.4f), debrisPrefabs,
             new List<CellType> { CellType.Sol, CellType.Couloir },
             new List<BiomeType>(),
-            placementChance: 0.05f, maxPerCell: 1, minSpacing: 4f,
+            placementChance: 0.12f, maxPerCell: 1, minSpacing: 3f,
             densityType: DensityType.Decor, scaleMultiplier: 0.2f));
 
         // === CORAUX ===
@@ -156,7 +156,7 @@ public class DefaultAssetCategorySetup
             new Color(0.9f, 0.4f, 0.5f), "Coral",
             new List<CellType> { CellType.Eau },
             new List<BiomeType> { BiomeType.Marecage },
-            placementChance: 0.15f, maxPerCell: 1, minSpacing: 2f,
+            placementChance: 0.30f, maxPerCell: 1, minSpacing: 2f,
             densityType: DensityType.Decor, scaleMultiplier: 0.3f));
 
         // === Créer le Registry ===
