@@ -162,29 +162,39 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
         Vector3 GetSpawnPosition(MapData map, MapGenConfig config)
         {
-            // Spawn sur la vraie hauteur de la cellule + petit offset pour poser les pieds
-            const float aboveGround = 0.15f;
+            Vector2Int spawnCell = map.spawnCell;
+            if (spawnCell.x < 0 && map.rooms.Count > 0)
+                spawnCell = map.rooms[0].center;
 
-            if (map.spawnCell.x >= 0)
+            float cx = spawnCell.x >= 0 ? spawnCell.x * config.cellSize : map.width * config.cellSize * 0.5f;
+            float cz = spawnCell.y >= 0 ? spawnCell.y * config.cellSize : map.height * config.cellSize * 0.5f;
+
+            // Hauteur de cellule comme estimation initiale
+            var cell = spawnCell.x >= 0 ? map.GetCell(spawnCell.x, spawnCell.y) : null;
+            float cellH = cell != null ? cell.floorHeight : 0f;
+
+            // Raycast vers le bas depuis au-dessus pour trouver la vraie surface
+            Vector3 rayOrigin = new Vector3(cx, cellH + 50f, cz);
+            string method = "fallback";
+            float resolvedY = cellH + 0.15f;
+
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 100f))
             {
-                var cell = map.GetCell(map.spawnCell.x, map.spawnCell.y);
-                float h = cell != null ? cell.floorHeight : 0f;
-                UnityEngine.Debug.Log($"[HeroDebugBridge] Spawn cell ({map.spawnCell.x},{map.spawnCell.y}) " +
-                    $"floorHeight={h:F2} → spawnY={h + aboveGround:F2}");
-                return new Vector3(map.spawnCell.x * config.cellSize, h + aboveGround, map.spawnCell.y * config.cellSize);
+                resolvedY = hit.point.y + 0.1f;
+                method = "raycast";
+                UnityEngine.Debug.Log($"[HeroDebugBridge] Spawn raycast hit '{hit.collider.gameObject.name}' " +
+                    $"at Y={hit.point.y:F2} → spawnY={resolvedY:F2}");
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning($"[HeroDebugBridge] Spawn raycast miss — " +
+                    $"fallback cellH={cellH:F2} → spawnY={resolvedY:F2}");
             }
 
-            if (map.rooms.Count > 0)
-            {
-                var c = map.rooms[0].center;
-                var cell = map.GetCell(c.x, c.y);
-                float h = cell != null ? cell.floorHeight : 0f;
-                return new Vector3(c.x * config.cellSize, h + aboveGround, c.y * config.cellSize);
-            }
+            UnityEngine.Debug.Log($"[HeroDebugBridge] Spawn cell=({spawnCell.x},{spawnCell.y}) " +
+                $"method={method} resolvedY={resolvedY:F2} cellFloorH={cellH:F2}");
 
-            return new Vector3(
-                map.width * config.cellSize * 0.5f, aboveGround,
-                map.height * config.cellSize * 0.5f);
+            return new Vector3(cx, resolvedY, cz);
         }
 
         void EnsureKeyBindingManager()

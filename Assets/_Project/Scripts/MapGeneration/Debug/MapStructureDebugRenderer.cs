@@ -277,7 +277,9 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 }
             }
 
-            // ── COLLISION GROUND : sol physique invisible a la vraie hauteur de chaque cellule ──
+            // ── COLLISION GROUND ──
+            // En mode realGround : les TileGround MeshColliders fournissent la physique
+            // En mode blockout : BoxColliders invisibles comme fallback
             var collGO = new GameObject("CollisionGround");
             collisionRoot = collGO.transform;
             collisionRoot.SetParent(structureRoot);
@@ -289,9 +291,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     var cell = map.cells[x, y];
                     if (cell.type != CellType.Sol && cell.type != CellType.Couloir) continue;
 
+                    // En mode realGround, les tiles ont deja des MeshColliders actifs
+                    if (canRealGround) { CollisionCellsTotal++; continue; }
+
                     var cgo = new GameObject($"CollGround_{x}_{y}");
                     cgo.transform.SetParent(collisionRoot);
-                    // Position a la vraie hauteur de la cellule
                     cgo.transform.position = new Vector3(x * cs, cell.floorHeight, y * cs);
                     cgo.layer = 0;
 
@@ -456,9 +460,15 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             res.finalBoundsSize = fb.size;
             res.coversCellProperly = fb.size.x >= blockSize * 0.9f && fb.size.z >= blockSize * 0.9f;
 
-            // Desactiver MeshColliders (collision ground separe)
+            // ACTIVER les MeshColliders du prefab — le relief reel sert de physique
             foreach (var mc in go.GetComponentsInChildren<MeshCollider>())
-                mc.enabled = false;
+            {
+                mc.enabled = true;
+                mc.convex = false; // non-convex pour physique statique precise
+            }
+
+            // Tag le layer pour les identifier
+            go.isStatic = true;
 
             // Info logs
             res.scale = go.transform.localScale;
