@@ -68,7 +68,7 @@ MonoBehaviour:
   maxPerCell: 1
   minSpacing: 6
   allowRotationVariation: 1
-  scaleMultiplier: 0.2
+  scaleMultiplier: 0.18
   minScaleVariation: 0.9
   maxScaleVariation: 1.1
   yOffset: 0
