@@ -153,16 +153,39 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
             // Placer les assets par dessus le blockout si active
             ClearAssets();
-            if (sidebar.PlaceAssetsEnabled && assetRegistry != null)
+
+            int registryCatCount = assetRegistry != null ? assetRegistry.categories.Count : 0;
+            var sidebarCats = sidebar.GetEnabledCategories();
+            int sidebarCatCount = sidebarCats != null ? sidebarCats.Count : 0;
+
+            UnityEngine.Debug.Log($"[ModeController] === PRE-PLACEMENT === " +
+                $"PlaceAssetsEnabled={sidebar.PlaceAssetsEnabled} | " +
+                $"assetRegistry={(assetRegistry != null ? "OK" : "NULL")} ({registryCatCount} categories) | " +
+                $"sidebar categories activees: {sidebarCatCount} | " +
+                $"seed={currentConfig.seed}");
+
+            if (!sidebar.PlaceAssetsEnabled)
+            {
+                UnityEngine.Debug.LogWarning("[ModeController] Placement NON execute: toggle 'Placer les assets' est OFF");
+            }
+            else if (assetRegistry == null)
+            {
+                UnityEngine.Debug.LogWarning("[ModeController] Placement NON execute: assetRegistry est NULL " +
+                    "(assigner le champ dans l'Inspector de la scene MapGenDebug)");
+            }
+            else
             {
                 var rootGO = new GameObject("AssetLayer");
                 assetRoot = rootGO.transform;
                 assetPlacer.Initialize(assetRoot, currentConfig, currentConfig.seed, result);
-                // En mode debug, ne pas placer les categories structurelles (Sols, Eau)
-                // pour ne pas recouvrir le blockout colore de la structure
                 assetPlacer.skipStructuralCategories = true;
                 int placed = assetPlacer.PlaceAssets(map, assetRegistry);
-                UnityEngine.Debug.Log($"[ModeController] Assets places: {placed}");
+
+                UnityEngine.Debug.Log($"[ModeController] === POST-PLACEMENT === " +
+                    $"Total objets places: {placed}");
+
+                if (placed == 0)
+                    UnityEngine.Debug.LogWarning("[ModeController] PlaceAssets() a retourne 0 — voir synthese [AssetPlacer] ci-dessus");
             }
 
             FitCamera();
