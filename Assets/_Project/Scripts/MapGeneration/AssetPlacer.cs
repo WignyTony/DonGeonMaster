@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace DonGeonMaster.MapGeneration
@@ -31,27 +32,40 @@ namespace DonGeonMaster.MapGeneration
             "RochesDures", "RochesTendres", "Minerais", "Gemmes"
         };
 
-        // === COMPTEURS PAR CATEGORIE ===
+        // === COMPTEURS ===
         Dictionary<string, int> cntPlaced = new();
         Dictionary<string, int> cntSkipChance = new();
         Dictionary<string, int> cntSkipSpacing = new();
         Dictionary<string, int> cntSkipPrefabNull = new();
-        Dictionary<string, int> cntSkipNoRenderer = new();
-        Dictionary<string, int> cntSkipNullMaterial = new();
+        Dictionary<string, int> cntSkipSpawnZone = new();
+        Dictionary<string, int> cntSkipOversize = new();
 
-        // Compteurs globaux
-        int totalAttempted;
-        int totalPlaced;
-        int totalSkipChance;
-        int totalSkipSpacing;
-        int totalSkipPrefabNull;
-        int totalSkipNoRenderer;
-        int totalSkipNullMaterial;
+        int totalAttempted, totalPlaced, totalSkipChance, totalSkipSpacing;
+        int totalSkipPrefabNull, totalSkipSpawnZone, totalSkipOversize;
 
-        // Bornes positions
-        Vector3 posMin;
-        Vector3 posMax;
+        Vector3 posMin, posMax;
         bool hasAnyPlaced;
+
+        // Gabarits max en unites monde par famille (largeur ou hauteur max)
+        // cellSize=6, wallHeight=3 → les props doivent rester sous ces reperes
+        const float MaxBoundsTree = 4.5f;
+        const float MaxBoundsBush = 3.0f;
+        const float MaxBoundsRock = 3.0f;
+        const float MaxBoundsSmall = 2.0f;
+
+        // Rayon no-spawn autour du spawn et de l'exit (en unites monde)
+        const float SpawnExclusionRadius = 12f;
+
+        // Tracker les plus gros objets places pour le log final
+        struct PlacedInfo
+        {
+            public string prefabName;
+            public string categoryId;
+            public Vector3 boundsSize;
+            public Vector3 position;
+            public float maxDim;
+        }
+        List<PlacedInfo> biggestPlaced = new();
 
         void Inc(Dictionary<string, int> dict, string key)
         {
@@ -61,33 +75,21 @@ namespace DonGeonMaster.MapGeneration
 
         void ResetCounters()
         {
-            cntPlaced.Clear();
-            cntSkipChance.Clear();
-            cntSkipSpacing.Clear();
-            cntSkipPrefabNull.Clear();
-            cntSkipNoRenderer.Clear();
-            cntSkipNullMaterial.Clear();
+            cntPlaced.Clear(); cntSkipChance.Clear(); cntSkipSpacing.Clear();
+            cntSkipPrefabNull.Clear(); cntSkipSpawnZone.Clear(); cntSkipOversize.Clear();
             placedPerCategory.Clear();
-            totalAttempted = 0;
-            totalPlaced = 0;
-            totalSkipChance = 0;
-            totalSkipSpacing = 0;
-            totalSkipPrefabNull = 0;
-            totalSkipNoRenderer = 0;
-            totalSkipNullMaterial = 0;
+            totalAttempted = 0; totalPlaced = 0; totalSkipChance = 0;
+            totalSkipSpacing = 0; totalSkipPrefabNull = 0;
+            totalSkipSpawnZone = 0; totalSkipOversize = 0;
             hasAnyPlaced = false;
             posMin = new Vector3(float.MaxValue, 0, float.MaxValue);
             posMax = new Vector3(float.MinValue, 0, float.MinValue);
+            biggestPlaced.Clear();
         }
 
         void TrackPosition(Vector3 pos)
         {
-            if (!hasAnyPlaced)
-            {
-                posMin = pos;
-                posMax = pos;
-                hasAnyPlaced = true;
-            }
+            if (!hasAnyPlaced) { posMin = pos; posMax = pos; hasAnyPlaced = true; }
             else
             {
                 if (pos.x < posMin.x) posMin.x = pos.x;
@@ -95,6 +97,14 @@ namespace DonGeonMaster.MapGeneration
                 if (pos.x > posMax.x) posMax.x = pos.x;
                 if (pos.z > posMax.z) posMax.z = pos.z;
             }
+        }
+
+        float GetMaxBoundsForCategory(string categoryId)
+        {
+            if (categoryId == "Arbres" || categoryId == "Cactus") return MaxBoundsTree;
+            if (categoryId == "Buissons" || categoryId == "Feuillage" || categoryId == "Epines") return MaxBoundsBush;
+            if (categoryId == "RochesDures" || categoryId == "RochesTendres" || categoryId == "Troncs") return MaxBoundsRock;
+            return MaxBoundsSmall;
         }
 
         public void Initialize(Transform root, MapGenConfig config, int seed, GenerationResult result)
@@ -128,7 +138,14 @@ namespace DonGeonMaster.MapGeneration
                 $"densites: veg={config.vegetationDensity:F2} rock={config.rockDensity:F2} decor={config.decorDensity:F2} | " +
                 $"skipStructural={skipStructuralCategories} mode={config.mode}");
 
-            // Warning shader : une seule fois par categorie
+            // Positions monde du spawn et de l'exit pour la zone d'exclusion
+            Vector3 spawnWorld = CellToWorld(map.spawnCell.x, map.spawnCell.y);
+            Vector3 exitWorld = CellToWorld(map.exitCell.x, map.exitCell.y);
+            float exclRadSq = SpawnExclusionRadius * SpawnExclusionRadius;
+
+            Debug.Log($"[AssetPlacer] Spawn exclusion: radius={SpawnExclusionRadius} " +
+                $"spawn=({spawnWorld.x:F0},{spawnWorld.z:F0}) exit=({exitWorld.x:F0},{exitWorld.z:F0})");
+
             HashSet<string> shaderWarned = new();
 
             for (int x = 0; x < map.width; x++)
@@ -172,25 +189,27 @@ namespace DonGeonMaster.MapGeneration
                             if (!shaderWarned.Contains(category.categoryId))
                             {
                                 var rend = prefab.GetComponentInChildren<Renderer>();
-                                if (rend == null)
-                                {
-                                    Debug.LogWarning($"[AssetPlacer] Pas de Renderer sur '{prefab.name}' (categorie '{category.categoryId}')");
-                                }
-                                else if (rend.sharedMaterial == null)
-                                {
-                                    Debug.LogWarning($"[AssetPlacer] Material null sur '{prefab.name}' (categorie '{category.categoryId}')");
-                                }
-                                else
+                                if (rend != null && rend.sharedMaterial != null)
                                 {
                                     string sn = rend.sharedMaterial.shader.name;
                                     if (sn == "Standard" || sn == "Hidden/InternalErrorShader" || sn.StartsWith("Legacy Shaders/"))
-                                        Debug.LogWarning($"[AssetPlacer] Shader incompatible URP: '{sn}' sur '{prefab.name}' mat='{rend.sharedMaterial.name}' (categorie '{category.categoryId}')");
+                                        Debug.LogWarning($"[AssetPlacer] Shader incompatible URP: '{sn}' sur '{prefab.name}' (categorie '{category.categoryId}')");
                                 }
                                 shaderWarned.Add(category.categoryId);
                             }
 
                             Vector3 worldPos = CellToWorld(x, y);
                             worldPos += GetRandomOffset(category);
+
+                            // Zone d'exclusion autour du spawn et de l'exit
+                            float dxS = worldPos.x - spawnWorld.x, dzS = worldPos.z - spawnWorld.z;
+                            float dxE = worldPos.x - exitWorld.x, dzE = worldPos.z - exitWorld.z;
+                            if (dxS * dxS + dzS * dzS < exclRadSq || dxE * dxE + dzE * dzE < exclRadSq)
+                            {
+                                totalSkipSpawnZone++;
+                                Inc(cntSkipSpawnZone, category.categoryId);
+                                continue;
+                            }
 
                             // minSpacing PAR CATEGORIE
                             if (category.minSpacing > 0 && IsTooCloseInCategory(category.categoryId, worldPos, category.minSpacing))
@@ -217,6 +236,38 @@ namespace DonGeonMaster.MapGeneration
                             if (category.yOffset != 0)
                                 go.transform.position += Vector3.up * category.yOffset;
 
+                            // Mesurer les bounds reelles apres instanciation + scale
+                            var allRenderers = go.GetComponentsInChildren<Renderer>();
+                            Bounds combinedBounds = new Bounds(go.transform.position, Vector3.zero);
+                            foreach (var r in allRenderers)
+                                combinedBounds.Encapsulate(r.bounds);
+                            Vector3 bSize = combinedBounds.size;
+                            float maxDim = Mathf.Max(bSize.x, bSize.y, bSize.z);
+
+                            // Gabarit max : rescaler si depasse
+                            float maxAllowed = GetMaxBoundsForCategory(category.categoryId);
+                            if (maxDim > maxAllowed && maxDim > 0.01f)
+                            {
+                                float shrink = maxAllowed / maxDim;
+                                go.transform.localScale *= shrink;
+
+                                // Remesurer
+                                combinedBounds = new Bounds(go.transform.position, Vector3.zero);
+                                foreach (var r in allRenderers)
+                                    combinedBounds.Encapsulate(r.bounds);
+                                bSize = combinedBounds.size;
+                                float newMax = Mathf.Max(bSize.x, bSize.y, bSize.z);
+
+                                // Si meme apres shrink c'est encore > 2x le gabarit, skip
+                                if (newMax > maxAllowed * 2f)
+                                {
+                                    Object.Destroy(go);
+                                    totalSkipOversize++;
+                                    Inc(cntSkipOversize, category.categoryId);
+                                    continue;
+                                }
+                            }
+
                             go.name = $"{category.categoryId}_{x}_{y}_{i}";
                             cell.placedObjects.Add(go);
                             cell.placedAssetCategories.Add(category.categoryId);
@@ -228,6 +279,16 @@ namespace DonGeonMaster.MapGeneration
                             Inc(cntPlaced, category.categoryId);
                             totalPlaced++;
                             TrackPosition(worldPos);
+
+                            // Tracker pour le log des plus gros
+                            biggestPlaced.Add(new PlacedInfo
+                            {
+                                prefabName = prefab.name,
+                                categoryId = category.categoryId,
+                                boundsSize = bSize,
+                                position = worldPos,
+                                maxDim = Mathf.Max(bSize.x, bSize.y, bSize.z)
+                            });
                         }
                     }
                 }
@@ -240,7 +301,7 @@ namespace DonGeonMaster.MapGeneration
             LogSynthesis(enabledCategories.Count);
 
             result.AddPipelineStep($"Placement termine: {totalPlaced}/{totalAttempted} " +
-                $"(chance:{totalSkipChance} spacing:{totalSkipSpacing} prefabNull:{totalSkipPrefabNull})");
+                $"(chance:{totalSkipChance} spacing:{totalSkipSpacing} spawn:{totalSkipSpawnZone} oversize:{totalSkipOversize})");
             foreach (var kvp in cntPlaced)
                 result.AddPipelineStep($"  {kvp.Key}: {kvp.Value}");
 
@@ -251,8 +312,8 @@ namespace DonGeonMaster.MapGeneration
         {
             Debug.Log("[AssetPlacer] ══════ SYNTHESE PLACEMENT ══════");
             Debug.Log($"[AssetPlacer] Attempted: {totalAttempted} | Placed: {totalPlaced}");
-            Debug.Log($"[AssetPlacer] Skipped — chance: {totalSkipChance} | spacing: {totalSkipSpacing} | " +
-                $"prefabNull: {totalSkipPrefabNull} | noRenderer: {totalSkipNoRenderer} | nullMat: {totalSkipNullMaterial}");
+            Debug.Log($"[AssetPlacer] Skipped — chance:{totalSkipChance} spacing:{totalSkipSpacing} " +
+                $"spawnZone:{totalSkipSpawnZone} oversize:{totalSkipOversize} prefabNull:{totalSkipPrefabNull}");
 
             if (hasAnyPlaced)
                 Debug.Log($"[AssetPlacer] Positions — min:({posMin.x:F0},{posMin.z:F0}) max:({posMax.x:F0},{posMax.z:F0})");
@@ -262,15 +323,17 @@ namespace DonGeonMaster.MapGeneration
             foreach (var k in cntPlaced.Keys) allIds.Add(k);
             foreach (var k in cntSkipChance.Keys) allIds.Add(k);
             foreach (var k in cntSkipSpacing.Keys) allIds.Add(k);
-            foreach (var k in cntSkipPrefabNull.Keys) allIds.Add(k);
+            foreach (var k in cntSkipSpawnZone.Keys) allIds.Add(k);
+            foreach (var k in cntSkipOversize.Keys) allIds.Add(k);
 
             foreach (var id in allIds)
             {
                 int p = cntPlaced.ContainsKey(id) ? cntPlaced[id] : 0;
                 int sc = cntSkipChance.ContainsKey(id) ? cntSkipChance[id] : 0;
                 int ss = cntSkipSpacing.ContainsKey(id) ? cntSkipSpacing[id] : 0;
-                int sn = cntSkipPrefabNull.ContainsKey(id) ? cntSkipPrefabNull[id] : 0;
-                Debug.Log($"[AssetPlacer]   {id}: {p} places | skip chance:{sc} spacing:{ss} prefNull:{sn}");
+                int sz = cntSkipSpawnZone.ContainsKey(id) ? cntSkipSpawnZone[id] : 0;
+                int ov = cntSkipOversize.ContainsKey(id) ? cntSkipOversize[id] : 0;
+                Debug.Log($"[AssetPlacer]   {id}: {p} places | chance:{sc} spacing:{ss} spawnZone:{sz} oversize:{ov}");
             }
 
             // Detection zero-placement
@@ -279,22 +342,27 @@ namespace DonGeonMaster.MapGeneration
                 Debug.LogWarning("[AssetPlacer] *** ZERO OBJETS PLACES ***");
                 Debug.LogWarning($"[AssetPlacer] Categories actives: {enabledCount} | Attempted: {totalAttempted}");
                 if (totalAttempted == 0)
-                    Debug.LogWarning("[AssetPlacer] Aucune tentative — verifier biomes/cellTypes/mode de generation");
+                    Debug.LogWarning("[AssetPlacer] Aucune tentative — verifier biomes/cellTypes/mode");
                 else if (totalSkipChance == totalAttempted)
-                    Debug.LogWarning("[AssetPlacer] 100% refuse par chance — densites trop basses ou placementChance trop bas");
-                else if (totalSkipSpacing > 0 && totalSkipSpacing >= totalAttempted - totalSkipChance)
-                    Debug.LogWarning("[AssetPlacer] Tous les survivants refuses par spacing — minSpacing trop grand pour la map");
-                else if (totalSkipPrefabNull > 0)
-                    Debug.LogWarning("[AssetPlacer] Prefabs null — verifier les references dans les AssetCategory .asset");
+                    Debug.LogWarning("[AssetPlacer] 100% refuse par chance — densites trop basses");
+            }
+
+            // Top 10 plus gros prefabs places
+            if (biggestPlaced.Count > 0)
+            {
+                Debug.Log("[AssetPlacer] ── TOP 10 PLUS GROS PREFABS ──");
+                var top = biggestPlaced.OrderByDescending(p => p.maxDim).Take(10);
+                foreach (var p in top)
+                {
+                    Debug.Log($"[AssetPlacer]   {p.prefabName} ({p.categoryId}) " +
+                        $"bounds=({p.boundsSize.x:F1},{p.boundsSize.y:F1},{p.boundsSize.z:F1}) " +
+                        $"maxDim={p.maxDim:F1} pos=({p.position.x:F0},{p.position.z:F0})");
+                }
             }
 
             Debug.Log("[AssetPlacer] ════════════════════════════════");
         }
 
-        /// <summary>
-        /// Verifie si la position est trop proche d'un objet DEJA PLACE DE LA MEME CATEGORIE.
-        /// Les categories differentes ne se bloquent pas entre elles.
-        /// </summary>
         bool IsTooCloseInCategory(string categoryId, Vector3 candidate, float minDist)
         {
             if (!placedPerCategory.ContainsKey(categoryId))
@@ -322,17 +390,10 @@ namespace DonGeonMaster.MapGeneration
 
         float GetCategoryDensity(AssetCategory category)
         {
-            if (category.isStructural)
-                return 1f;
-
+            if (category.isStructural) return 1f;
             string id = category.categoryId;
-
-            if (VegetationIds.Contains(id))
-                return config.vegetationDensity;
-
-            if (RockIds.Contains(id))
-                return config.rockDensity;
-
+            if (VegetationIds.Contains(id)) return config.vegetationDensity;
+            if (RockIds.Contains(id)) return config.rockDensity;
             return config.decorDensity;
         }
 
