@@ -252,9 +252,13 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             cfg.maxRooms = Int(fMaxRooms, 10);
             cfg.corridorWidth = Int(fCorridorW, 2);
             cfg.borderMargin = Int(fMargin, 2);
-            cfg.vegetationDensity = Flt(fVegDensity, 0.6f);
-            cfg.rockDensity = Flt(fRockDensity, 0.2f);
-            cfg.decorDensity = Flt(fDecorDensity, 0.3f);
+            cfg.vegetationDensity = Mathf.Clamp01(Flt(fVegDensity, 0.6f));
+            cfg.rockDensity = Mathf.Clamp01(Flt(fRockDensity, 0.2f));
+            cfg.decorDensity = Mathf.Clamp01(Flt(fDecorDensity, 0.3f));
+
+            UnityEngine.Debug.Log($"[SidebarUI] Densites lues: veg={cfg.vegetationDensity:F2} " +
+                $"rock={cfg.rockDensity:F2} decor={cfg.decorDensity:F2} " +
+                $"(raw: '{fVegDensity.text}' '{fRockDensity.text}' '{fDecorDensity.text}')");
             cfg.useForcedBiome = tForceBiome != null && tForceBiome.isOn;
             int bi = Int(fBiomeIndex, 0);
             cfg.forcedBiome = (BiomeType)Mathf.Clamp(bi, 0, 7);
@@ -269,14 +273,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             fSeed.text = cfg.seed.ToString();
             fWidth.text = cfg.mapWidth.ToString();
             fHeight.text = cfg.mapHeight.ToString();
-            fCellSize.text = cfg.cellSize.ToString("F1");
+            fCellSize.text = cfg.cellSize.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
             fMinRooms.text = cfg.minRooms.ToString();
             fMaxRooms.text = cfg.maxRooms.ToString();
             fCorridorW.text = cfg.corridorWidth.ToString();
             fMargin.text = cfg.borderMargin.ToString();
-            fVegDensity.text = cfg.vegetationDensity.ToString("F2");
-            fRockDensity.text = cfg.rockDensity.ToString("F2");
-            fDecorDensity.text = cfg.decorDensity.ToString("F2");
+            fVegDensity.text = cfg.vegetationDensity.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            fRockDensity.text = cfg.rockDensity.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            fDecorDensity.text = cfg.decorDensity.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
             if (tForceBiome != null) tForceBiome.isOn = cfg.useForcedBiome;
             fBiomeIndex.text = ((int)cfg.forcedBiome).ToString();
         }
@@ -498,6 +502,17 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         }
 
         static int Int(TMP_InputField f, int fb) => int.TryParse(f.text, out int v) ? v : fb;
-        static float Flt(TMP_InputField f, float fb) => float.TryParse(f.text, out float v) ? v : fb;
+
+        static float Flt(TMP_InputField f, float fb)
+        {
+            if (f == null || string.IsNullOrWhiteSpace(f.text)) return fb;
+            // Normaliser: remplacer , par . pour gerer les locales FR/EN
+            string s = f.text.Trim().Replace(',', '.');
+            if (float.TryParse(s, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out float v))
+                return v;
+            UnityEngine.Debug.LogWarning($"[SidebarUI] Float invalide: '{f.text}' → fallback {fb}");
+            return fb;
+        }
     }
 }
