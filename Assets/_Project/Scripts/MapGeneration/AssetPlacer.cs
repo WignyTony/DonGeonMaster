@@ -20,6 +20,9 @@ namespace DonGeonMaster.MapGeneration
         // Limite de logs detailles par categorie pour eviter le spam
         const int MaxDetailedLogsPerCategory = 3;
 
+        // Positions deja placees pour enforcement de minSpacing
+        List<Vector3> placedPositions = new();
+
         // IDs de categories pour le mapping de densite
         static readonly HashSet<string> VegetationIds = new()
         {
@@ -39,6 +42,7 @@ namespace DonGeonMaster.MapGeneration
             this.rng = new System.Random(seed);
             this.result = result;
             categoryCount.Clear();
+            placedPositions.Clear();
         }
 
         public int PlaceAssets(MapData map, AssetCategoryRegistry registry)
@@ -57,6 +61,7 @@ namespace DonGeonMaster.MapGeneration
                 $"skipStructural={skipStructuralCategories}");
 
             int totalPlaced = 0;
+            int skippedSpacing = 0;
 
             bool skipDecor = config.mode == GenerationMode.StructureSeule ||
                              config.mode == GenerationMode.StructureEtGameplay;
@@ -131,10 +136,18 @@ namespace DonGeonMaster.MapGeneration
                             Vector3 worldPos = CellToWorld(x, y);
                             worldPos += GetRandomOffset(category);
 
+                            // Enforcement de minSpacing : skip si trop proche d'un objet existant
+                            if (category.minSpacing > 0 && IsTooClose(worldPos, category.minSpacing))
+                            {
+                                skippedSpacing++;
+                                continue;
+                            }
+
                             var go = Object.Instantiate(prefab, worldPos,
                                 Quaternion.Euler(config.assetRotation), mapRoot);
 
-                            Vector3 scale = config.assetScale;
+                            // Scale finale = assetScale * scaleMultiplier * variation
+                            Vector3 baseScale = config.assetScale * category.scaleMultiplier;
                             if (category.allowRotationVariation)
                             {
                                 float yRot = (float)rng.NextDouble() * 360f;
@@ -143,7 +156,7 @@ namespace DonGeonMaster.MapGeneration
 
                             float scaleVar = Mathf.Lerp(category.minScaleVariation,
                                 category.maxScaleVariation, (float)rng.NextDouble());
-                            go.transform.localScale = scale * scaleVar;
+                            go.transform.localScale = baseScale * scaleVar;
 
                             if (category.yOffset != 0)
                                 go.transform.position += Vector3.up * category.yOffset;
@@ -151,6 +164,7 @@ namespace DonGeonMaster.MapGeneration
                             go.name = $"{category.categoryId}_{x}_{y}_{i}";
                             cell.placedObjects.Add(go);
                             cell.placedAssetCategories.Add(category.categoryId);
+                            placedPositions.Add(worldPos);
 
                             if (!categoryCount.ContainsKey(category.categoryId))
                                 categoryCount[category.categoryId] = 0;
@@ -182,7 +196,7 @@ namespace DonGeonMaster.MapGeneration
 
             result.objectsPerCategory = new Dictionary<string, int>(categoryCount);
             result.totalObjectsPlaced = totalPlaced;
-            result.AddPipelineStep($"Placement termine: {totalPlaced} objets");
+            result.AddPipelineStep($"Placement termine: {totalPlaced} objets ({skippedSpacing} ignores par minSpacing)");
 
             // Log resume par categorie
             foreach (var kvp in categoryCount)
@@ -190,8 +204,27 @@ namespace DonGeonMaster.MapGeneration
                 result.AddPipelineStep($"  {kvp.Key}: {kvp.Value}");
                 Debug.Log($"[AssetPlacer] Resume: {kvp.Key} = {kvp.Value} objets places");
             }
+            if (skippedSpacing > 0)
+                Debug.Log($"[AssetPlacer] {skippedSpacing} placements ignores (minSpacing)");
 
             return totalPlaced;
+        }
+
+        /// <summary>
+        /// Verifie si la position candidate est trop proche d'un objet deja place.
+        /// Utilise la distance horizontale (XZ) uniquement.
+        /// </summary>
+        bool IsTooClose(Vector3 candidate, float minDist)
+        {
+            float minDistSq = minDist * minDist;
+            for (int i = placedPositions.Count - 1; i >= 0; i--)
+            {
+                float dx = candidate.x - placedPositions[i].x;
+                float dz = candidate.z - placedPositions[i].z;
+                if (dx * dx + dz * dz < minDistSq)
+                    return true;
+            }
+            return false;
         }
 
         float GetDensityMultiplier(AssetCategory category, MapCell cell)
@@ -229,7 +262,8 @@ namespace DonGeonMaster.MapGeneration
         Vector3 GetRandomOffset(AssetCategory category)
         {
             if (category.minSpacing <= 0) return Vector3.zero;
-            float halfCell = config.cellSize * 0.4f;
+            // Offset reduit : 20% du cellSize pour garder les objets centres dans leur cellule
+            float halfCell = config.cellSize * 0.2f;
             float ox = (float)(rng.NextDouble() * 2 - 1) * halfCell;
             float oz = (float)(rng.NextDouble() * 2 - 1) * halfCell;
             return new Vector3(ox, 0, oz);

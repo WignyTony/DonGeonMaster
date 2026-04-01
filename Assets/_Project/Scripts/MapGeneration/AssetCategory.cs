@@ -34,8 +34,10 @@ namespace DonGeonMaster.MapGeneration
         public int maxPerCell = 1;
         public float minSpacing = 1f;
         public bool allowRotationVariation = true;
-        [Range(0.8f, 1.2f)] public float minScaleVariation = 0.9f;
-        [Range(0.8f, 1.2f)] public float maxScaleVariation = 1.1f;
+        [Tooltip("Multiplicateur applique sur config.assetScale pour cette categorie (1.0 = taille Pandazole standard)")]
+        public float scaleMultiplier = 1f;
+        [Range(0.5f, 2f)] public float minScaleVariation = 0.9f;
+        [Range(0.5f, 2f)] public float maxScaleVariation = 1.1f;
         public float yOffset;
 
         [Header("Catégorisation")]
