@@ -54,6 +54,11 @@ namespace DonGeonMaster.MapGeneration
         public float firstRendPosX, firstRendPosY, firstRendPosZ;
         public float firstRendRotX, firstRendRotY, firstRendRotZ;
         public bool estimatedTouchesGround;
+
+        // Support visuel du sol
+        public string supportRenderMode;   // "blockout" ou "realGround"
+        public string supportVisualType;   // "RealFloor_Stone", "RealCorridor_Wood", "DebugFloor", etc.
+        public string supportObjectName;   // "Floor_12_8" etc.
     }
 
     /// <summary>
@@ -73,8 +78,14 @@ namespace DonGeonMaster.MapGeneration
         public int activeCategoryCount;
         public int totalAttempted, totalPlaced;
         public int skipChance, skipSpacing, skipSpawnZone, skipOversize, skipPrefabNull;
-        public string placedPerCategory;   // serialise en "cat:n,cat:n"
-        public string rejectedPerCategory; // idem
+        public string placedPerCategory;
+        public string rejectedPerCategory;
+
+        // Rendu sol
+        public bool realGroundEnabled;
+        public int realGroundFloorCells;
+        public int realGroundCorridorCells;
+        public int blockoutCells;
     }
 
     /// <summary>
@@ -109,6 +120,15 @@ namespace DonGeonMaster.MapGeneration
                 decorDensity = config.decorDensity,
                 activeCategoryCount = activeCats
             };
+        }
+
+        public static void SetGroundRenderInfo(bool realGroundEnabled, int realFloor, int realCorridor, int blockout)
+        {
+            if (global == null) return;
+            global.realGroundEnabled = realGroundEnabled;
+            global.realGroundFloorCells = realFloor;
+            global.realGroundCorridorCells = realCorridor;
+            global.blockoutCells = blockout;
         }
 
         public static void Record(PlacementAttempt a)
@@ -192,7 +212,11 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine($"    \"skipSpawnZone\": {global.skipSpawnZone}, \"skipOversize\": {global.skipOversize},");
             sb.AppendLine($"    \"skipPrefabNull\": {global.skipPrefabNull},");
             sb.AppendLine($"    \"placedPerCategory\": \"{Esc(global.placedPerCategory)}\",");
-            sb.AppendLine($"    \"rejectedPerCategory\": \"{Esc(global.rejectedPerCategory)}\"");
+            sb.AppendLine($"    \"rejectedPerCategory\": \"{Esc(global.rejectedPerCategory)}\",");
+            sb.AppendLine($"    \"realGroundEnabled\": {(global.realGroundEnabled ? "true" : "false")},");
+            sb.AppendLine($"    \"realGroundFloorCells\": {global.realGroundFloorCells},");
+            sb.AppendLine($"    \"realGroundCorridorCells\": {global.realGroundCorridorCells},");
+            sb.AppendLine($"    \"blockoutCells\": {global.blockoutCells}");
             sb.AppendLine("  },");
 
             // Attempts
@@ -220,7 +244,8 @@ namespace DonGeonMaster.MapGeneration
                 sb.Append($"\"up\":[{F(a.prefabUpX)},{F(a.prefabUpY)},{F(a.prefabUpZ)}],");
                 sb.Append($"\"rPos\":[{F(a.firstRendPosX)},{F(a.firstRendPosY)},{F(a.firstRendPosZ)}],");
                 sb.Append($"\"rRot\":[{F(a.firstRendRotX)},{F(a.firstRendRotY)},{F(a.firstRendRotZ)}],");
-                sb.Append($"\"touchGnd\":{(a.estimatedTouchesGround ? "true" : "false")}");
+                sb.Append($"\"touchGnd\":{(a.estimatedTouchesGround ? "true" : "false")},");
+                sb.Append($"\"supMode\":\"{Esc(a.supportRenderMode)}\",\"supType\":\"{Esc(a.supportVisualType)}\",\"supObj\":\"{Esc(a.supportObjectName)}\"");
                 sb.Append(i < attempts.Count - 1 ? "},\n" : "}\n");
             }
             sb.AppendLine("  ]");
@@ -242,7 +267,7 @@ namespace DonGeonMaster.MapGeneration
             "scaleAfterClampX,scaleAfterClampY,scaleAfterClampZ,wasBoundsClamped,clampRatio,categorySizeCap," +
             "prefabForwardX,prefabForwardY,prefabForwardZ,prefabUpX,prefabUpY,prefabUpZ," +
             "firstRendPosX,firstRendPosY,firstRendPosZ,firstRendRotX,firstRendRotY,firstRendRotZ," +
-            "estimatedTouchesGround";
+            "estimatedTouchesGround,supportRenderMode,supportVisualType,supportObjectName";
 
         static string BuildCsv()
         {
@@ -259,7 +284,7 @@ namespace DonGeonMaster.MapGeneration
                 sb.Append($"{F(a.scaleAfterClampX)},{F(a.scaleAfterClampY)},{F(a.scaleAfterClampZ)},{(a.wasBoundsClamped ? 1 : 0)},{F(a.clampRatio)},{F(a.categorySizeCap)},");
                 sb.Append($"{F(a.prefabForwardX)},{F(a.prefabForwardY)},{F(a.prefabForwardZ)},{F(a.prefabUpX)},{F(a.prefabUpY)},{F(a.prefabUpZ)},");
                 sb.Append($"{F(a.firstRendPosX)},{F(a.firstRendPosY)},{F(a.firstRendPosZ)},{F(a.firstRendRotX)},{F(a.firstRendRotY)},{F(a.firstRendRotZ)},");
-                sb.AppendLine($"{(a.estimatedTouchesGround ? 1 : 0)}");
+                sb.AppendLine($"{(a.estimatedTouchesGround ? 1 : 0)},{Esc(a.supportRenderMode)},{Esc(a.supportVisualType)},{Esc(a.supportObjectName)}");
             }
             return sb.ToString();
         }
@@ -291,6 +316,11 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine();
             sb.AppendLine($"Placed/cat:   {global.placedPerCategory}");
             sb.AppendLine($"Rejected/cat: {global.rejectedPerCategory}");
+            sb.AppendLine();
+            sb.AppendLine($"Ground render: {(global.realGroundEnabled ? "SOLS REELS" : "BLOCKOUT")}");
+            sb.AppendLine($"  Real floor cells:    {global.realGroundFloorCells}");
+            sb.AppendLine($"  Real corridor cells: {global.realGroundCorridorCells}");
+            sb.AppendLine($"  Blockout cells:      {global.blockoutCells}");
             sb.AppendLine();
 
             sb.AppendLine("-".PadRight(80, '-'));

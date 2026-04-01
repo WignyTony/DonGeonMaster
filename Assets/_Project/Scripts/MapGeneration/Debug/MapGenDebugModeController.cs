@@ -149,6 +149,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             if (currentConfig.validateAfterGeneration)
                 validator.Validate(map, currentConfig, result);
 
+            structureRenderer.useRealGround = sidebar.RealGroundEnabled;
             structureRenderer.Render(map, currentConfig);
 
             // Placer les assets par dessus le blockout si active
@@ -179,7 +180,21 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 assetRoot = rootGO.transform;
                 assetPlacer.Initialize(assetRoot, currentConfig, currentConfig.seed, result);
                 assetPlacer.skipStructuralCategories = true;
+
+                // Passer les infos de rendu sol au placer pour les dumps
+                var lookup = new Dictionary<(int, int), MapStructureDebugRenderer.CellRenderInfo>();
+                foreach (var ci in structureRenderer.cellRenderInfos)
+                    lookup[(ci.x, ci.y)] = ci;
+                assetPlacer.cellRenderLookup = lookup;
+
                 int placed = assetPlacer.PlaceAssets(map, assetRegistry);
+
+                // Infos sol pour le dump
+                PlacementDebugDump.SetGroundRenderInfo(
+                    structureRenderer.useRealGround,
+                    structureRenderer.RealGroundFloorCount,
+                    structureRenderer.RealGroundCorridorCount,
+                    structureRenderer.BlockoutCellCount);
 
                 // Export debug dump (ecrase les fichiers precedents)
                 PlacementDebugDump.Export();

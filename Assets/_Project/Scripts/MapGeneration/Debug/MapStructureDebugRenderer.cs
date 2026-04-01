@@ -1,12 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
     /// <summary>
-    /// Affiche la structure generee (MapData) en runtime avec des cubes colores.
-    /// Chaque type de cellule a un collider explicite pour etre praticable par le heros.
-    /// Aucune dependance aux assets decoratifs.
-    /// Duplique le Default-Material Unity (garanti URP-safe, jamais rose).
+    /// Affiche la structure generee (MapData) en runtime avec des cubes colores (blockout)
+    /// ou avec des materiaux realistes pour Sol/Couloir (mode sols reels).
     /// </summary>
     public class MapStructureDebugRenderer : MonoBehaviour
     {
@@ -15,9 +14,35 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         [SerializeField] float floorThickness = 0.2f;
         [SerializeField] float cellGap = 0.15f;
 
+        /// <summary>Mode sols reels : Sol/Couloir utilisent des mats realistes au lieu des couleurs debug.</summary>
+        public bool useRealGround;
+
+        // Blockout materials
         Material matFloor, matCorridor, matWall, matWater, matSpawn, matExit, matBoss;
+        // Real ground materials
+        Material matRealFloor, matRealCorridor;
+
         Transform structureRoot;
         Mesh cubeMesh;
+
+        // Tracking des cellules rendues pour les logs
+        public int RealGroundFloorCount { get; private set; }
+        public int RealGroundCorridorCount { get; private set; }
+        public int BlockoutCellCount { get; private set; }
+
+        // Info par cellule pour le dump
+        public struct CellRenderInfo
+        {
+            public int x, y;
+            public string cellType;
+            public string biome;
+            public string renderMode; // "blockout" ou "realGround"
+            public string materialName;
+            public string objectName;
+            public Vector3 worldPos;
+            public Vector3 scale;
+        }
+        public List<CellRenderInfo> cellRenderInfos = new();
 
         public int RenderedCellCount { get; private set; }
         public int RenderedFloorCount { get; private set; }
@@ -40,6 +65,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var baseMat = temp.GetComponent<Renderer>().sharedMaterial;
             DestroyImmediate(temp);
 
+            // Blockout debug
             matFloor    = MakeMat(baseMat, new Color(0.22f, 0.45f, 0.22f), "DebugFloor");
             matCorridor = MakeMat(baseMat, new Color(0.55f, 0.50f, 0.35f), "DebugCorridor");
             matWall     = MakeMat(baseMat, new Color(0.28f, 0.18f, 0.12f), "DebugWall");
@@ -47,6 +73,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             matSpawn    = MakeMat(baseMat, new Color(0.10f, 1.00f, 0.20f), "DebugSpawn");
             matExit     = MakeMat(baseMat, new Color(1.00f, 0.15f, 0.15f), "DebugExit");
             matBoss     = MakeMat(baseMat, new Color(0.80f, 0.15f, 0.90f), "DebugBoss");
+
+            // Sols reels — URP Lit avec couleurs/proprietes realistes
+            matRealFloor = MakeRealMat(baseMat, new Color(0.62f, 0.55f, 0.42f), 0.15f, "RealFloor_Stone");
+            matRealCorridor = MakeRealMat(baseMat, new Color(0.45f, 0.35f, 0.25f), 0.25f, "RealCorridor_Wood");
         }
 
         Material MakeMat(Material baseMat, Color color, string name)
@@ -55,6 +85,17 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             m.name = name;
             m.SetColor("_Color", color);
             m.SetColor("_BaseColor", color);
+            return m;
+        }
+
+        Material MakeRealMat(Material baseMat, Color color, float smoothness, string name)
+        {
+            var m = new Material(baseMat);
+            m.name = name;
+            m.SetColor("_Color", color);
+            m.SetColor("_BaseColor", color);
+            m.SetFloat("_Smoothness", smoothness);
+            m.SetFloat("_Metallic", 0f);
             return m;
         }
 
@@ -76,7 +117,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
             if (map == null || config == null)
             {
-                UnityEngine.Debug.LogError("[StructureRenderer] MapData ou config null");
+                Debug.LogError("[StructureRenderer] MapData ou config null");
                 return;
             }
 
@@ -87,6 +128,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             float cs = config.cellSize;
             float block = cs - cellGap;
 
+            // Epaisseur du sol selon le mode
+            float floorH = useRealGround ? 0.05f : floorThickness;
+
+            Debug.Log($"[StructureRenderer] Render mode: {(useRealGround ? "SOLS REELS" : "BLOCKOUT")}");
+
             for (int x = 0; x < map.width; x++)
             {
                 for (int y = 0; y < map.height; y++)
@@ -95,45 +141,95 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     if (cell.type == CellType.Vide) continue;
 
                     Vector3 pos = new Vector3(x * cs, 0, y * cs);
+                    string renderMode = "blockout";
+                    Material usedMat = null;
+                    Vector3 usedScale = Vector3.zero;
+                    string objName = "";
 
                     switch (cell.type)
                     {
                         case CellType.Sol:
-                            Block(pos, block, floorThickness, matFloor, true);
+                            if (useRealGround)
+                            {
+                                usedMat = matRealFloor;
+                                renderMode = "realGround";
+                                RealGroundFloorCount++;
+                            }
+                            else
+                            {
+                                usedMat = matFloor;
+                                BlockoutCellCount++;
+                            }
+                            objName = $"Floor_{x}_{y}";
+                            usedScale = new Vector3(block, floorH, block);
+                            Block(pos, block, floorH, usedMat, true, objName);
                             RenderedFloorCount++;
                             break;
 
                         case CellType.Couloir:
-                            Block(pos + Vector3.up * 0.05f, block, floorThickness, matCorridor, true);
+                            if (useRealGround)
+                            {
+                                usedMat = matRealCorridor;
+                                renderMode = "realGround";
+                                RealGroundCorridorCount++;
+                            }
+                            else
+                            {
+                                usedMat = matCorridor;
+                                BlockoutCellCount++;
+                            }
+                            objName = $"Corridor_{x}_{y}";
+                            usedScale = new Vector3(block, floorH, block);
+                            Block(pos + Vector3.up * 0.05f, block, floorH, usedMat, true, objName);
                             RenderedFloorCount++;
                             break;
 
                         case CellType.Mur:
-                            Block(pos, block, wallHeight, matWall, true);
+                            usedMat = matWall;
+                            objName = $"Wall_{x}_{y}";
+                            usedScale = new Vector3(block, wallHeight, block);
+                            Block(pos, block, wallHeight, usedMat, true, objName);
                             RenderedWallCount++;
+                            BlockoutCellCount++;
                             break;
 
                         case CellType.Eau:
-                            // Eau : visible mais bloquante (le heros ne peut pas nager)
-                            Block(pos - Vector3.up * 0.1f, block, floorThickness * 0.6f, matWater, true);
+                            usedMat = matWater;
+                            objName = $"Water_{x}_{y}";
+                            usedScale = new Vector3(block, floorThickness * 0.6f, block);
+                            Block(pos - Vector3.up * 0.1f, block, floorThickness * 0.6f, usedMat, true, objName);
                             RenderedFloorCount++;
+                            BlockoutCellCount++;
                             break;
                     }
                     RenderedCellCount++;
 
-                    // Marqueurs : visuels uniquement, pas de collider
+                    // Enregistrer l'info de rendu
+                    cellRenderInfos.Add(new CellRenderInfo
+                    {
+                        x = x, y = y,
+                        cellType = cell.type.ToString(),
+                        biome = cell.biome.ToString(),
+                        renderMode = renderMode,
+                        materialName = usedMat != null ? usedMat.name : "",
+                        objectName = objName,
+                        worldPos = pos,
+                        scale = usedScale
+                    });
+
+                    // Marqueurs
                     if (cell.isSpawnPoint)
                     {
                         float mh = wallHeight * 1.5f;
-                        Block(pos + Vector3.up * floorThickness, cs * 0.6f, 0.4f, matSpawn, false);
-                        Block(pos + Vector3.up * (floorThickness + 0.4f), cs * 0.3f, mh, matSpawn, false);
+                        Block(pos + Vector3.up * floorH, cs * 0.6f, 0.4f, matSpawn, false);
+                        Block(pos + Vector3.up * (floorH + 0.4f), cs * 0.3f, mh, matSpawn, false);
                         HasSpawnMarker = true;
                     }
                     if (cell.isExit)
                     {
                         float mh = wallHeight * 1.5f;
-                        Block(pos + Vector3.up * floorThickness, cs * 0.6f, 0.4f, matExit, false);
-                        Block(pos + Vector3.up * (floorThickness + 0.4f), cs * 0.3f, mh, matExit, false);
+                        Block(pos + Vector3.up * floorH, cs * 0.6f, 0.4f, matExit, false);
+                        Block(pos + Vector3.up * (floorH + 0.4f), cs * 0.3f, mh, matExit, false);
                         HasExitMarker = true;
                     }
                 }
@@ -143,7 +239,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             {
                 if (room.isBossRoom)
                 {
-                    Vector3 p = new Vector3(room.center.x * cs, floorThickness, room.center.y * cs);
+                    Vector3 p = new Vector3(room.center.x * cs, floorH, room.center.y * cs);
                     Block(p, cs * 0.5f, wallHeight * 1.3f, matBoss, false);
                 }
             }
@@ -154,15 +250,15 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             StructureSize = new Vector3(mapW, wallHeight, mapH);
             HasRendered = RenderedCellCount > 0;
 
-            UnityEngine.Debug.Log($"[StructureRenderer] Rendu: {RenderedCellCount} cellules " +
+            Debug.Log($"[StructureRenderer] Rendu: {RenderedCellCount} cellules " +
                 $"({RenderedFloorCount} sol, {RenderedWallCount} murs) " +
-                $"Spawn:{HasSpawnMarker} Exit:{HasExitMarker}");
+                $"Spawn:{HasSpawnMarker} Exit:{HasExitMarker} " +
+                $"RealFloor:{RealGroundFloorCount} RealCorridor:{RealGroundCorridorCount} Blockout:{BlockoutCellCount}");
         }
 
-        /// <param name="addCollider">true = BoxCollider pour collision physique</param>
-        void Block(Vector3 position, float size, float height, Material mat, bool addCollider)
+        void Block(Vector3 position, float size, float height, Material mat, bool addCollider, string goName = null)
         {
-            var go = new GameObject();
+            var go = new GameObject(goName ?? "block");
             go.transform.SetParent(structureRoot);
             go.transform.position = position + Vector3.up * (height * 0.5f);
             go.transform.localScale = new Vector3(size, height, size);
@@ -170,7 +266,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var mr = go.AddComponent<MeshRenderer>();
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            mr.receiveShadows = false;
+            mr.receiveShadows = useRealGround; // Receive shadows en mode reel pour meilleur rendu
 
             if (addCollider) go.AddComponent<BoxCollider>();
         }
@@ -192,6 +288,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             HasRendered = false;
             HasSpawnMarker = false;
             HasExitMarker = false;
+            RealGroundFloorCount = 0;
+            RealGroundCorridorCount = 0;
+            BlockoutCellCount = 0;
+            cellRenderInfos.Clear();
         }
 
         void OnDestroy()
@@ -203,6 +303,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             if (matSpawn) Destroy(matSpawn);
             if (matExit) Destroy(matExit);
             if (matBoss) Destroy(matBoss);
+            if (matRealFloor) Destroy(matRealFloor);
+            if (matRealCorridor) Destroy(matRealCorridor);
         }
     }
 }

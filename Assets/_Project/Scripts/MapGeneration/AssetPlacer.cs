@@ -13,6 +13,9 @@ namespace DonGeonMaster.MapGeneration
 
         public bool skipStructuralCategories;
 
+        /// <summary>Info de rendu sol par cellule (x,y) → CellRenderInfo. Alimente par le renderer avant PlaceAssets.</summary>
+        public Dictionary<(int x, int y), DebugTools.MapStructureDebugRenderer.CellRenderInfo> cellRenderLookup;
+
         Dictionary<string, List<Vector3>> placedPerCategory = new();
 
         static readonly HashSet<string> VegetationIds = new()
@@ -125,6 +128,15 @@ namespace DonGeonMaster.MapGeneration
                             attemptIndex++;
 
                             // Base attempt record
+                            // Support visuel sol
+                            string supMode = "", supType = "", supObj = "";
+                            if (cellRenderLookup != null && cellRenderLookup.TryGetValue((x, y), out var cri))
+                            {
+                                supMode = cri.renderMode;
+                                supType = cri.materialName;
+                                supObj = cri.objectName;
+                            }
+
                             var rec = new PlacementAttempt
                             {
                                 attemptIndex = attemptIndex,
@@ -138,7 +150,10 @@ namespace DonGeonMaster.MapGeneration
                                 initScaleX = config.assetScale.x,
                                 initScaleY = config.assetScale.y,
                                 initScaleZ = config.assetScale.z,
-                                categorySizeCap = GetMaxBounds(cat.categoryId)
+                                categorySizeCap = GetMaxBounds(cat.categoryId),
+                                supportRenderMode = supMode,
+                                supportVisualType = supType,
+                                supportObjectName = supObj
                             };
 
                             // Chance check

@@ -13,7 +13,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         TMP_InputField fCorridorW, fMargin;
         TMP_InputField fVegDensity, fRockDensity, fDecorDensity;
         TMP_InputField fPresetName, fBatchCount;
-        Toggle tPlaceAssets, tForceBiome;
+        Toggle tPlaceAssets, tForceBiome, tRealGround;
         TMP_InputField fBiomeIndex;
         Transform presetListParent, seedHistoryParent, categoryParent;
         TextMeshProUGUI batchStatusText;
@@ -111,8 +111,12 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             fBiomeIndex = Row(c, "Biome (0-7)", "0", TMP_InputField.ContentType.IntegerNumber);
             SmallText(c, "0=Foret 1=Automne 2=Hiver 3=Prairie 4=Desert 5=Marecage 6=Rocailleux 7=Fantaisie");
 
+            // ── Rendu ──
+            Header(c, "Rendu", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            tRealGround = Tgl(c, "Sols reels (Sol/Couloir)", false);
+
             // ── Assets ──
-            Header(c, "Assets (par dessus blockout)", 10, new Color(0.13f, 0.13f, 0.18f), 20);
+            Header(c, "Assets (par dessus structure)", 10, new Color(0.13f, 0.13f, 0.18f), 20);
             tPlaceAssets = Tgl(c, "Placer les assets", false);
             categoryParent = c;
             // Les toggles de categories seront ajoutes par SetupCategories()
@@ -184,6 +188,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         }
 
         public bool PlaceAssetsEnabled => tPlaceAssets != null && tPlaceAssets.isOn;
+        public bool RealGroundEnabled => tRealGround != null && tRealGround.isOn;
 
         public List<string> GetEnabledCategories()
         {
