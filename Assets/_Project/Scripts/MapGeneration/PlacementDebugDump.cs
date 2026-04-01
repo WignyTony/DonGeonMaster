@@ -86,6 +86,13 @@ namespace DonGeonMaster.MapGeneration
         public int realGroundFloorCells;
         public int realGroundCorridorCells;
         public int blockoutCells;
+
+        // Collision ground
+        public int collisionCellsTotal;
+        public int collisionCellsFloor;
+        public int collisionCellsCorridor;
+        public float collisionGroundY;
+        public float collisionGroundThickness;
     }
 
     /// <summary>
@@ -132,6 +139,16 @@ namespace DonGeonMaster.MapGeneration
             global.realGroundCorridorCells = realCorridor;
             global.blockoutCells = blockout;
             tileInfos = tiles;
+        }
+
+        public static void SetCollisionInfo(int total, int floor, int corridor, float groundY, float thickness)
+        {
+            if (global == null) return;
+            global.collisionCellsTotal = total;
+            global.collisionCellsFloor = floor;
+            global.collisionCellsCorridor = corridor;
+            global.collisionGroundY = groundY;
+            global.collisionGroundThickness = thickness;
         }
 
         public static void Record(PlacementAttempt a)
@@ -219,7 +236,12 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine($"    \"realGroundEnabled\": {(global.realGroundEnabled ? "true" : "false")},");
             sb.AppendLine($"    \"realGroundFloorCells\": {global.realGroundFloorCells},");
             sb.AppendLine($"    \"realGroundCorridorCells\": {global.realGroundCorridorCells},");
-            sb.AppendLine($"    \"blockoutCells\": {global.blockoutCells}");
+            sb.AppendLine($"    \"blockoutCells\": {global.blockoutCells},");
+            sb.AppendLine($"    \"collisionCellsTotal\": {global.collisionCellsTotal},");
+            sb.AppendLine($"    \"collisionCellsFloor\": {global.collisionCellsFloor},");
+            sb.AppendLine($"    \"collisionCellsCorridor\": {global.collisionCellsCorridor},");
+            sb.AppendLine($"    \"collisionGroundY\": {F(global.collisionGroundY)},");
+            sb.AppendLine($"    \"collisionGroundThickness\": {F(global.collisionGroundThickness)}");
             sb.AppendLine("  },");
 
             // Attempts
@@ -324,6 +346,13 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine($"  Real floor cells:    {global.realGroundFloorCells}");
             sb.AppendLine($"  Real corridor cells: {global.realGroundCorridorCells}");
             sb.AppendLine($"  Blockout cells:      {global.blockoutCells}");
+            sb.AppendLine();
+            sb.AppendLine($"Collision ground:");
+            sb.AppendLine($"  Total cells:     {global.collisionCellsTotal}");
+            sb.AppendLine($"  Sol cells:       {global.collisionCellsFloor}");
+            sb.AppendLine($"  Couloir cells:   {global.collisionCellsCorridor}");
+            sb.AppendLine($"  Ground Y:        {F(global.collisionGroundY)}");
+            sb.AppendLine($"  Thickness:       {F(global.collisionGroundThickness)}");
             sb.AppendLine();
 
             sb.AppendLine("-".PadRight(80, '-'));

@@ -162,19 +162,20 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
         Vector3 GetSpawnPosition(MapData map, MapGenConfig config)
         {
-            if (map.spawnCell.x >= 0)
-                return new Vector3(map.spawnCell.x * config.cellSize, 0.5f, map.spawnCell.y * config.cellSize);
+            // Spawn juste au-dessus du collision ground (Y=0)
+            const float spawnY = 0.15f;
 
-            // Fallback : centre de la premiere salle
+            if (map.spawnCell.x >= 0)
+                return new Vector3(map.spawnCell.x * config.cellSize, spawnY, map.spawnCell.y * config.cellSize);
+
             if (map.rooms.Count > 0)
             {
                 var c = map.rooms[0].center;
-                return new Vector3(c.x * config.cellSize, 0.5f, c.y * config.cellSize);
+                return new Vector3(c.x * config.cellSize, spawnY, c.y * config.cellSize);
             }
 
-            // Dernier recours : centre de la map
             return new Vector3(
-                map.width * config.cellSize * 0.5f, 0.5f,
+                map.width * config.cellSize * 0.5f, spawnY,
                 map.height * config.cellSize * 0.5f);
         }
 

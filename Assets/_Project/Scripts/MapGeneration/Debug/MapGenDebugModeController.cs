@@ -204,6 +204,13 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     structureRenderer.BlockoutCellCount,
                     structureRenderer.cellRenderInfos);
 
+                PlacementDebugDump.SetCollisionInfo(
+                    structureRenderer.CollisionCellsTotal,
+                    structureRenderer.CollisionCellsFloor,
+                    structureRenderer.CollisionCellsCorridor,
+                    MapStructureDebugRenderer.CollisionGroundY,
+                    MapStructureDebugRenderer.CollisionGroundThickness);
+
                 // Export debug dump (ecrase les fichiers precedents)
                 PlacementDebugDump.Export();
 

@@ -32,6 +32,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         public int RealGroundCorridorCount { get; private set; }
         public int BlockoutCellCount { get; private set; }
 
+        // Collision ground
+        public const float CollisionGroundY = 0f;
+        public const float CollisionGroundThickness = 0.1f;
+        public int CollisionCellsFloor { get; private set; }
+        public int CollisionCellsCorridor { get; private set; }
+        public int CollisionCellsTotal { get; private set; }
+        Transform collisionRoot;
+
         // Info par cellule pour le dump
         public struct CellRenderInfo
         {
@@ -262,6 +270,36 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 }
             }
 
+            // ── COLLISION GROUND : sol physique invisible pour chaque cellule marchable ──
+            var collGO = new GameObject("CollisionGround");
+            collisionRoot = collGO.transform;
+            collisionRoot.SetParent(structureRoot);
+
+            for (int x = 0; x < map.width; x++)
+            {
+                for (int y = 0; y < map.height; y++)
+                {
+                    var cell = map.cells[x, y];
+                    if (cell.type != CellType.Sol && cell.type != CellType.Couloir) continue;
+
+                    var cgo = new GameObject($"CollGround_{x}_{y}");
+                    cgo.transform.SetParent(collisionRoot);
+                    cgo.transform.position = new Vector3(x * cs, CollisionGroundY, y * cs);
+                    cgo.layer = 0; // Default layer
+
+                    var box = cgo.AddComponent<BoxCollider>();
+                    box.center = Vector3.down * (CollisionGroundThickness * 0.5f);
+                    box.size = new Vector3(cs, CollisionGroundThickness, cs);
+
+                    CollisionCellsTotal++;
+                    if (cell.type == CellType.Sol) CollisionCellsFloor++;
+                    else CollisionCellsCorridor++;
+                }
+            }
+
+            Debug.Log($"[StructureRenderer] Collision ground: {CollisionCellsTotal} cells " +
+                $"(Sol:{CollisionCellsFloor} Couloir:{CollisionCellsCorridor}) at Y={CollisionGroundY}");
+
             foreach (var room in map.rooms)
             {
                 if (room.isBossRoom)
@@ -445,6 +483,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             RealGroundFloorCount = 0;
             RealGroundCorridorCount = 0;
             BlockoutCellCount = 0;
+            CollisionCellsFloor = 0;
+            CollisionCellsCorridor = 0;
+            CollisionCellsTotal = 0;
+            collisionRoot = null;
             cellRenderInfos.Clear();
         }
 
