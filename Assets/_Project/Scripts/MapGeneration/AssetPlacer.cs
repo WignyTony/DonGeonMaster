@@ -11,28 +11,17 @@ namespace DonGeonMaster.MapGeneration
         System.Random rng;
         GenerationResult result;
 
-        /// <summary>
-        /// Si true, les categories structurelles (Sols, Eau) sont ignorees.
-        /// Active par le mode debug pour ne pas recouvrir le blockout colore.
-        /// </summary>
         public bool skipStructuralCategories;
 
-        // Positions placees PAR CATEGORIE pour enforcement de minSpacing
         Dictionary<string, List<Vector3>> placedPerCategory = new();
 
-        // IDs de categories pour le mapping de densite
         static readonly HashSet<string> VegetationIds = new()
-        {
-            "Arbres", "Buissons", "Herbe", "Fleurs",
-            "Cactus", "Feuillage", "Epines"
-        };
+        { "Arbres", "Buissons", "Herbe", "Fleurs", "Cactus", "Feuillage", "Epines" };
 
         static readonly HashSet<string> RockIds = new()
-        {
-            "RochesDures", "RochesTendres", "Minerais", "Gemmes"
-        };
+        { "RochesDures", "RochesTendres", "Minerais", "Gemmes" };
 
-        // === COMPTEURS ===
+        // Compteurs
         Dictionary<string, int> cntPlaced = new();
         Dictionary<string, int> cntSkipChance = new();
         Dictionary<string, int> cntSkipSpacing = new();
@@ -45,33 +34,18 @@ namespace DonGeonMaster.MapGeneration
 
         Vector3 posMin, posMax;
         bool hasAnyPlaced;
+        int attemptIndex;
 
-        // Gabarits max en unites monde par famille (largeur ou hauteur max)
-        // cellSize=6, wallHeight=3 → les props doivent rester sous ces reperes
         const float MaxBoundsTree = 4.5f;
         const float MaxBoundsBush = 3.0f;
         const float MaxBoundsRock = 3.0f;
         const float MaxBoundsSmall = 2.0f;
-
-        // Rayon no-spawn autour du spawn et de l'exit (en unites monde)
         const float SpawnExclusionRadius = 12f;
 
-        // Tracker les plus gros objets places pour le log final
-        struct PlacedInfo
-        {
-            public string prefabName;
-            public string categoryId;
-            public Vector3 boundsSize;
-            public Vector3 position;
-            public float maxDim;
-        }
-        List<PlacedInfo> biggestPlaced = new();
+        struct BigInfo { public string prefab; public string cat; public Vector3 bSize; public Vector3 pos; public float maxDim; }
+        List<BigInfo> biggestPlaced = new();
 
-        void Inc(Dictionary<string, int> dict, string key)
-        {
-            if (!dict.ContainsKey(key)) dict[key] = 0;
-            dict[key]++;
-        }
+        void Inc(Dictionary<string, int> d, string k) { if (!d.ContainsKey(k)) d[k] = 0; d[k]++; }
 
         void ResetCounters()
         {
@@ -81,70 +55,49 @@ namespace DonGeonMaster.MapGeneration
             totalAttempted = 0; totalPlaced = 0; totalSkipChance = 0;
             totalSkipSpacing = 0; totalSkipPrefabNull = 0;
             totalSkipSpawnZone = 0; totalSkipOversize = 0;
-            hasAnyPlaced = false;
+            hasAnyPlaced = false; attemptIndex = 0;
             posMin = new Vector3(float.MaxValue, 0, float.MaxValue);
             posMax = new Vector3(float.MinValue, 0, float.MinValue);
             biggestPlaced.Clear();
         }
 
-        void TrackPosition(Vector3 pos)
+        void TrackPos(Vector3 p)
         {
-            if (!hasAnyPlaced) { posMin = pos; posMax = pos; hasAnyPlaced = true; }
-            else
-            {
-                if (pos.x < posMin.x) posMin.x = pos.x;
-                if (pos.z < posMin.z) posMin.z = pos.z;
-                if (pos.x > posMax.x) posMax.x = pos.x;
-                if (pos.z > posMax.z) posMax.z = pos.z;
-            }
+            if (!hasAnyPlaced) { posMin = p; posMax = p; hasAnyPlaced = true; }
+            else { if (p.x < posMin.x) posMin.x = p.x; if (p.z < posMin.z) posMin.z = p.z; if (p.x > posMax.x) posMax.x = p.x; if (p.z > posMax.z) posMax.z = p.z; }
         }
 
-        float GetMaxBoundsForCategory(string categoryId)
+        float GetMaxBounds(string id)
         {
-            if (categoryId == "Arbres" || categoryId == "Cactus") return MaxBoundsTree;
-            if (categoryId == "Buissons" || categoryId == "Feuillage" || categoryId == "Epines") return MaxBoundsBush;
-            if (categoryId == "RochesDures" || categoryId == "RochesTendres" || categoryId == "Troncs") return MaxBoundsRock;
+            if (id == "Arbres" || id == "Cactus") return MaxBoundsTree;
+            if (id == "Buissons" || id == "Feuillage" || id == "Epines") return MaxBoundsBush;
+            if (id == "RochesDures" || id == "RochesTendres" || id == "Troncs") return MaxBoundsRock;
             return MaxBoundsSmall;
         }
 
-        public void Initialize(Transform root, MapGenConfig config, int seed, GenerationResult result)
+        public void Initialize(Transform root, MapGenConfig cfg, int seed, GenerationResult res)
         {
-            this.mapRoot = root;
-            this.config = config;
-            this.rng = new System.Random(seed);
-            this.result = result;
+            mapRoot = root; config = cfg; rng = new System.Random(seed); result = res;
             ResetCounters();
         }
 
         public int PlaceAssets(MapData map, AssetCategoryRegistry registry)
         {
-            if (registry == null)
-            {
-                result.AddPipelineStep("Pas de registre d'assets - placement ignore");
-                Debug.LogWarning("[AssetPlacer] registry == null, placement annule");
-                return 0;
-            }
+            if (registry == null) { result.AddPipelineStep("Pas de registre"); Debug.LogWarning("[AssetPlacer] registry null"); return 0; }
 
-            result.AddPipelineStep("Debut du placement des assets");
+            result.AddPipelineStep("Debut placement");
+            bool skipD = config.mode == GenerationMode.StructureSeule || config.mode == GenerationMode.StructureEtGameplay;
+            bool skipG = config.mode == GenerationMode.StructureSeule || config.mode == GenerationMode.StructureEtDecor;
+            var cats = registry.GetEnabledCategories(config.enabledCategories);
 
-            bool skipDecor = config.mode == GenerationMode.StructureSeule ||
-                             config.mode == GenerationMode.StructureEtGameplay;
-            bool skipGameplay = config.mode == GenerationMode.StructureSeule ||
-                                config.mode == GenerationMode.StructureEtDecor;
+            Debug.Log($"[AssetPlacer] Debut | cats:{cats.Count} veg={config.vegetationDensity:F2} rock={config.rockDensity:F2} decor={config.decorDensity:F2} skipStruct={skipStructuralCategories}");
 
-            var enabledCategories = registry.GetEnabledCategories(config.enabledCategories);
+            Vector3 spawnW = CellToWorld(map.spawnCell.x, map.spawnCell.y);
+            Vector3 exitW = CellToWorld(map.exitCell.x, map.exitCell.y);
+            float exclSq = SpawnExclusionRadius * SpawnExclusionRadius;
 
-            Debug.Log($"[AssetPlacer] Debut placement | categories actives: {enabledCategories.Count} | " +
-                $"densites: veg={config.vegetationDensity:F2} rock={config.rockDensity:F2} decor={config.decorDensity:F2} | " +
-                $"skipStructural={skipStructuralCategories} mode={config.mode}");
-
-            // Positions monde du spawn et de l'exit pour la zone d'exclusion
-            Vector3 spawnWorld = CellToWorld(map.spawnCell.x, map.spawnCell.y);
-            Vector3 exitWorld = CellToWorld(map.exitCell.x, map.exitCell.y);
-            float exclRadSq = SpawnExclusionRadius * SpawnExclusionRadius;
-
-            Debug.Log($"[AssetPlacer] Spawn exclusion: radius={SpawnExclusionRadius} " +
-                $"spawn=({spawnWorld.x:F0},{spawnWorld.z:F0}) exit=({exitWorld.x:F0},{exitWorld.z:F0})");
+            // Demarrer le dump
+            PlacementDebugDump.Begin(config, map, cats.Count);
 
             HashSet<string> shaderWarned = new();
 
@@ -155,265 +108,285 @@ namespace DonGeonMaster.MapGeneration
                     var cell = map.cells[x, y];
                     if (cell.type == CellType.Vide) continue;
 
-                    foreach (var category in enabledCategories)
+                    foreach (var cat in cats)
                     {
-                        if (skipDecor && category.isDecoration && !category.isStructural) continue;
-                        if (skipGameplay && category.isGameplay && !category.isStructural) continue;
-                        if (config.mode == GenerationMode.SansProps && category.isDecoration && !category.isStructural) continue;
-                        if (skipStructuralCategories && category.isStructural) continue;
-                        if (!category.IsAllowedOnCell(cell.type, cell.biome)) continue;
+                        if (skipD && cat.isDecoration && !cat.isStructural) continue;
+                        if (skipG && cat.isGameplay && !cat.isStructural) continue;
+                        if (config.mode == GenerationMode.SansProps && cat.isDecoration && !cat.isStructural) continue;
+                        if (skipStructuralCategories && cat.isStructural) continue;
+                        if (!cat.IsAllowedOnCell(cell.type, cell.biome)) continue;
 
-                        float densityMul = GetDensityMultiplier(category, cell);
-                        float chance = category.placementChance * densityMul;
+                        float dm = GetDensityMultiplier(cat, cell);
+                        float chance = cat.placementChance * dm;
 
-                        for (int i = 0; i < category.maxPerCell; i++)
+                        for (int i = 0; i < cat.maxPerCell; i++)
                         {
                             totalAttempted++;
+                            attemptIndex++;
 
+                            // Base attempt record
+                            var rec = new PlacementAttempt
+                            {
+                                attemptIndex = attemptIndex,
+                                categoryId = cat.categoryId,
+                                biome = cell.biome.ToString(),
+                                supportCellType = cell.type.ToString(),
+                                cellX = x, cellY = y,
+                                supportCenterX = x * config.cellSize,
+                                supportCenterY = 0,
+                                supportCenterZ = y * config.cellSize,
+                                initScaleX = config.assetScale.x,
+                                initScaleY = config.assetScale.y,
+                                initScaleZ = config.assetScale.z,
+                                categorySizeCap = GetMaxBounds(cat.categoryId)
+                            };
+
+                            // Chance check
                             if ((float)rng.NextDouble() > chance)
                             {
-                                totalSkipChance++;
-                                Inc(cntSkipChance, category.categoryId);
+                                totalSkipChance++; Inc(cntSkipChance, cat.categoryId);
+                                rec.finalStatus = "skip_chance"; rec.prefabName = "";
+                                PlacementDebugDump.Record(rec);
                                 continue;
                             }
 
-                            var prefab = category.GetRandomPrefab(rng);
+                            var prefab = cat.GetRandomPrefab(rng);
                             if (prefab == null)
                             {
-                                totalSkipPrefabNull++;
-                                Inc(cntSkipPrefabNull, category.categoryId);
+                                totalSkipPrefabNull++; Inc(cntSkipPrefabNull, cat.categoryId);
+                                rec.finalStatus = "skip_prefabNull"; rec.prefabName = "";
+                                PlacementDebugDump.Record(rec);
                                 continue;
                             }
+                            rec.prefabName = prefab.name;
 
-                            // Shader check (une fois par categorie)
-                            if (!shaderWarned.Contains(category.categoryId))
+                            // Shader warn (once)
+                            if (!shaderWarned.Contains(cat.categoryId))
                             {
-                                var rend = prefab.GetComponentInChildren<Renderer>();
-                                if (rend != null && rend.sharedMaterial != null)
+                                var pr = prefab.GetComponentInChildren<Renderer>();
+                                if (pr != null && pr.sharedMaterial != null)
                                 {
-                                    string sn = rend.sharedMaterial.shader.name;
+                                    string sn = pr.sharedMaterial.shader.name;
                                     if (sn == "Standard" || sn == "Hidden/InternalErrorShader" || sn.StartsWith("Legacy Shaders/"))
-                                        Debug.LogWarning($"[AssetPlacer] Shader incompatible URP: '{sn}' sur '{prefab.name}' (categorie '{category.categoryId}')");
+                                        Debug.LogWarning($"[AssetPlacer] Shader URP incompatible: '{sn}' on '{prefab.name}' ({cat.categoryId})");
                                 }
-                                shaderWarned.Add(category.categoryId);
+                                shaderWarned.Add(cat.categoryId);
                             }
 
-                            Vector3 worldPos = CellToWorld(x, y);
-                            worldPos += GetRandomOffset(category);
+                            Vector3 wp = CellToWorld(x, y) + GetRandomOffset(cat);
+                            rec.worldPosX = wp.x; rec.worldPosY = wp.y; rec.worldPosZ = wp.z;
 
-                            // Zone d'exclusion autour du spawn et de l'exit
-                            float dxS = worldPos.x - spawnWorld.x, dzS = worldPos.z - spawnWorld.z;
-                            float dxE = worldPos.x - exitWorld.x, dzE = worldPos.z - exitWorld.z;
-                            if (dxS * dxS + dzS * dzS < exclRadSq || dxE * dxE + dzE * dzE < exclRadSq)
+                            float dS = Mathf.Sqrt((wp.x - spawnW.x) * (wp.x - spawnW.x) + (wp.z - spawnW.z) * (wp.z - spawnW.z));
+                            float dE = Mathf.Sqrt((wp.x - exitW.x) * (wp.x - exitW.x) + (wp.z - exitW.z) * (wp.z - exitW.z));
+                            rec.distanceToSpawn = dS; rec.distanceToExit = dE;
+
+                            // Spawn zone
+                            if (dS * dS < exclSq * 1.0001f || dE * dE < exclSq * 1.0001f)
                             {
-                                totalSkipSpawnZone++;
-                                Inc(cntSkipSpawnZone, category.categoryId);
+                                totalSkipSpawnZone++; Inc(cntSkipSpawnZone, cat.categoryId);
+                                rec.finalStatus = "skip_spawnZone";
+                                PlacementDebugDump.Record(rec);
                                 continue;
                             }
 
-                            // minSpacing PAR CATEGORIE
-                            if (category.minSpacing > 0 && IsTooCloseInCategory(category.categoryId, worldPos, category.minSpacing))
+                            // Spacing
+                            if (cat.minSpacing > 0 && IsTooClose(cat.categoryId, wp, cat.minSpacing))
                             {
-                                totalSkipSpacing++;
-                                Inc(cntSkipSpacing, category.categoryId);
+                                totalSkipSpacing++; Inc(cntSkipSpacing, cat.categoryId);
+                                rec.finalStatus = "skip_spacing";
+                                PlacementDebugDump.Record(rec);
                                 continue;
                             }
 
-                            var go = Object.Instantiate(prefab, worldPos,
-                                Quaternion.Euler(config.assetRotation), mapRoot);
+                            // === INSTANTIATE ===
+                            var go = Object.Instantiate(prefab, wp, Quaternion.Euler(config.assetRotation), mapRoot);
 
-                            Vector3 baseScale = config.assetScale * category.scaleMultiplier;
-                            if (category.allowRotationVariation)
+                            Vector3 baseScale = config.assetScale * cat.scaleMultiplier;
+                            rec.scaleAfterMultX = baseScale.x; rec.scaleAfterMultY = baseScale.y; rec.scaleAfterMultZ = baseScale.z;
+
+                            if (cat.allowRotationVariation)
                             {
-                                float yRot = (float)rng.NextDouble() * 360f;
-                                go.transform.Rotate(Vector3.up, yRot, Space.World);
+                                float yr = (float)rng.NextDouble() * 360f;
+                                go.transform.Rotate(Vector3.up, yr, Space.World);
                             }
 
-                            float scaleVar = Mathf.Lerp(category.minScaleVariation,
-                                category.maxScaleVariation, (float)rng.NextDouble());
-                            go.transform.localScale = baseScale * scaleVar;
+                            float sv = Mathf.Lerp(cat.minScaleVariation, cat.maxScaleVariation, (float)rng.NextDouble());
+                            go.transform.localScale = baseScale * sv;
 
-                            if (category.yOffset != 0)
-                                go.transform.position += Vector3.up * category.yOffset;
-
-                            // Mesurer les bounds reelles apres instanciation + scale
-                            var allRenderers = go.GetComponentsInChildren<Renderer>();
-                            Bounds combinedBounds = new Bounds(go.transform.position, Vector3.zero);
-                            foreach (var r in allRenderers)
-                                combinedBounds.Encapsulate(r.bounds);
-                            Vector3 bSize = combinedBounds.size;
-                            float maxDim = Mathf.Max(bSize.x, bSize.y, bSize.z);
-
-                            // Gabarit max : rescaler si depasse
-                            float maxAllowed = GetMaxBoundsForCategory(category.categoryId);
-                            if (maxDim > maxAllowed && maxDim > 0.01f)
+                            if (cat.yOffset != 0)
                             {
-                                float shrink = maxAllowed / maxDim;
-                                go.transform.localScale *= shrink;
+                                go.transform.position += Vector3.up * cat.yOffset;
+                                rec.yOffsetApplied = cat.yOffset;
+                            }
 
-                                // Remesurer
-                                combinedBounds = new Bounds(go.transform.position, Vector3.zero);
-                                foreach (var r in allRenderers)
-                                    combinedBounds.Encapsulate(r.bounds);
-                                bSize = combinedBounds.size;
-                                float newMax = Mathf.Max(bSize.x, bSize.y, bSize.z);
+                            // Bounds
+                            var renderers = go.GetComponentsInChildren<Renderer>();
+                            rec.rendererCount = renderers.Length;
+                            Bounds cb = new Bounds(go.transform.position, Vector3.zero);
+                            foreach (var r in renderers) cb.Encapsulate(r.bounds);
+                            float maxDim = Mathf.Max(cb.size.x, cb.size.y, cb.size.z);
 
-                                // Si meme apres shrink c'est encore > 2x le gabarit, skip
-                                if (newMax > maxAllowed * 2f)
+                            // Clamp
+                            float cap = GetMaxBounds(cat.categoryId);
+                            bool clamped = false;
+                            float clampRatio = 1f;
+                            if (maxDim > cap && maxDim > 0.01f)
+                            {
+                                clampRatio = cap / maxDim;
+                                go.transform.localScale *= clampRatio;
+                                clamped = true;
+
+                                cb = new Bounds(go.transform.position, Vector3.zero);
+                                foreach (var r in renderers) cb.Encapsulate(r.bounds);
+                                maxDim = Mathf.Max(cb.size.x, cb.size.y, cb.size.z);
+
+                                if (maxDim > cap * 2f)
                                 {
                                     Object.Destroy(go);
-                                    totalSkipOversize++;
-                                    Inc(cntSkipOversize, category.categoryId);
+                                    totalSkipOversize++; Inc(cntSkipOversize, cat.categoryId);
+                                    rec.finalStatus = "skip_oversize";
+                                    rec.wasBoundsClamped = true; rec.clampRatio = clampRatio;
+                                    PlacementDebugDump.Record(rec);
                                     continue;
                                 }
                             }
 
-                            go.name = $"{category.categoryId}_{x}_{y}_{i}";
-                            cell.placedObjects.Add(go);
-                            cell.placedAssetCategories.Add(category.categoryId);
+                            // Fill record with final data
+                            rec.finalStatus = "placed";
+                            var fp = go.transform.position;
+                            var fe = go.transform.rotation.eulerAngles;
+                            var fs = go.transform.localScale;
+                            rec.worldPosX = fp.x; rec.worldPosY = fp.y; rec.worldPosZ = fp.z;
+                            rec.rotEulerX = fe.x; rec.rotEulerY = fe.y; rec.rotEulerZ = fe.z;
+                            rec.scaleX = fs.x; rec.scaleY = fs.y; rec.scaleZ = fs.z;
+                            rec.scaleAfterClampX = fs.x; rec.scaleAfterClampY = fs.y; rec.scaleAfterClampZ = fs.z;
+                            rec.wasBoundsClamped = clamped; rec.clampRatio = clampRatio;
+                            rec.boundsCenterX = cb.center.x; rec.boundsCenterY = cb.center.y; rec.boundsCenterZ = cb.center.z;
+                            rec.boundsSizeX = cb.size.x; rec.boundsSizeY = cb.size.y; rec.boundsSizeZ = cb.size.z;
+                            rec.boundsMinX = cb.min.x; rec.boundsMinY = cb.min.y; rec.boundsMinZ = cb.min.z;
+                            rec.boundsMaxX = cb.max.x; rec.boundsMaxY = cb.max.y; rec.boundsMaxZ = cb.max.z;
+                            rec.maxDimension = maxDim;
 
-                            if (!placedPerCategory.ContainsKey(category.categoryId))
-                                placedPerCategory[category.categoryId] = new List<Vector3>();
-                            placedPerCategory[category.categoryId].Add(worldPos);
-
-                            Inc(cntPlaced, category.categoryId);
-                            totalPlaced++;
-                            TrackPosition(worldPos);
-
-                            // Tracker pour le log des plus gros
-                            biggestPlaced.Add(new PlacedInfo
+                            // Orientation
+                            rec.prefabForwardX = go.transform.forward.x;
+                            rec.prefabForwardY = go.transform.forward.y;
+                            rec.prefabForwardZ = go.transform.forward.z;
+                            rec.prefabUpX = go.transform.up.x;
+                            rec.prefabUpY = go.transform.up.y;
+                            rec.prefabUpZ = go.transform.up.z;
+                            if (renderers.Length > 0)
                             {
-                                prefabName = prefab.name,
-                                categoryId = category.categoryId,
-                                boundsSize = bSize,
-                                position = worldPos,
-                                maxDim = Mathf.Max(bSize.x, bSize.y, bSize.z)
-                            });
+                                var fr = renderers[0];
+                                rec.firstRendPosX = fr.transform.position.x;
+                                rec.firstRendPosY = fr.transform.position.y;
+                                rec.firstRendPosZ = fr.transform.position.z;
+                                var re = fr.transform.rotation.eulerAngles;
+                                rec.firstRendRotX = re.x; rec.firstRendRotY = re.y; rec.firstRendRotZ = re.z;
+                            }
+                            rec.estimatedTouchesGround = cb.min.y <= 0.5f;
+
+                            PlacementDebugDump.Record(rec);
+
+                            go.name = $"{cat.categoryId}_{x}_{y}_{i}";
+                            cell.placedObjects.Add(go);
+                            cell.placedAssetCategories.Add(cat.categoryId);
+
+                            if (!placedPerCategory.ContainsKey(cat.categoryId))
+                                placedPerCategory[cat.categoryId] = new List<Vector3>();
+                            placedPerCategory[cat.categoryId].Add(wp);
+
+                            Inc(cntPlaced, cat.categoryId);
+                            totalPlaced++;
+                            TrackPos(wp);
+
+                            biggestPlaced.Add(new BigInfo { prefab = prefab.name, cat = cat.categoryId, bSize = cb.size, pos = wp, maxDim = maxDim });
                         }
                     }
                 }
             }
 
-            // === SYNTHESE ===
+            // Finalize dump
+            var allRej = new Dictionary<string, int>();
+            foreach (var k in cntSkipChance) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
+            foreach (var k in cntSkipSpacing) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
+            foreach (var k in cntSkipSpawnZone) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
+            foreach (var k in cntSkipOversize) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
+            foreach (var k in cntSkipPrefabNull) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
+
+            PlacementDebugDump.Finalize(
+                totalAttempted, totalPlaced,
+                totalSkipChance, totalSkipSpacing, totalSkipSpawnZone, totalSkipOversize, totalSkipPrefabNull,
+                cntPlaced, allRej);
+
+            // Synthese console
             result.objectsPerCategory = new Dictionary<string, int>(cntPlaced);
             result.totalObjectsPlaced = totalPlaced;
+            LogSynthesis(cats.Count);
 
-            LogSynthesis(enabledCategories.Count);
-
-            result.AddPipelineStep($"Placement termine: {totalPlaced}/{totalAttempted} " +
-                $"(chance:{totalSkipChance} spacing:{totalSkipSpacing} spawn:{totalSkipSpawnZone} oversize:{totalSkipOversize})");
-            foreach (var kvp in cntPlaced)
-                result.AddPipelineStep($"  {kvp.Key}: {kvp.Value}");
+            result.AddPipelineStep($"Placement: {totalPlaced}/{totalAttempted} (chance:{totalSkipChance} spacing:{totalSkipSpacing} spawn:{totalSkipSpawnZone} over:{totalSkipOversize})");
+            foreach (var kvp in cntPlaced) result.AddPipelineStep($"  {kvp.Key}: {kvp.Value}");
 
             return totalPlaced;
         }
 
-        void LogSynthesis(int enabledCount)
+        void LogSynthesis(int ec)
         {
-            Debug.Log("[AssetPlacer] ══════ SYNTHESE PLACEMENT ══════");
-            Debug.Log($"[AssetPlacer] Attempted: {totalAttempted} | Placed: {totalPlaced}");
-            Debug.Log($"[AssetPlacer] Skipped — chance:{totalSkipChance} spacing:{totalSkipSpacing} " +
-                $"spawnZone:{totalSkipSpawnZone} oversize:{totalSkipOversize} prefabNull:{totalSkipPrefabNull}");
+            Debug.Log("[AssetPlacer] ══════ SYNTHESE ══════");
+            Debug.Log($"[AssetPlacer] Attempted:{totalAttempted} Placed:{totalPlaced}");
+            Debug.Log($"[AssetPlacer] Skip — chance:{totalSkipChance} spacing:{totalSkipSpacing} spawn:{totalSkipSpawnZone} over:{totalSkipOversize} null:{totalSkipPrefabNull}");
+            if (hasAnyPlaced) Debug.Log($"[AssetPlacer] Pos — min:({posMin.x:F0},{posMin.z:F0}) max:({posMax.x:F0},{posMax.z:F0})");
 
-            if (hasAnyPlaced)
-                Debug.Log($"[AssetPlacer] Positions — min:({posMin.x:F0},{posMin.z:F0}) max:({posMax.x:F0},{posMax.z:F0})");
-
-            // Par categorie
-            HashSet<string> allIds = new();
-            foreach (var k in cntPlaced.Keys) allIds.Add(k);
-            foreach (var k in cntSkipChance.Keys) allIds.Add(k);
-            foreach (var k in cntSkipSpacing.Keys) allIds.Add(k);
-            foreach (var k in cntSkipSpawnZone.Keys) allIds.Add(k);
-            foreach (var k in cntSkipOversize.Keys) allIds.Add(k);
-
-            foreach (var id in allIds)
+            var ids = new HashSet<string>();
+            foreach (var k in cntPlaced.Keys) ids.Add(k);
+            foreach (var k in cntSkipChance.Keys) ids.Add(k);
+            foreach (var id in ids)
             {
                 int p = cntPlaced.ContainsKey(id) ? cntPlaced[id] : 0;
                 int sc = cntSkipChance.ContainsKey(id) ? cntSkipChance[id] : 0;
                 int ss = cntSkipSpacing.ContainsKey(id) ? cntSkipSpacing[id] : 0;
                 int sz = cntSkipSpawnZone.ContainsKey(id) ? cntSkipSpawnZone[id] : 0;
-                int ov = cntSkipOversize.ContainsKey(id) ? cntSkipOversize[id] : 0;
-                Debug.Log($"[AssetPlacer]   {id}: {p} places | chance:{sc} spacing:{ss} spawnZone:{sz} oversize:{ov}");
+                Debug.Log($"[AssetPlacer]   {id}: {p} placed | ch:{sc} sp:{ss} sz:{sz}");
             }
 
-            // Detection zero-placement
             if (totalPlaced == 0)
             {
-                Debug.LogWarning("[AssetPlacer] *** ZERO OBJETS PLACES ***");
-                Debug.LogWarning($"[AssetPlacer] Categories actives: {enabledCount} | Attempted: {totalAttempted}");
-                if (totalAttempted == 0)
-                    Debug.LogWarning("[AssetPlacer] Aucune tentative — verifier biomes/cellTypes/mode");
-                else if (totalSkipChance == totalAttempted)
-                    Debug.LogWarning("[AssetPlacer] 100% refuse par chance — densites trop basses");
+                Debug.LogWarning("[AssetPlacer] *** ZERO PLACES ***");
+                if (totalAttempted == 0) Debug.LogWarning("[AssetPlacer] Aucune tentative");
+                else if (totalSkipChance == totalAttempted) Debug.LogWarning("[AssetPlacer] 100% refuse par chance");
             }
 
-            // Top 10 plus gros prefabs places
             if (biggestPlaced.Count > 0)
             {
-                Debug.Log("[AssetPlacer] ── TOP 10 PLUS GROS PREFABS ──");
-                var top = biggestPlaced.OrderByDescending(p => p.maxDim).Take(10);
-                foreach (var p in top)
-                {
-                    Debug.Log($"[AssetPlacer]   {p.prefabName} ({p.categoryId}) " +
-                        $"bounds=({p.boundsSize.x:F1},{p.boundsSize.y:F1},{p.boundsSize.z:F1}) " +
-                        $"maxDim={p.maxDim:F1} pos=({p.position.x:F0},{p.position.z:F0})");
-                }
+                Debug.Log("[AssetPlacer] ── TOP 10 ──");
+                foreach (var p in biggestPlaced.OrderByDescending(b => b.maxDim).Take(10))
+                    Debug.Log($"[AssetPlacer]   {p.prefab} ({p.cat}) maxDim={p.maxDim:F1} bounds=({p.bSize.x:F1},{p.bSize.y:F1},{p.bSize.z:F1})");
             }
-
-            Debug.Log("[AssetPlacer] ════════════════════════════════");
+            Debug.Log("[AssetPlacer] ════════════════════");
         }
 
-        bool IsTooCloseInCategory(string categoryId, Vector3 candidate, float minDist)
+        bool IsTooClose(string id, Vector3 c, float d)
         {
-            if (!placedPerCategory.ContainsKey(categoryId))
-                return false;
-
-            var positions = placedPerCategory[categoryId];
-            float minDistSq = minDist * minDist;
-
-            for (int i = positions.Count - 1; i >= 0; i--)
-            {
-                float dx = candidate.x - positions[i].x;
-                float dz = candidate.z - positions[i].z;
-                if (dx * dx + dz * dz < minDistSq)
-                    return true;
-            }
+            if (!placedPerCategory.ContainsKey(id)) return false;
+            var ps = placedPerCategory[id]; float dSq = d * d;
+            for (int i = ps.Count - 1; i >= 0; i--) { float dx = c.x - ps[i].x, dz = c.z - ps[i].z; if (dx * dx + dz * dz < dSq) return true; }
             return false;
         }
 
-        float GetDensityMultiplier(AssetCategory category, MapCell cell)
+        float GetDensityMultiplier(AssetCategory cat, MapCell cell)
         {
-            float baseDensity = GetCategoryDensity(category);
-            float cellFactor = cell.type == CellType.Couloir ? 0.3f : 1f;
-            return baseDensity * cellFactor;
+            float bd = cat.isStructural ? 1f : VegetationIds.Contains(cat.categoryId) ? config.vegetationDensity : RockIds.Contains(cat.categoryId) ? config.rockDensity : config.decorDensity;
+            return bd * (cell.type == CellType.Couloir ? 0.3f : 1f);
         }
 
-        float GetCategoryDensity(AssetCategory category)
+        Vector3 CellToWorld(int x, int y) => new Vector3(x * config.cellSize, 0f, y * config.cellSize);
+
+        Vector3 GetRandomOffset(AssetCategory cat)
         {
-            if (category.isStructural) return 1f;
-            string id = category.categoryId;
-            if (VegetationIds.Contains(id)) return config.vegetationDensity;
-            if (RockIds.Contains(id)) return config.rockDensity;
-            return config.decorDensity;
+            if (cat.minSpacing <= 0) return Vector3.zero;
+            float h = config.cellSize * 0.25f;
+            return new Vector3((float)(rng.NextDouble() * 2 - 1) * h, 0, (float)(rng.NextDouble() * 2 - 1) * h);
         }
 
-        Vector3 CellToWorld(int x, int y)
-        {
-            return new Vector3(x * config.cellSize, 0f, y * config.cellSize);
-        }
-
-        Vector3 GetRandomOffset(AssetCategory category)
-        {
-            if (category.minSpacing <= 0) return Vector3.zero;
-            float halfCell = config.cellSize * 0.25f;
-            float ox = (float)(rng.NextDouble() * 2 - 1) * halfCell;
-            float oz = (float)(rng.NextDouble() * 2 - 1) * halfCell;
-            return new Vector3(ox, 0, oz);
-        }
-
-        public Vector3 GetWorldPosition(Vector2Int cell)
-        {
-            return new Vector3(cell.x * config.cellSize, 0f, cell.y * config.cellSize);
-        }
+        public Vector3 GetWorldPosition(Vector2Int c) => new Vector3(c.x * config.cellSize, 0f, c.y * config.cellSize);
     }
 }

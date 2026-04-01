@@ -181,6 +181,9 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 assetPlacer.skipStructuralCategories = true;
                 int placed = assetPlacer.PlaceAssets(map, assetRegistry);
 
+                // Export debug dump (ecrase les fichiers precedents)
+                PlacementDebugDump.Export();
+
                 UnityEngine.Debug.Log($"[ModeController] === POST-PLACEMENT === " +
                     $"Total objets places: {placed}");
 
