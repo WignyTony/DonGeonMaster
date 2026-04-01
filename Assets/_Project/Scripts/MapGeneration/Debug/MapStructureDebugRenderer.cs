@@ -277,7 +277,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
         TilePlaceResult PlaceTile(Vector3 cellCenter, float cellSize, float blockSize, int cx, int cy, string prefix)
         {
-            // Choisir un prefab aleatoire
             int idx = tileRng.Next(floorPrefabs.Count);
             var prefab = floorPrefabs[idx];
             string pName = prefab != null ? prefab.name : "null";
@@ -290,54 +289,67 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 return res;
             }
 
-            // Instancier avec rotation structurelle (tiles sont modelisees a plat dans le FBX)
-            var go = Instantiate(prefab, cellCenter, Quaternion.Euler(-90f, 0f, 0f), structureRoot);
+            // 1) Instancier SANS rotation pour mesurer les bounds correctement
+            var go = Instantiate(prefab, cellCenter, Quaternion.identity, structureRoot);
             go.name = $"{prefix}_{cx}_{cy}_Tile";
             res.objName = go.name;
 
-            // Mesurer les bounds pour rescaler a la taille de la cellule
             var renderers = go.GetComponentsInChildren<Renderer>();
             if (renderers.Length == 0)
             {
-                // Pas de renderer — fallback scale fixe
                 go.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
+                go.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
                 res.scale = go.transform.localScale;
                 res.rot = go.transform.rotation.eulerAngles;
                 return res;
             }
 
-            // Calculer les bounds combinees AVANT rescale (a scale 1)
+            // 2) Mesurer les bounds a scale 1, rotation identity
             Bounds cb = renderers[0].bounds;
             for (int i = 1; i < renderers.Length; i++)
                 cb.Encapsulate(renderers[i].bounds);
 
-            // On veut que le sol remplisse blockSize sur XZ
-            float meshSpanX = Mathf.Max(cb.size.x, 0.001f);
-            float meshSpanZ = Mathf.Max(cb.size.z, 0.001f);
-            float targetSize = blockSize;
+            // La surface du mesh est dans le plan XZ (ou XY selon le FBX)
+            // Prendre les deux plus grandes dimensions comme emprise au sol
+            float dimA = cb.size.x;
+            float dimB = cb.size.y;
+            float dimC = cb.size.z;
 
-            // Le facteur de scale pour couvrir la cellule
-            float scaleFactorX = targetSize / meshSpanX;
-            float scaleFactorZ = targetSize / meshSpanZ;
-            float scaleFactor = Mathf.Min(scaleFactorX, scaleFactorZ);
+            // Trier pour trouver les 2 plus grandes (= emprise sol)
+            float maxDim = Mathf.Max(dimA, dimB, dimC);
+            float minDim = Mathf.Min(dimA, dimB, dimC);
+            float midDim = dimA + dimB + dimC - maxDim - minDim;
+
+            // Scale uniforme base sur la plus grande dimension de surface
+            float footprint = Mathf.Max(maxDim, midDim);
+            float scaleFactor = footprint > 0.001f ? blockSize / footprint : cellSize;
 
             go.transform.localScale = Vector3.one * scaleFactor;
 
-            // Recentrer sur la cellule (les bounds peuvent etre decentrees)
+            // 3) Appliquer la rotation structurelle Pandazole (-90 X)
+            go.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+
+            // 4) Recentrer sur la cellule apres rotation + scale
             var newBounds = new Bounds(go.transform.position, Vector3.zero);
             foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
             Vector3 offset = cellCenter - newBounds.center;
-            offset.y = 0; // Garder au sol
+            offset.y = 0;
             go.transform.position += offset;
 
-            // Desactiver les MeshColliders du prefab (le blockout fournit deja les colliders)
+            // 5) Poser au sol : le bas des bounds doit etre a y=0
+            newBounds = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
+            if (newBounds.min.y < -0.01f || newBounds.min.y > 0.5f)
+                go.transform.position += Vector3.up * (-newBounds.min.y);
+
+            // Desactiver les MeshColliders du prefab
             foreach (var mc in go.GetComponentsInChildren<MeshCollider>())
                 mc.enabled = false;
 
-            // Ajouter un BoxCollider simple pour la physique
+            // BoxCollider simple pour la physique hero
             var box = go.AddComponent<BoxCollider>();
-            box.center = Vector3.zero;
-            box.size = new Vector3(targetSize / scaleFactor, 0.1f / scaleFactor, targetSize / scaleFactor);
+            box.center = Vector3.up * 0.05f;
+            box.size = new Vector3(blockSize / scaleFactor, 0.1f / scaleFactor, blockSize / scaleFactor);
 
             // Info pour les logs
             res.scale = go.transform.localScale;
