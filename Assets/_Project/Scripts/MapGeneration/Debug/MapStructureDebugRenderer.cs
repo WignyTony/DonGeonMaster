@@ -4,8 +4,8 @@ using UnityEngine;
 namespace DonGeonMaster.MapGeneration.DebugTools
 {
     /// <summary>
-    /// Affiche la structure generee (MapData) en runtime avec des cubes colores (blockout)
-    /// ou avec des materiaux realistes pour Sol/Couloir (mode sols reels).
+    /// Affiche la structure generee (MapData) en cubes colores (blockout)
+    /// ou avec de vrais prefabs TileGround pour Sol/Couloir (mode sols reels).
     /// </summary>
     public class MapStructureDebugRenderer : MonoBehaviour
     {
@@ -14,18 +14,20 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         [SerializeField] float floorThickness = 0.2f;
         [SerializeField] float cellGap = 0.15f;
 
-        /// <summary>Mode sols reels : Sol/Couloir utilisent des mats realistes au lieu des couleurs debug.</summary>
+        /// <summary>Mode sols reels : Sol/Couloir utilisent de vrais prefabs TileGround.</summary>
         public bool useRealGround;
+
+        /// <summary>Prefabs de sol fournis par le controller depuis le registry "Sols".</summary>
+        public List<GameObject> floorPrefabs;
 
         // Blockout materials
         Material matFloor, matCorridor, matWall, matWater, matSpawn, matExit, matBoss;
-        // Real ground materials
-        Material matRealFloor, matRealCorridor;
 
         Transform structureRoot;
         Mesh cubeMesh;
+        System.Random tileRng;
 
-        // Tracking des cellules rendues pour les logs
+        // Tracking
         public int RealGroundFloorCount { get; private set; }
         public int RealGroundCorridorCount { get; private set; }
         public int BlockoutCellCount { get; private set; }
@@ -36,11 +38,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             public int x, y;
             public string cellType;
             public string biome;
-            public string renderMode; // "blockout" ou "realGround"
+            public string renderMode;
             public string materialName;
+            public string prefabName;
+            public string meshName;
             public string objectName;
             public Vector3 worldPos;
             public Vector3 scale;
+            public Vector3 rotation;
         }
         public List<CellRenderInfo> cellRenderInfos = new();
 
@@ -65,7 +70,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var baseMat = temp.GetComponent<Renderer>().sharedMaterial;
             DestroyImmediate(temp);
 
-            // Blockout debug
             matFloor    = MakeMat(baseMat, new Color(0.22f, 0.45f, 0.22f), "DebugFloor");
             matCorridor = MakeMat(baseMat, new Color(0.55f, 0.50f, 0.35f), "DebugCorridor");
             matWall     = MakeMat(baseMat, new Color(0.28f, 0.18f, 0.12f), "DebugWall");
@@ -73,10 +77,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             matSpawn    = MakeMat(baseMat, new Color(0.10f, 1.00f, 0.20f), "DebugSpawn");
             matExit     = MakeMat(baseMat, new Color(1.00f, 0.15f, 0.15f), "DebugExit");
             matBoss     = MakeMat(baseMat, new Color(0.80f, 0.15f, 0.90f), "DebugBoss");
-
-            // Sols reels — URP Lit avec couleurs/proprietes realistes
-            matRealFloor = MakeRealMat(baseMat, new Color(0.62f, 0.55f, 0.42f), 0.15f, "RealFloor_Stone");
-            matRealCorridor = MakeRealMat(baseMat, new Color(0.45f, 0.35f, 0.25f), 0.25f, "RealCorridor_Wood");
         }
 
         Material MakeMat(Material baseMat, Color color, string name)
@@ -85,17 +85,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             m.name = name;
             m.SetColor("_Color", color);
             m.SetColor("_BaseColor", color);
-            return m;
-        }
-
-        Material MakeRealMat(Material baseMat, Color color, float smoothness, string name)
-        {
-            var m = new Material(baseMat);
-            m.name = name;
-            m.SetColor("_Color", color);
-            m.SetColor("_BaseColor", color);
-            m.SetFloat("_Smoothness", smoothness);
-            m.SetFloat("_Metallic", 0f);
             return m;
         }
 
@@ -128,10 +117,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             float cs = config.cellSize;
             float block = cs - cellGap;
 
-            // Epaisseur du sol selon le mode
-            float floorH = useRealGround ? 0.05f : floorThickness;
+            bool canRealGround = useRealGround && floorPrefabs != null && floorPrefabs.Count > 0;
+            tileRng = new System.Random(config.seed);
 
-            Debug.Log($"[StructureRenderer] Render mode: {(useRealGround ? "SOLS REELS" : "BLOCKOUT")}");
+            if (useRealGround && !canRealGround)
+                Debug.LogWarning("[StructureRenderer] Mode sols reels demande mais aucun prefab de sol disponible — fallback blockout");
+
+            Debug.Log($"[StructureRenderer] Render mode: {(canRealGround ? "SOLS REELS (TileGround prefabs)" : "BLOCKOUT")} " +
+                $"| prefabs dispo: {(floorPrefabs != null ? floorPrefabs.Count : 0)}");
 
             for (int x = 0; x < map.width; x++)
             {
@@ -142,94 +135,110 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
                     Vector3 pos = new Vector3(x * cs, 0, y * cs);
                     string renderMode = "blockout";
-                    Material usedMat = null;
-                    Vector3 usedScale = Vector3.zero;
+                    string matName = "";
+                    string prefabName = "";
+                    string meshName = "";
                     string objName = "";
+                    Vector3 usedScale = Vector3.zero;
+                    Vector3 usedRot = Vector3.zero;
 
                     switch (cell.type)
                     {
                         case CellType.Sol:
-                            if (useRealGround)
+                            if (canRealGround)
                             {
-                                usedMat = matRealFloor;
-                                renderMode = "realGround";
+                                var info = PlaceTile(pos, cs, block, x, y, "Floor");
+                                renderMode = "realGround_prefab";
+                                matName = info.matName;
+                                prefabName = info.prefabName;
+                                meshName = info.meshName;
+                                objName = info.objName;
+                                usedScale = info.scale;
+                                usedRot = info.rot;
                                 RealGroundFloorCount++;
                             }
                             else
                             {
-                                usedMat = matFloor;
+                                objName = $"Floor_{x}_{y}";
+                                usedScale = new Vector3(block, floorThickness, block);
+                                Block(pos, block, floorThickness, matFloor, true, objName);
+                                matName = "DebugFloor";
                                 BlockoutCellCount++;
                             }
-                            objName = $"Floor_{x}_{y}";
-                            usedScale = new Vector3(block, floorH, block);
-                            Block(pos, block, floorH, usedMat, true, objName);
                             RenderedFloorCount++;
                             break;
 
                         case CellType.Couloir:
-                            if (useRealGround)
+                            if (canRealGround)
                             {
-                                usedMat = matRealCorridor;
-                                renderMode = "realGround";
+                                var info = PlaceTile(pos, cs, block, x, y, "Corridor");
+                                renderMode = "realGround_prefab";
+                                matName = info.matName;
+                                prefabName = info.prefabName;
+                                meshName = info.meshName;
+                                objName = info.objName;
+                                usedScale = info.scale;
+                                usedRot = info.rot;
                                 RealGroundCorridorCount++;
                             }
                             else
                             {
-                                usedMat = matCorridor;
+                                objName = $"Corridor_{x}_{y}";
+                                usedScale = new Vector3(block, floorThickness, block);
+                                Block(pos + Vector3.up * 0.05f, block, floorThickness, matCorridor, true, objName);
+                                matName = "DebugCorridor";
                                 BlockoutCellCount++;
                             }
-                            objName = $"Corridor_{x}_{y}";
-                            usedScale = new Vector3(block, floorH, block);
-                            Block(pos + Vector3.up * 0.05f, block, floorH, usedMat, true, objName);
                             RenderedFloorCount++;
                             break;
 
                         case CellType.Mur:
-                            usedMat = matWall;
                             objName = $"Wall_{x}_{y}";
                             usedScale = new Vector3(block, wallHeight, block);
-                            Block(pos, block, wallHeight, usedMat, true, objName);
+                            Block(pos, block, wallHeight, matWall, true, objName);
+                            matName = "DebugWall";
                             RenderedWallCount++;
                             BlockoutCellCount++;
                             break;
 
                         case CellType.Eau:
-                            usedMat = matWater;
                             objName = $"Water_{x}_{y}";
                             usedScale = new Vector3(block, floorThickness * 0.6f, block);
-                            Block(pos - Vector3.up * 0.1f, block, floorThickness * 0.6f, usedMat, true, objName);
+                            Block(pos - Vector3.up * 0.1f, block, floorThickness * 0.6f, matWater, true, objName);
+                            matName = "DebugWater";
                             RenderedFloorCount++;
                             BlockoutCellCount++;
                             break;
                     }
                     RenderedCellCount++;
 
-                    // Enregistrer l'info de rendu
                     cellRenderInfos.Add(new CellRenderInfo
                     {
                         x = x, y = y,
                         cellType = cell.type.ToString(),
                         biome = cell.biome.ToString(),
                         renderMode = renderMode,
-                        materialName = usedMat != null ? usedMat.name : "",
+                        materialName = matName,
+                        prefabName = prefabName,
+                        meshName = meshName,
                         objectName = objName,
                         worldPos = pos,
-                        scale = usedScale
+                        scale = usedScale,
+                        rotation = usedRot
                     });
 
-                    // Marqueurs
+                    // Marqueurs spawn/exit
+                    float markerBase = canRealGround && (cell.type == CellType.Sol || cell.type == CellType.Couloir) ? 0.1f : floorThickness;
                     if (cell.isSpawnPoint)
                     {
-                        float mh = wallHeight * 1.5f;
-                        Block(pos + Vector3.up * floorH, cs * 0.6f, 0.4f, matSpawn, false);
-                        Block(pos + Vector3.up * (floorH + 0.4f), cs * 0.3f, mh, matSpawn, false);
+                        Block(pos + Vector3.up * markerBase, cs * 0.6f, 0.4f, matSpawn, false);
+                        Block(pos + Vector3.up * (markerBase + 0.4f), cs * 0.3f, wallHeight * 1.5f, matSpawn, false);
                         HasSpawnMarker = true;
                     }
                     if (cell.isExit)
                     {
-                        float mh = wallHeight * 1.5f;
-                        Block(pos + Vector3.up * floorH, cs * 0.6f, 0.4f, matExit, false);
-                        Block(pos + Vector3.up * (floorH + 0.4f), cs * 0.3f, mh, matExit, false);
+                        Block(pos + Vector3.up * markerBase, cs * 0.6f, 0.4f, matExit, false);
+                        Block(pos + Vector3.up * (markerBase + 0.4f), cs * 0.3f, wallHeight * 1.5f, matExit, false);
                         HasExitMarker = true;
                     }
                 }
@@ -239,7 +248,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             {
                 if (room.isBossRoom)
                 {
-                    Vector3 p = new Vector3(room.center.x * cs, floorH, room.center.y * cs);
+                    Vector3 p = new Vector3(room.center.x * cs, floorThickness, room.center.y * cs);
                     Block(p, cs * 0.5f, wallHeight * 1.3f, matBoss, false);
                 }
             }
@@ -256,6 +265,98 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 $"RealFloor:{RealGroundFloorCount} RealCorridor:{RealGroundCorridorCount} Blockout:{BlockoutCellCount}");
         }
 
+        // ════════════════════════════════════════════
+        //  TILE PLACEMENT (vrais prefabs)
+        // ════════════════════════════════════════════
+
+        struct TilePlaceResult
+        {
+            public string prefabName, matName, meshName, objName;
+            public Vector3 scale, rot;
+        }
+
+        TilePlaceResult PlaceTile(Vector3 cellCenter, float cellSize, float blockSize, int cx, int cy, string prefix)
+        {
+            // Choisir un prefab aleatoire
+            int idx = tileRng.Next(floorPrefabs.Count);
+            var prefab = floorPrefabs[idx];
+            string pName = prefab != null ? prefab.name : "null";
+
+            var res = new TilePlaceResult { prefabName = pName };
+
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[StructureRenderer] Prefab sol null a l'index {idx}");
+                return res;
+            }
+
+            // Instancier avec rotation structurelle (tiles sont modelisees a plat dans le FBX)
+            var go = Instantiate(prefab, cellCenter, Quaternion.Euler(-90f, 0f, 0f), structureRoot);
+            go.name = $"{prefix}_{cx}_{cy}_Tile";
+            res.objName = go.name;
+
+            // Mesurer les bounds pour rescaler a la taille de la cellule
+            var renderers = go.GetComponentsInChildren<Renderer>();
+            if (renderers.Length == 0)
+            {
+                // Pas de renderer — fallback scale fixe
+                go.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
+                res.scale = go.transform.localScale;
+                res.rot = go.transform.rotation.eulerAngles;
+                return res;
+            }
+
+            // Calculer les bounds combinees AVANT rescale (a scale 1)
+            Bounds cb = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++)
+                cb.Encapsulate(renderers[i].bounds);
+
+            // On veut que le sol remplisse blockSize sur XZ
+            float meshSpanX = Mathf.Max(cb.size.x, 0.001f);
+            float meshSpanZ = Mathf.Max(cb.size.z, 0.001f);
+            float targetSize = blockSize;
+
+            // Le facteur de scale pour couvrir la cellule
+            float scaleFactorX = targetSize / meshSpanX;
+            float scaleFactorZ = targetSize / meshSpanZ;
+            float scaleFactor = Mathf.Min(scaleFactorX, scaleFactorZ);
+
+            go.transform.localScale = Vector3.one * scaleFactor;
+
+            // Recentrer sur la cellule (les bounds peuvent etre decentrees)
+            var newBounds = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
+            Vector3 offset = cellCenter - newBounds.center;
+            offset.y = 0; // Garder au sol
+            go.transform.position += offset;
+
+            // Desactiver les MeshColliders du prefab (le blockout fournit deja les colliders)
+            foreach (var mc in go.GetComponentsInChildren<MeshCollider>())
+                mc.enabled = false;
+
+            // Ajouter un BoxCollider simple pour la physique
+            var box = go.AddComponent<BoxCollider>();
+            box.center = Vector3.zero;
+            box.size = new Vector3(targetSize / scaleFactor, 0.1f / scaleFactor, targetSize / scaleFactor);
+
+            // Info pour les logs
+            res.scale = go.transform.localScale;
+            res.rot = go.transform.rotation.eulerAngles;
+
+            var mainRend = renderers[0];
+            if (mainRend.sharedMaterial != null)
+                res.matName = mainRend.sharedMaterial.name;
+            var mf = go.GetComponentInChildren<MeshFilter>();
+            if (mf != null && mf.sharedMesh != null)
+                res.meshName = mf.sharedMesh.name;
+
+            return res;
+        }
+
+        // ════════════════════════════════════════════
+        //  BLOCKOUT CUBE
+        // ════════════════════════════════════════════
+
         void Block(Vector3 position, float size, float height, Material mat, bool addCollider, string goName = null)
         {
             var go = new GameObject(goName ?? "block");
@@ -266,7 +367,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             var mr = go.AddComponent<MeshRenderer>();
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            mr.receiveShadows = useRealGround; // Receive shadows en mode reel pour meilleur rendu
+            mr.receiveShadows = false;
 
             if (addCollider) go.AddComponent<BoxCollider>();
         }
@@ -303,8 +404,6 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             if (matSpawn) Destroy(matSpawn);
             if (matExit) Destroy(matExit);
             if (matBoss) Destroy(matBoss);
-            if (matRealFloor) Destroy(matRealFloor);
-            if (matRealCorridor) Destroy(matRealCorridor);
         }
     }
 }

@@ -151,6 +151,12 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 validator.Validate(map, currentConfig, result);
 
             structureRenderer.useRealGround = sidebar.RealGroundEnabled;
+            // Fournir les prefabs TileGround depuis le registry pour le mode sols reels
+            if (assetRegistry != null)
+            {
+                var solsCat = assetRegistry.GetCategory("Sols");
+                structureRenderer.floorPrefabs = solsCat != null ? solsCat.prefabs : null;
+            }
             structureRenderer.Render(map, currentConfig);
 
             // Placer les assets par dessus le blockout si active
