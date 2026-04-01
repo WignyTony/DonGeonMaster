@@ -1,836 +1,937 @@
 ﻿================================================================================
   PLACEMENT DEBUG DUMP
 ================================================================================
-Seed:       1291971520
+Seed:       1987040793
 Map:        30x30 cellSize=6.00
-Spawn:      cell(6,4) world(36.00,24.00)
-Exit:       cell(25,13) world(150.00,78.00)
+Spawn:      cell(5,6) world(30.00,36.00)
+Exit:       cell(9,25) world(54.00,150.00)
 Densities:  veg=0.60 rock=0.20 decor=0.30
 Categories: 17 active
 
-Attempted:  2632
-Placed:     157
-Skip chance:    2461
-Skip spacing:   9
-Skip spawnZone: 5
+Attempted:  2733
+Placed:     181
+Skip chance:    2535
+Skip spacing:   6
+Skip spawnZone: 11
 Skip oversize:  0
 Skip prefabNull:0
 
-Placed/cat:   RochesDures:6, Cactus:2, Epines:1, Arbres:31, Buissons:65, Champignons:2, RochesTendres:20, Herbe:16, Debris:3, Feuillage:4, Fleurs:3, Troncs:3, Minerais:1
-Rejected/cat: RochesDures:96, RochesTendres:656, Minerais:94, Cactus:5, Epines:6, Buissons:411, Troncs:297, Arbres:356, Champignons:43, Feuillage:41, Gemmes:55, Debris:239, Herbe:149, Fleurs:27
+Placed/cat:   Arbres:37, Buissons:59, RochesTendres:24, RochesDures:5, Gemmes:2, Herbe:10, Debris:4, Cactus:4, Troncs:10, Epines:4, Fleurs:4, Feuillage:13, Champignons:4, Minerais:1
+Rejected/cat: RochesDures:99, RochesTendres:652, Minerais:110, Arbres:347, Buissons:409, Troncs:305, Cactus:21, Epines:21, Fleurs:32, Champignons:140, Gemmes:25, Debris:179, Herbe:113, Feuillage:99
 
 Ground render: SOLS REELS
-  Real floor cells:    144
-  Real corridor cells: 98
-  Blockout cells:      434
+  Real floor cells:    123
+  Real corridor cells: 60
+  Blockout cells:      493
 
 Collision ground:
-  Total cells:     242
+  Total cells:     183
   Sol cells:       0
   Couloir cells:   0
   Ground Y:        0.00
   Thickness:       0.10
 
+Hero locomotion:
+  stepOffset:  0.00
+  slopeLimit:  0.00
+  height:      0.00
+  radius:      0.00
+  skinWidth:   0.00
+
 --------------------------------------------------------------------------------
   PLACED ITEMS (sorted by maxDimension desc)
 --------------------------------------------------------------------------------
-  #337 Arbres/Tree_07_Spring biome=ForetAutomne cell=(5,12)
-    pos=(30.07,0.00,70.84) scale=(1.04,1.04,1.04)
-    bounds size=(4.50,3.78,4.09) maxDim=4.50 rend=2
-    dSpawn=47.21 dExit=120.15 clamped=True clampR=0.03 touchGnd=True
-  #752 Arbres/Tree_17_Spring biome=Prairie cell=(9,19)
-    pos=(54.25,0.00,114.40) scale=(0.82,0.82,0.82)
-    bounds size=(3.60,4.50,3.57) maxDim=4.50 rend=2
-    dSpawn=92.22 dExit=102.43 clamped=True clampR=0.03 touchGnd=True
-  #1634 Arbres/Tree_28_Fall biome=Prairie cell=(17,21)
-    pos=(100.51,0.00,125.76) scale=(0.70,0.70,0.70)
-    bounds size=(2.83,4.50,3.33) maxDim=4.50 rend=2
-    dSpawn=120.49 dExit=68.78 clamped=True clampR=0.02 touchGnd=True
-  #1335 Arbres/Tree_28_Fall biome=ForetAutomne cell=(14,26)
-    pos=(84.88,0.00,154.98) scale=(0.70,0.70,0.70)
-    bounds size=(2.07,4.50,3.22) maxDim=4.50 rend=2
-    dSpawn=139.81 dExit=100.83 clamped=True clampR=0.02 touchGnd=True
-  #2336 Arbres/Tree_21_Spring biome=ForetAutomne cell=(25,2)
-    pos=(148.52,0.00,10.64) scale=(0.75,0.75,0.75)
-    bounds size=(2.03,4.50,2.05) maxDim=4.50 rend=2
-    dSpawn=113.31 dExit=67.37 clamped=True clampR=0.02 touchGnd=True
-  #296 Arbres/Tree_15_Winter biome=ForetAutomne cell=(5,2)
-    pos=(30.84,0.00,12.47) scale=(0.69,0.69,0.69)
-    bounds size=(4.44,3.74,4.50) maxDim=4.50 rend=2
-    dSpawn=12.63 dExit=135.99 clamped=True clampR=0.02 touchGnd=True
-  #2250 Arbres/Tree_09_Fall biome=ForetAutomne cell=(24,7)
-    pos=(143.98,0.00,41.26) scale=(0.97,0.97,0.97)
-    bounds size=(4.27,3.68,4.50) maxDim=4.50 rend=2
-    dSpawn=109.35 dExit=37.23 clamped=True clampR=0.03 touchGnd=True
-  #2180 Arbres/Tree_13_Spring biome=ForetAutomne cell=(23,15)
-    pos=(136.76,0.00,89.78) scale=(0.62,0.62,0.62)
-    bounds size=(4.50,1.96,4.50) maxDim=4.50 rend=2
-    dSpawn=120.33 dExit=17.72 clamped=True clampR=0.02 touchGnd=True
-  #758 Arbres/Tree_36_Winter biome=Prairie cell=(9,21)
-    pos=(55.48,0.00,125.71) scale=(1.26,1.26,1.26)
-    bounds size=(2.61,4.50,2.61) maxDim=4.50 rend=1
-    dSpawn=103.56 dExit=105.88 clamped=True clampR=0.04 touchGnd=True
-  #767 Arbres/Tree_11_Fall biome=Prairie cell=(9,24)
-    pos=(54.47,0.00,143.39) scale=(1.19,1.19,1.19)
-    bounds size=(4.01,2.34,4.50) maxDim=4.50 rend=2
-    dSpawn=120.81 dExit=115.76 clamped=True clampR=0.04 touchGnd=True
-  #793 Arbres/Tree_06_Winter biome=ForetAutomne cell=(10,5)
-    pos=(61.18,0.00,29.29) scale=(0.99,0.99,0.99)
-    bounds size=(4.50,3.50,4.31) maxDim=4.50 rend=2
-    dSpawn=25.73 dExit=101.30 clamped=True clampR=0.03 touchGnd=True
-  #1907 Arbres/Tree_25_Winter biome=ForetAutomne cell=(20,20)
-    pos=(119.92,0.00,120.08) scale=(1.86,1.86,1.86)
-    bounds size=(3.73,4.50,3.74) maxDim=4.50 rend=2
-    dSpawn=127.57 dExit=51.73 clamped=True clampR=0.06 touchGnd=True
-  #909 Arbres/Tree_06_Fall biome=ForetAutomne cell=(11,10)
-    pos=(64.80,0.00,60.13) scale=(0.98,0.98,0.98)
-    bounds size=(4.50,3.45,4.35) maxDim=4.50 rend=2
-    dSpawn=46.20 dExit=87.05 clamped=True clampR=0.03 touchGnd=True
-  #1713 Arbres/Tree_26_Fall biome=Prairie cell=(18,20)
-    pos=(107.10,0.00,120.55) scale=(0.62,0.62,0.62)
-    bounds size=(4.48,3.70,4.50) maxDim=4.50 rend=2
-    dSpawn=119.90 dExit=60.42 clamped=True clampR=0.02 touchGnd=True
-  #965 Arbres/Tree_18_Winter biome=Prairie cell=(11,23)
-    pos=(66.62,0.00,138.58) scale=(0.73,0.73,0.73)
-    bounds size=(4.29,4.15,4.50) maxDim=4.50 rend=2
-    dSpawn=118.60 dExit=103.06 clamped=True clampR=0.03 touchGnd=True
-  #1656 Arbres/Tree_34_Winter biome=ForetAutomne cell=(18,2)
-    pos=(107.09,0.00,12.94) scale=(1.71,1.71,1.71)
-    bounds size=(3.02,4.50,3.02) maxDim=4.50 rend=1
-    dSpawn=71.95 dExit=77.94 clamped=True clampR=0.05 touchGnd=True
-  #1643 Arbres/Tree_24_Winter biome=Prairie cell=(17,24)
-    pos=(102.59,0.00,143.34) scale=(1.34,1.34,1.34)
-    bounds size=(3.26,4.50,3.26) maxDim=4.50 rend=2
-    dSpawn=136.66 dExit=80.73 clamped=True clampR=0.05 touchGnd=True
-  #1486 Arbres/Tree_29_Spring biome=ForetAutomne cell=(16,8)
-    pos=(95.82,0.00,47.17) scale=(1.15,1.15,1.15)
-    bounds size=(3.61,4.50,2.79) maxDim=4.50 rend=2
-    dSpawn=64.15 dExit=62.34 clamped=True clampR=0.04 touchGnd=True
-  #1423 Arbres/Tree_32_Winter biome=Foret cell=(15,20)
-    pos=(91.43,0.00,118.92) scale=(1.18,1.18,1.18)
-    bounds size=(1.40,4.50,1.40) maxDim=4.50 rend=1
-    dSpawn=109.91 dExit=71.45 clamped=True clampR=0.04 touchGnd=True
-  #877 Arbres/Tree_30_Fall biome=ForetAutomne cell=(11,2)
-    pos=(65.46,0.00,11.40) scale=(0.90,0.90,0.90)
-    bounds size=(2.07,4.50,2.09) maxDim=4.50 rend=2
-    dSpawn=32.04 dExit=107.62 clamped=True clampR=0.03 touchGnd=True
-  #292 Arbres/Tree_27_Spring biome=ForetAutomne cell=(4,27)
-    pos=(25.23,0.00,161.45) scale=(0.80,0.80,0.80)
-    bounds size=(3.49,4.50,1.97) maxDim=4.50 rend=2
-    dSpawn=137.87 dExit=150.10 clamped=True clampR=0.03 touchGnd=True
-  #2624 Arbres/Tree_32_Fall biome=Prairie cell=(27,26)
-    pos=(161.90,0.00,156.32) scale=(1.19,1.19,1.19)
-    bounds size=(1.90,4.50,1.90) maxDim=4.50 rend=1
-    dSpawn=182.64 dExit=79.22 clamped=True clampR=0.04 touchGnd=True
-  #1320 Arbres/Tree_33_Winter biome=Foret cell=(14,22)
-    pos=(84.94,0.00,132.97) scale=(1.00,1.00,1.00)
-    bounds size=(2.11,4.50,2.11) maxDim=4.50 rend=1
-    dSpawn=119.46 dExit=85.17 clamped=True clampR=0.03 touchGnd=True
-  #2575 Arbres/Tree_13_Spring biome=Prairie cell=(27,12)
-    pos=(160.91,0.00,71.96) scale=(0.64,0.64,0.64)
-    bounds size=(4.48,2.02,4.50) maxDim=4.50 rend=2
-    dSpawn=133.80 dExit=12.47 clamped=True clampR=0.02 touchGnd=True
-  #214 Cactus/Cactus_24_B biome=Desert cell=(4,6)
-    pos=(24.77,0.00,35.06) scale=(2.86,2.86,2.86)
-    bounds size=(4.50,2.17,4.43) maxDim=4.50 rend=1
-    dSpawn=15.76 dExit=132.38 clamped=True clampR=0.12 touchGnd=True
-  #28 Arbres/Tree_12_Spring biome=ForetAutomne cell=(2,10)
-    pos=(11.35,0.00,60.93) scale=(0.95,0.95,0.95)
-    bounds size=(4.44,2.74,4.50) maxDim=4.50 rend=2
-    dSpawn=44.40 dExit=139.70 clamped=True clampR=0.03 touchGnd=True
-  #170 Arbres/Tree_19_Fall biome=ForetAutomne cell=(3,22)
-    pos=(17.88,0.00,131.18) scale=(0.98,0.98,0.98)
-    bounds size=(3.91,4.50,4.11) maxDim=4.50 rend=2
-    dSpawn=108.70 dExit=142.42 clamped=True clampR=0.03 touchGnd=True
-  #2436 Arbres/Tree_18_Winter biome=Foret cell=(25,27)
-    pos=(151.49,0.00,161.72) scale=(0.79,0.79,0.79)
-    bounds size=(3.20,4.50,3.82) maxDim=4.50 rend=2
-    dSpawn=179.74 dExit=83.74 clamped=True clampR=0.02 touchGnd=True
-  #16 Cactus/Cactus_35_B biome=Desert cell=(2,6)
-    pos=(10.83,0.00,36.75) scale=(1.99,1.99,1.99)
-    bounds size=(1.87,4.50,2.05) maxDim=4.50 rend=1
-    dSpawn=28.22 dExit=145.16 clamped=True clampR=0.08 touchGnd=True
-  #2406 Arbres/Tree_36_Fall biome=ForetAutomne cell=(25,19)
-    pos=(150.83,0.00,115.44) scale=(1.26,1.26,1.26)
-    bounds size=(2.74,4.50,2.74) maxDim=4.50 rend=1
-    dSpawn=146.79 dExit=37.45 clamped=True clampR=0.04 touchGnd=True
-  #2217 Arbres/Tree_36_Spring biome=Prairie cell=(23,25)
-    pos=(138.18,0.00,150.66) scale=(1.26,1.26,1.26)
-    bounds size=(2.75,4.50,2.75) maxDim=4.50 rend=1
-    dSpawn=162.74 dExit=73.62 clamped=True clampR=0.05 touchGnd=True
-  #158 Arbres/Tree_22_Spring biome=Prairie cell=(3,18)
-    pos=(17.20,0.00,107.58) scale=(0.57,0.57,0.57)
-    bounds size=(4.40,3.54,4.50) maxDim=4.50 rend=2
-    dSpawn=85.67 dExit=136.06 clamped=True clampR=0.02 touchGnd=True
-  #2398 Arbres/Tree_06_Winter biome=ForetAutomne cell=(25,17)
-    pos=(149.45,0.00,101.05) scale=(1.12,1.12,1.12)
-    bounds size=(4.50,3.97,4.12) maxDim=4.50 rend=2
-    dSpawn=137.14 dExit=23.06 clamped=True clampR=0.04 touchGnd=True
-  #2517 RochesTendres/SoftRock_05 biome=ForetAutomne cell=(26,21)
-    pos=(154.94,0.00,125.32) scale=(2.49,2.49,2.49)
-    bounds size=(3.00,2.43,2.77) maxDim=3.00 rend=1
-    dSpawn=156.24 dExit=47.57 clamped=True clampR=0.13 touchGnd=True
-  #1732 Buissons/Bush_14 biome=Prairie cell=(18,26)
-    pos=(106.55,0.00,156.70) scale=(1.23,1.23,1.23)
-    bounds size=(3.00,1.41,2.47) maxDim=3.00 rend=1
-    dSpawn=150.29 dExit=89.90 clamped=True clampR=0.05 touchGnd=True
-  #1051 Buissons/Bush_11 biome=Foret cell=(12,18)
-    pos=(72.69,0.64,107.05) scale=(3.65,3.65,3.65)
-    bounds size=(3.00,2.52,3.00) maxDim=3.00 rend=1
-    dSpawn=90.79 dExit=82.59 clamped=True clampR=0.14 touchGnd=False
-  #2412 RochesTendres/SoftRock_20 biome=ForetAutomne cell=(25,20)
-    pos=(151.43,0.00,119.56) scale=(2.15,2.15,2.15)
-    bounds size=(2.36,1.00,3.00) maxDim=3.00 rend=1
-    dSpawn=149.85 dExit=41.58 clamped=True clampR=0.11 touchGnd=True
-  #1537 RochesTendres/SoftRock_05 biome=Foret cell=(16,20)
-    pos=(96.72,0.00,121.01) scale=(2.28,2.28,2.28)
-    bounds size=(3.00,2.23,2.90) maxDim=3.00 rend=1
-    dSpawn=114.45 dExit=68.47 clamped=True clampR=0.12 touchGnd=True
-  #946 Feuillage/Foliage_06 biome=Foret cell=(11,19)
-    pos=(67.27,0.00,115.16) scale=(3.19,3.19,3.19)
-    bounds size=(3.00,0.02,2.94) maxDim=3.00 rend=1
-    dSpawn=96.38 dExit=90.70 clamped=True clampR=0.16 touchGnd=True
-  #1524 Buissons/Bush_11 biome=Foret cell=(16,18)
-    pos=(95.81,0.00,106.59) scale=(3.77,3.77,3.77)
-    bounds size=(3.00,2.61,3.00) maxDim=3.00 rend=1
-    dSpawn=101.97 dExit=61.27 clamped=True clampR=0.16 touchGnd=True
-  #1147 Buissons/Bush_08 biome=Prairie cell=(13,12)
-    pos=(78.58,1.36,70.58) scale=(1.80,1.80,1.80)
-    bounds size=(3.00,1.97,3.00) maxDim=3.00 rend=1
-    dSpawn=63.11 dExit=71.81 clamped=True clampR=0.08 touchGnd=False
-  #254 Buissons/Bush_02 biome=Prairie cell=(4,16)
-    pos=(25.23,0.00,94.68) scale=(1.95,1.95,1.95)
-    bounds size=(2.98,1.74,3.00) maxDim=3.00 rend=1
-    dSpawn=71.49 dExit=125.87 clamped=True clampR=0.08 touchGnd=True
-  #1238 RochesDures/HardRock_43 biome=Rocailleux cell=(14,5)
-    pos=(85.41,1.74,31.34) scale=(3.15,3.15,3.15)
-    bounds size=(3.00,2.58,2.99) maxDim=3.00 rend=1
-    dSpawn=49.95 dExit=79.68 clamped=True clampR=0.12 touchGnd=False
-  #339 RochesTendres/SoftRock_01 biome=ForetAutomne cell=(5,12)
-    pos=(30.51,0.00,72.93) scale=(2.75,2.75,2.75)
-    bounds size=(3.00,1.07,2.96) maxDim=3.00 rend=1
-    dSpawn=49.24 dExit=119.60 clamped=True clampR=0.14 touchGnd=True
-  #759 Buissons/Bush_03 biome=Prairie cell=(9,21)
-    pos=(53.33,0.00,127.42) scale=(1.42,1.42,1.42)
-    bounds size=(3.00,1.68,2.65) maxDim=3.00 rend=1
-    dSpawn=104.86 dExit=108.57 clamped=True clampR=0.06 touchGnd=True
-  #1614 Buissons/Bush_11 biome=Prairie cell=(17,16)
-    pos=(102.79,0.00,96.88) scale=(3.50,3.50,3.50)
-    bounds size=(3.00,2.42,3.00) maxDim=3.00 rend=1
-    dSpawn=98.86 dExit=50.84 clamped=True clampR=0.15 touchGnd=True
-  #1615 RochesTendres/SoftRock_15 biome=Prairie cell=(17,16)
-    pos=(102.25,0.00,94.72) scale=(2.79,2.79,2.79)
-    bounds size=(2.77,3.00,2.80) maxDim=3.00 rend=1
-    dSpawn=96.90 dExit=50.59 clamped=True clampR=0.15 touchGnd=True
-  #1421 Troncs/TreeTrunk_10 biome=Foret cell=(15,19)
-    pos=(89.63,0.00,115.18) scale=(0.87,0.87,0.87)
-    bounds size=(1.59,3.00,2.14) maxDim=3.00 rend=1
-    dSpawn=105.78 dExit=70.90 clamped=True clampR=0.04 touchGnd=True
-  #1534 Feuillage/Foliage_06 biome=Foret cell=(16,19)
-    pos=(96.23,0.00,112.56) scale=(2.97,2.97,2.97)
-    bounds size=(3.00,0.02,2.99) maxDim=3.00 rend=1
-    dSpawn=107.10 dExit=63.92 clamped=True clampR=0.14 touchGnd=True
-  #1418 Buissons/Bush_11 biome=Foret cell=(15,19)
-    pos=(91.37,0.00,113.48) scale=(3.34,3.34,3.34)
-    bounds size=(3.00,2.31,3.00) maxDim=3.00 rend=1
-    dSpawn=105.23 dExit=68.53 clamped=True clampR=0.15 touchGnd=True
-  #1401 RochesTendres/SoftRock_21 biome=Foret cell=(15,16)
-    pos=(88.66,0.00,96.13) scale=(2.27,2.27,2.27)
-    bounds size=(2.92,2.21,3.00) maxDim=3.00 rend=1
-    dSpawn=89.30 dExit=63.96 clamped=True clampR=0.12 touchGnd=True
-  #1647 Buissons/Bush_11 biome=Prairie cell=(17,25)
-    pos=(101.09,0.00,148.82) scale=(4.23,4.23,4.23)
-    bounds size=(3.00,2.92,3.00) maxDim=3.00 rend=1
-    dSpawn=140.77 dExit=86.06 clamped=True clampR=0.17 touchGnd=True
-  #2549 RochesDures/HardRock_14 biome=Rocailleux cell=(27,4)
-    pos=(163.30,0.00,25.16) scale=(3.59,3.59,3.59)
-    bounds size=(3.00,2.93,2.90) maxDim=3.00 rend=1
-    dSpawn=127.31 dExit=54.49 clamped=True clampR=0.16 touchGnd=True
-  #2591 Buissons/Bush_06 biome=Prairie cell=(27,17)
-    pos=(161.95,0.00,103.20) scale=(1.38,1.38,1.38)
-    bounds size=(1.78,3.00,1.78) maxDim=3.00 rend=1
-    dSpawn=148.78 dExit=27.89 clamped=True clampR=0.06 touchGnd=True
-  #1702 Buissons/Bush_07 biome=Prairie cell=(18,16)
-    pos=(108.76,0.00,94.65) scale=(1.99,1.99,1.99)
-    bounds size=(2.99,2.88,3.00) maxDim=3.00 rend=1
-    dSpawn=101.42 dExit=44.47 clamped=True clampR=0.07 touchGnd=True
-  #1711 Buissons/Bush_14 biome=Prairie cell=(18,19)
-    pos=(107.49,0.00,112.82) scale=(1.20,1.20,1.20)
-    bounds size=(2.62,1.37,3.00) maxDim=3.00 rend=1
-    dSpawn=114.02 dExit=54.95 clamped=True clampR=0.05 touchGnd=True
-  #1428 Feuillage/Foliage_07 biome=Foret cell=(15,20)
-    pos=(89.34,0.00,121.03) scale=(3.66,3.66,3.66)
-    bounds size=(2.88,0.01,3.00) maxDim=3.00 rend=1
-    dSpawn=110.72 dExit=74.37 clamped=True clampR=0.19 touchGnd=True
-  #1554 Buissons/Bush_07 biome=Prairie cell=(16,23)
-    pos=(96.01,0.00,136.97) scale=(2.07,2.07,2.07)
-    bounds size=(2.63,3.00,2.64) maxDim=3.00 rend=1
-    dSpawn=127.92 dExit=79.96 clamped=True clampR=0.09 touchGnd=True
-  #1829 Buissons/Bush_06 biome=ForetAutomne cell=(20,2)
-    pos=(121.41,0.00,11.22) scale=(1.38,1.38,1.38)
-    bounds size=(1.78,3.00,1.78) maxDim=3.00 rend=1
-    dSpawn=86.36 dExit=72.64 clamped=True clampR=0.05 touchGnd=True
-  #1723 Buissons/Bush_02 biome=Prairie cell=(18,23)
-    pos=(109.24,0.00,138.93) scale=(1.92,1.92,1.92)
-    bounds size=(2.70,1.72,3.00) maxDim=3.00 rend=1
-    dSpawn=136.28 dExit=73.31 clamped=True clampR=0.08 touchGnd=True
-  #2263 Buissons/Bush_06 biome=ForetAutomne cell=(24,10)
-    pos=(144.08,0.00,61.31) scale=(1.38,1.38,1.38)
-    bounds size=(1.63,3.00,1.63) maxDim=3.00 rend=1
-    dSpawn=114.34 dExit=17.71 clamped=True clampR=0.06 touchGnd=True
-  #2337 Buissons/Bush_09 biome=ForetAutomne cell=(25,2)
-    pos=(150.02,0.00,11.07) scale=(1.20,1.20,1.20)
-    bounds size=(2.79,1.51,3.00) maxDim=3.00 rend=1
-    dSpawn=114.75 dExit=66.93 clamped=True clampR=0.05 touchGnd=True
-  #2341 Buissons/Bush_12 biome=ForetAutomne cell=(25,3)
-    pos=(150.11,0.00,16.72) scale=(1.12,1.12,1.12)
-    bounds size=(2.88,1.59,3.00) maxDim=3.00 rend=1
-    dSpawn=114.34 dExit=61.28 clamped=True clampR=0.04 touchGnd=True
-  #2235 Buissons/Bush_04 biome=ForetAutomne cell=(24,4)
-    pos=(143.63,1.22,25.02) scale=(2.15,2.15,2.15)
-    bounds size=(3.00,1.83,2.98) maxDim=3.00 rend=1
-    dSpawn=107.64 dExit=53.36 clamped=True clampR=0.09 touchGnd=False
-  #2141 Buissons/Bush_06 biome=ForetAutomne cell=(23,4)
-    pos=(137.09,1.22,22.73) scale=(1.38,1.38,1.38)
-    bounds size=(1.32,3.00,1.32) maxDim=3.00 rend=1
-    dSpawn=101.10 dExit=56.76 clamped=True clampR=0.06 touchGnd=False
-  #2129 RochesTendres/SoftRock_09 biome=Prairie cell=(22,26)
-    pos=(133.06,0.00,157.49) scale=(2.37,2.37,2.37)
+  #2547 Arbres/Tree_11_Spring biome=ForetAutomne cell=(26,4)
+    pos=(155.21,0.00,23.60) scale=(1.31,1.31,1.31)
+    bounds size=(4.50,2.58,3.86) maxDim=4.50 rend=2
+    dSpawn=125.82 dExit=161.93 clamped=True clampR=0.05 touchGnd=True
+  #78 Arbres/Tree_07_Winter biome=ForetAutomne cell=(2,25)
+    pos=(11.43,0.00,149.51) scale=(1.02,1.02,1.02)
+    bounds size=(4.41,3.71,4.50) maxDim=4.50 rend=2
+    dSpawn=115.02 dExit=42.57 clamped=True clampR=0.03 touchGnd=True
+  #2006 Arbres/Tree_18_Fall biome=Foret cell=(20,14)
+    pos=(119.33,0.00,82.71) scale=(0.80,0.80,0.80)
+    bounds size=(4.09,4.36,4.50) maxDim=4.50 rend=2
+    dSpawn=100.81 dExit=93.79 clamped=True clampR=0.03 touchGnd=True
+  #777 Arbres/Tree_26_Spring biome=Foret cell=(9,17)
+    pos=(54.16,0.00,102.22) scale=(0.66,0.66,0.66)
+    bounds size=(4.50,3.88,4.47) maxDim=4.50 rend=2
+    dSpawn=70.49 dExit=47.78 clamped=True clampR=0.02 touchGnd=True
+  #717 Cactus/Cactus_26_B biome=Desert cell=(9,2)
+    pos=(55.41,0.00,11.22) scale=(2.67,2.67,2.67)
+    bounds size=(4.49,2.72,4.50) maxDim=4.50 rend=1
+    dSpawn=35.50 dExit=138.79 clamped=True clampR=0.11 touchGnd=True
+  #2302 Arbres/Tree_03_Fall biome=Prairie cell=(23,13)
+    pos=(136.95,0.00,77.11) scale=(0.96,0.96,0.96)
+    bounds size=(2.29,4.50,2.22) maxDim=4.50 rend=2
+    dSpawn=114.58 dExit=110.43 clamped=True clampR=0.03 touchGnd=True
+  #1344 Arbres/Tree_01_Spring biome=Foret cell=(14,17)
+    pos=(83.61,0.00,100.91) scale=(1.25,1.25,1.25)
+    bounds size=(4.45,4.50,4.45) maxDim=4.50 rend=2
+    dSpawn=84.19 dExit=57.33 clamped=True clampR=0.04 touchGnd=True
+  #2060 Arbres/Tree_17_Spring biome=Prairie cell=(20,27)
+    pos=(120.34,0.00,161.24) scale=(0.82,0.82,0.82)
+    bounds size=(3.56,4.50,3.37) maxDim=4.50 rend=2
+    dSpawn=154.42 dExit=67.28 clamped=True clampR=0.03 touchGnd=True
+  #1550 Arbres/Tree_17_Spring biome=Prairie cell=(16,13)
+    pos=(97.47,0.00,78.33) scale=(0.82,0.82,0.82)
+    bounds size=(3.35,4.50,3.55) maxDim=4.50 rend=2
+    dSpawn=79.65 dExit=83.82 clamped=True clampR=0.03 touchGnd=True
+  #1828 Arbres/Tree_28_Spring biome=Prairie cell=(18,22)
+    pos=(107.76,0.00,132.21) scale=(0.70,0.70,0.70)
+    bounds size=(3.23,4.50,3.09) maxDim=4.50 rend=2
+    dSpawn=123.70 dExit=56.63 clamped=True clampR=0.02 touchGnd=True
+  #1840 Arbres/Tree_31_Winter biome=Prairie cell=(18,26)
+    pos=(108.76,0.00,156.32) scale=(1.25,1.25,1.25)
+    bounds size=(3.10,4.50,3.10) maxDim=4.50 rend=1
+    dSpawn=143.81 dExit=55.13 clamped=True clampR=0.04 touchGnd=True
+  #2536 Arbres/Tree_21_Winter biome=Prairie cell=(25,27)
+    pos=(150.56,0.00,160.62) scale=(0.75,0.75,0.75)
+    bounds size=(2.12,4.50,2.10) maxDim=4.50 rend=2
+    dSpawn=173.39 dExit=97.14 clamped=True clampR=0.03 touchGnd=True
+  #2697 Arbres/Tree_15_Spring biome=ForetAutomne cell=(27,17)
+    pos=(160.58,0.00,100.65) scale=(0.79,0.79,0.79)
+    bounds size=(3.85,4.10,4.50) maxDim=4.50 rend=2
+    dSpawn=145.71 dExit=117.45 clamped=True clampR=0.02 touchGnd=True
+  #901 Arbres/Tree_34_Winter biome=Foret cell=(10,16)
+    pos=(61.16,0.00,95.56) scale=(1.71,1.71,1.71)
+    bounds size=(3.24,4.50,3.24) maxDim=4.50 rend=1
+    dSpawn=67.22 dExit=54.91 clamped=True clampR=0.06 touchGnd=True
+  #1058 Arbres/Tree_15_Fall biome=ForetAutomne cell=(11,26)
+    pos=(65.98,0.00,157.12) scale=(0.71,0.71,0.71)
+    bounds size=(4.50,3.70,4.20) maxDim=4.50 rend=2
+    dSpawn=126.35 dExit=13.93 clamped=True clampR=0.03 touchGnd=True
+  #1156 Arbres/Tree_22_Spring biome=Prairie cell=(12,24)
+    pos=(70.97,0.00,143.60) scale=(0.64,0.64,0.64)
+    bounds size=(4.20,3.98,4.50) maxDim=4.50 rend=2
+    dSpawn=115.13 dExit=18.13 clamped=True clampR=0.02 touchGnd=True
+  #1441 Arbres/Tree_15_Spring biome=Prairie cell=(15,14)
+    pos=(89.95,0.00,84.66) scale=(0.70,0.70,0.70)
+    bounds size=(4.41,3.65,4.50) maxDim=4.50 rend=2
+    dSpawn=77.21 dExit=74.58 clamped=True clampR=0.02 touchGnd=True
+  #1622 Arbres/Tree_02_Winter biome=ForetAutomne cell=(17,3)
+    pos=(102.27,0.00,18.97) scale=(1.22,1.22,1.22)
+    bounds size=(2.98,4.50,3.03) maxDim=4.50 rend=2
+    dSpawn=74.25 dExit=139.64 clamped=True clampR=0.04 touchGnd=True
+  #1653 Arbres/Tree_21_Winter biome=Prairie cell=(17,12)
+    pos=(103.41,0.00,71.09) scale=(0.75,0.75,0.75)
+    bounds size=(1.78,4.50,1.60) maxDim=4.50 rend=2
+    dSpawn=81.36 dExit=93.10 clamped=True clampR=0.03 touchGnd=True
+  #1876 Arbres/Tree_13_Fall biome=Prairie cell=(19,10)
+    pos=(112.61,0.00,59.94) scale=(0.65,0.65,0.65)
+    bounds size=(4.50,2.04,4.48) maxDim=4.50 rend=2
+    dSpawn=86.01 dExit=107.45 clamped=True clampR=0.02 touchGnd=True
+  #1885 Arbres/Tree_04_Winter biome=Foret cell=(19,12)
+    pos=(114.59,0.00,72.67) scale=(0.61,0.61,0.61)
+    bounds size=(2.05,4.50,2.04) maxDim=4.50 rend=2
+    dSpawn=92.19 dExit=98.24 clamped=True clampR=0.02 touchGnd=True
+  #1933 Arbres/Tree_27_Fall biome=Prairie cell=(19,20)
+    pos=(114.26,0.00,120.57) scale=(0.80,0.80,0.80)
+    bounds size=(3.65,4.50,2.69) maxDim=4.50 rend=2
+    dSpawn=119.38 dExit=67.06 clamped=True clampR=0.03 touchGnd=True
+  #721 Cactus/Cactus_15_A biome=Desert cell=(9,3)
+    pos=(53.14,0.00,18.16) scale=(3.57,3.57,3.57)
+    bounds size=(4.50,3.63,4.50) maxDim=4.50 rend=1
+    dSpawn=29.21 dExit=131.84 clamped=True clampR=0.15 touchGnd=True
+  #2045 Arbres/Tree_16_Fall biome=Prairie cell=(20,22)
+    pos=(120.64,0.00,131.50) scale=(1.25,1.25,1.25)
+    bounds size=(2.83,4.50,3.41) maxDim=4.50 rend=2
+    dSpawn=131.66 dExit=69.16 clamped=True clampR=0.04 touchGnd=True
+  #2083 Arbres/Tree_22_Fall biome=Prairie cell=(21,8)
+    pos=(125.12,0.00,49.43) scale=(0.57,0.57,0.57)
+    bounds size=(4.50,3.51,4.45) maxDim=4.50 rend=2
+    dSpawn=96.07 dExit=123.18 clamped=True clampR=0.02 touchGnd=True
+  #2176 Arbres/Tree_32_Winter biome=ForetAutomne cell=(22,6)
+    pos=(132.11,0.00,35.29) scale=(1.18,1.18,1.18)
+    bounds size=(1.64,4.50,1.64) maxDim=4.50 rend=1
+    dSpawn=102.12 dExit=138.78 clamped=True clampR=0.04 touchGnd=True
+  #2218 Arbres/Tree_03_Spring biome=Foret cell=(22,15)
+    pos=(132.51,0.00,90.24) scale=(0.96,0.96,0.96)
+    bounds size=(2.08,4.50,2.00) maxDim=4.50 rend=2
+    dSpawn=115.98 dExit=98.67 clamped=True clampR=0.03 touchGnd=True
+  #2321 Arbres/Tree_11_Spring biome=ForetAutomne cell=(23,19)
+    pos=(139.30,0.00,113.61) scale=(1.31,1.31,1.31)
+    bounds size=(4.50,2.58,3.86) maxDim=4.50 rend=2
+    dSpawn=134.05 dExit=92.73 clamped=True clampR=0.04 touchGnd=True
+  #2371 Arbres/Tree_05_Winter biome=ForetAutomne cell=(24,7)
+    pos=(144.04,0.00,42.75) scale=(0.75,0.75,0.75)
+    bounds size=(4.10,4.50,3.86) maxDim=4.50 rend=2
+    dSpawn=114.24 dExit=140.03 clamped=True clampR=0.02 touchGnd=True
+  #2460 Arbres/Tree_22_Winter biome=ForetAutomne cell=(25,6)
+    pos=(149.70,0.00,36.30) scale=(0.67,0.67,0.67)
+    bounds size=(4.50,4.19,4.15) maxDim=4.50 rend=2
+    dSpawn=119.70 dExit=148.61 clamped=True clampR=0.02 touchGnd=True
+  #2498 Arbres/Tree_25_Spring biome=ForetAutomne cell=(25,17)
+    pos=(150.39,0.00,100.63) scale=(1.86,1.86,1.86)
+    bounds size=(3.04,4.50,3.05) maxDim=4.50 rend=2
+    dSpawn=136.64 dExit=108.30 clamped=True clampR=0.06 touchGnd=True
+  #38 Arbres/Tree_12_Winter biome=ForetAutomne cell=(2,13)
+    pos=(12.05,0.00,79.48) scale=(1.02,1.02,1.02)
+    bounds size=(4.50,2.96,4.17) maxDim=4.50 rend=2
+    dSpawn=47.04 dExit=82.06 clamped=True clampR=0.03 touchGnd=True
+  #2731 Arbres/Tree_08_Winter biome=Prairie cell=(27,27)
+    pos=(161.55,0.00,160.70) scale=(0.99,0.99,0.99)
+    bounds size=(4.50,3.78,4.40) maxDim=4.50 rend=2
+    dSpawn=181.26 dExit=108.08 clamped=True clampR=0.03 touchGnd=True
+  #598 Cactus/Cactus_39_B biome=Desert cell=(8,2)
+    pos=(48.60,0.00,11.16) scale=(5.04,5.04,5.04)
+    bounds size=(4.50,3.83,4.46) maxDim=4.50 rend=1
+    dSpawn=31.03 dExit=138.94 clamped=True clampR=0.20 touchGnd=True
+  #71 Arbres/Tree_26_Winter biome=Prairie cell=(2,23)
+    pos=(12.73,0.00,137.77) scale=(0.70,0.70,0.70)
+    bounds size=(4.50,4.15,4.46) maxDim=4.50 rend=2
+    dSpawn=103.22 dExit=43.04 clamped=True clampR=0.02 touchGnd=True
+  #650 Arbres/Tree_09_Fall biome=Prairie cell=(8,16)
+    pos=(48.97,0.00,95.02) scale=(0.99,0.99,0.99)
+    bounds size=(4.24,3.76,4.50) maxDim=4.50 rend=2
+    dSpawn=61.99 dExit=55.21 clamped=True clampR=0.03 touchGnd=True
+  #313 Cactus/Cactus_11_A biome=Desert cell=(5,2)
+    pos=(31.22,0.00,12.91) scale=(2.13,2.13,2.13)
+    bounds size=(1.61,4.50,1.61) maxDim=4.50 rend=1
+    dSpawn=23.12 dExit=138.97 clamped=True clampR=0.09 touchGnd=True
+  #470 Arbres/Tree_29_Winter biome=ForetAutomne cell=(6,15)
+    pos=(35.41,0.00,88.93) scale=(1.14,1.14,1.14)
+    bounds size=(3.87,4.50,3.10) maxDim=4.50 rend=2
+    dSpawn=53.21 dExit=63.83 clamped=True clampR=0.04 touchGnd=True
+  #2491 Arbres/Tree_16_Winter biome=Prairie cell=(25,15)
+    pos=(150.14,0.00,91.46) scale=(1.21,1.21,1.21)
+    bounds size=(4.47,4.50,4.38) maxDim=4.50 rend=2
+    dSpawn=132.32 dExit=112.56 clamped=True clampR=0.04 touchGnd=True
+  #1668 Arbres/Tree_23_Winter biome=Foret cell=(17,15)
+    pos=(100.53,0.00,90.50) scale=(1.34,1.34,1.34)
+    bounds size=(2.68,4.50,2.84) maxDim=4.50 rend=2
+    dSpawn=89.14 dExit=75.53 clamped=True clampR=0.04 touchGnd=True
+  #2514 Arbres/Tree_08_Fall biome=ForetAutomne cell=(25,21)
+    pos=(150.59,0.00,125.77) scale=(0.93,0.93,0.93)
+    bounds size=(4.50,3.53,4.49) maxDim=4.50 rend=2
+    dSpawn=150.34 dExit=99.58 clamped=True clampR=0.03 touchGnd=True
+  #2046 Buissons/Bush_08 biome=Prairie cell=(20,22)
+    pos=(120.44,0.00,132.91) scale=(1.86,1.86,1.86)
+    bounds size=(3.00,2.04,3.00) maxDim=3.00 rend=1
+    dSpawn=132.56 dExit=68.61 clamped=True clampR=0.08 touchGnd=True
+  #348 Buissons/Bush_11 biome=ForetAutomne cell=(5,11)
+    pos=(28.51,1.36,67.37) scale=(4.14,4.14,4.14)
+    bounds size=(3.00,2.86,3.00) maxDim=3.00 rend=1
+    dSpawn=31.40 dExit=86.48 clamped=True clampR=0.16 touchGnd=False
+  #2031 Buissons/Bush_10 biome=Foret cell=(20,18)
+    pos=(121.37,0.00,108.02) scale=(1.23,1.23,1.23)
     bounds size=(3.00,1.47,2.96) maxDim=3.00 rend=1
-    dSpawn=165.04 dExit=81.27 clamped=True clampR=0.12 touchGnd=True
-  #2040 RochesTendres/SoftRock_19 biome=Prairie cell=(22,2)
-    pos=(131.06,0.00,12.65) scale=(2.14,2.14,2.14)
-    bounds size=(2.98,2.38,3.00) maxDim=3.00 rend=1
-    dSpawn=95.73 dExit=68.04 clamped=True clampR=0.11 touchGnd=True
-  #2013 Troncs/TreeTrunk_06 biome=ForetAutomne cell=(21,20)
-    pos=(126.87,0.00,120.36) scale=(1.27,1.27,1.27)
-    bounds size=(0.58,3.00,0.60) maxDim=3.00 rend=1
-    dSpawn=132.44 dExit=48.26 clamped=True clampR=0.06 touchGnd=True
-  #2004 RochesTendres/SoftRock_06 biome=ForetAutomne cell=(21,18)
-    pos=(126.53,0.00,106.96) scale=(2.59,2.59,2.59)
-    bounds size=(3.00,1.29,2.61) maxDim=3.00 rend=1
-    dSpawn=122.79 dExit=37.28 clamped=True clampR=0.12 touchGnd=True
-  #2494 Buissons/Bush_13 biome=Prairie cell=(26,15)
-    pos=(155.47,0.00,90.12) scale=(1.69,1.69,1.69)
-    bounds size=(3.00,2.45,3.00) maxDim=3.00 rend=1
-    dSpawn=136.55 dExit=13.30 clamped=True clampR=0.07 touchGnd=True
-  #1967 Buissons/Bush_06 biome=ForetAutomne cell=(21,10)
-    pos=(124.89,1.56,58.72) scale=(1.38,1.38,1.38)
-    bounds size=(1.34,3.00,1.34) maxDim=3.00 rend=1
-    dSpawn=95.43 dExit=31.66 clamped=True clampR=0.06 touchGnd=False
-  #1927 Buissons/Bush_05 biome=Prairie cell=(20,25)
-    pos=(119.32,0.00,150.24) scale=(1.71,1.71,1.71)
-    bounds size=(3.00,1.83,3.00) maxDim=3.00 rend=1
-    dSpawn=151.26 dExit=78.49 clamped=True clampR=0.07 touchGnd=True
-  #2423 Buissons/Bush_06 biome=ForetAutomne cell=(25,23)
-    pos=(150.74,0.00,136.73) scale=(1.38,1.38,1.38)
-    bounds size=(1.52,3.00,1.52) maxDim=3.00 rend=1
-    dSpawn=160.85 dExit=58.73 clamped=True clampR=0.06 touchGnd=True
-  #1924 Buissons/Bush_02 biome=Prairie cell=(20,24)
-    pos=(120.24,0.00,142.81) scale=(2.19,2.19,2.19)
-    bounds size=(2.15,1.96,3.00) maxDim=3.00 rend=1
-    dSpawn=145.65 dExit=71.32 clamped=True clampR=0.09 touchGnd=True
-  #1916 Buissons/Bush_03 biome=ForetAutomne cell=(20,22)
-    pos=(120.37,0.00,131.46) scale=(1.44,1.44,1.44)
-    bounds size=(3.00,1.70,2.53) maxDim=3.00 rend=1
-    dSpawn=136.62 dExit=61.13 clamped=True clampR=0.06 touchGnd=True
-  #1857 Buissons/Bush_14 biome=ForetAutomne cell=(20,8)
-    pos=(119.07,0.00,47.48) scale=(1.19,1.19,1.19)
-    bounds size=(3.00,1.37,2.73) maxDim=3.00 rend=1
-    dSpawn=86.32 dExit=43.45 clamped=True clampR=0.04 touchGnd=True
-  #1832 Buissons/Bush_09 biome=ForetAutomne cell=(20,3)
-    pos=(121.26,1.22,17.22) scale=(1.44,1.44,1.44)
-    bounds size=(3.00,1.80,2.14) maxDim=3.00 rend=1
-    dSpawn=85.53 dExit=67.23 clamped=True clampR=0.06 touchGnd=False
-  #2328 Buissons/Bush_02 biome=Prairie cell=(24,26)
-    pos=(143.93,0.00,156.56) scale=(1.98,1.98,1.98)
-    bounds size=(2.49,1.77,3.00) maxDim=3.00 rend=1
-    dSpawn=170.95 dExit=78.80 clamped=True clampR=0.08 touchGnd=True
-  #1820 Buissons/Bush_08 biome=Prairie cell=(19,25)
-    pos=(114.11,0.00,150.73) scale=(1.84,1.84,1.84)
-    bounds size=(3.00,2.02,3.00) maxDim=3.00 rend=1
-    dSpawn=148.87 dExit=81.10 clamped=True clampR=0.08 touchGnd=True
-  #2456 Buissons/Bush_15 biome=ForetAutomne cell=(26,6)
-    pos=(154.74,0.00,36.46) scale=(2.36,2.36,2.36)
-    bounds size=(3.00,1.84,3.00) maxDim=3.00 rend=1
-    dSpawn=119.39 dExit=41.81 clamped=True clampR=0.10 touchGnd=True
-  #1943 Buissons/Bush_14 biome=ForetAutomne cell=(21,4)
-    pos=(124.93,1.22,24.03) scale=(1.20,1.20,1.20)
-    bounds size=(3.00,1.38,2.62) maxDim=3.00 rend=1
-    dSpawn=88.93 dExit=59.51 clamped=True clampR=0.05 touchGnd=False
-  #2311 Troncs/TreeTrunk_47 biome=ForetAutomne cell=(24,21)
-    pos=(144.82,0.00,125.07) scale=(0.81,0.81,0.81)
-    bounds size=(2.28,3.00,2.33) maxDim=3.00 rend=1
-    dSpawn=148.52 dExit=47.36 clamped=True clampR=0.04 touchGnd=True
-  #4 RochesDures/HardRock_41 biome=Rocailleux cell=(2,3)
-    pos=(11.05,0.00,18.11) scale=(1.49,1.49,1.49)
-    bounds size=(2.97,1.40,3.00) maxDim=3.00 rend=1
-    dSpawn=25.64 dExit=151.31 clamped=True clampR=0.06 touchGnd=True
-  #786 Buissons/Bush_06 biome=ForetAutomne cell=(10,3)
-    pos=(59.58,0.00,17.94) scale=(1.38,1.38,1.38)
-    bounds size=(1.35,3.00,1.35) maxDim=3.00 rend=1
-    dSpawn=24.35 dExit=108.55 clamped=True clampR=0.06 touchGnd=True
-  #870 Buissons/Bush_09 biome=ForetAutomne cell=(10,26)
-    pos=(61.48,0.00,156.06) scale=(1.22,1.22,1.22)
-    bounds size=(2.64,1.53,3.00) maxDim=3.00 rend=1
-    dSpawn=134.49 dExit=118.02 clamped=True clampR=0.05 touchGnd=True
-  #827 Buissons/Bush_01 biome=ForetAutomne cell=(10,14)
-    pos=(60.63,0.00,84.91) scale=(1.86,1.86,1.86)
-    bounds size=(3.00,1.70,2.95) maxDim=3.00 rend=1
-    dSpawn=65.70 dExit=89.64 clamped=True clampR=0.07 touchGnd=True
-  #823 Buissons/Bush_13 biome=ForetAutomne cell=(10,13)
-    pos=(59.77,0.00,78.25) scale=(1.67,1.67,1.67)
+    dSpawn=116.34 dExit=79.38 clamped=True clampR=0.04 touchGnd=True
+  #2193 RochesTendres/SoftRock_27 biome=Prairie cell=(22,10)
+    pos=(131.88,0.00,60.49) scale=(2.16,2.16,2.16)
+    bounds size=(2.98,1.49,3.00) maxDim=3.00 rend=1
+    dSpawn=104.78 dExit=118.65 clamped=True clampR=0.11 touchGnd=True
+  #683 Buissons/Bush_04 biome=Foret cell=(8,21)
+    pos=(48.93,0.99,126.74) scale=(2.07,2.07,2.07)
+    bounds size=(3.00,1.76,2.98) maxDim=3.00 rend=1
+    dSpawn=92.69 dExit=23.81 clamped=True clampR=0.08 touchGnd=False
+  #377 Buissons/Bush_07 biome=Prairie cell=(5,18)
+    pos=(30.28,1.12,107.12) scale=(1.68,1.68,1.68)
+    bounds size=(3.00,2.44,3.00) maxDim=3.00 rend=1
+    dSpawn=71.12 dExit=49.00 clamped=True clampR=0.07 touchGnd=False
+  #1389 Troncs/TreeTrunk_13 biome=ForetAutomne cell=(14,26)
+    pos=(83.99,0.00,154.98) scale=(0.79,0.79,0.79)
+    bounds size=(0.54,3.00,0.55) maxDim=3.00 rend=1
+    dSpawn=130.65 dExit=30.40 clamped=True clampR=0.04 touchGnd=True
+  #1980 RochesTendres/SoftRock_02 biome=ForetAutomne cell=(20,8)
+    pos=(119.88,0.00,49.12) scale=(3.16,3.16,3.16)
+    bounds size=(1.73,3.00,2.25) maxDim=3.00 rend=1
+    dSpawn=90.83 dExit=120.48 clamped=True clampR=0.17 touchGnd=True
+  #1484 Troncs/TreeTrunk_42 biome=Foret cell=(15,22)
+    pos=(91.21,0.00,132.51) scale=(0.78,0.78,0.78)
+    bounds size=(0.84,3.00,0.95) maxDim=3.00 rend=1
+    dSpawn=114.28 dExit=41.12 clamped=True clampR=0.03 touchGnd=True
+  #1636 RochesDures/HardRock_51 biome=Rocailleux cell=(17,7)
+    pos=(102.09,0.00,43.45) scale=(3.07,3.07,3.07)
+    bounds size=(1.99,3.00,1.99) maxDim=3.00 rend=1
+    dSpawn=72.47 dExit=116.90 clamped=True clampR=0.12 touchGnd=True
+  #411 Troncs/TreeTrunk_32 biome=ForetAutomne cell=(5,25)
+    pos=(31.40,1.19,149.20) scale=(0.77,0.77,0.77)
+    bounds size=(1.35,3.00,1.33) maxDim=3.00 rend=1
+    dSpawn=113.21 dExit=22.62 clamped=True clampR=0.03 touchGnd=False
+  #1744 RochesDures/HardRock_13 biome=Rocailleux cell=(18,5)
+    pos=(106.64,0.00,29.97) scale=(2.31,2.31,2.31)
+    bounds size=(3.00,1.89,3.00) maxDim=3.00 rend=1
+    dSpawn=76.88 dExit=131.07 clamped=True clampR=0.09 touchGnd=True
+  #1547 RochesTendres/SoftRock_16 biome=ForetAutomne cell=(16,12)
+    pos=(94.92,0.76,73.41) scale=(2.23,2.23,2.23)
+    bounds size=(3.00,1.17,2.95) maxDim=3.00 rend=1
+    dSpawn=74.92 dExit=86.84 clamped=True clampR=0.12 touchGnd=False
+  #413 Buissons/Bush_02 biome=ForetAutomne cell=(5,26)
+    pos=(29.66,1.19,155.38) scale=(2.15,2.15,2.15)
+    bounds size=(2.20,1.92,3.00) maxDim=3.00 rend=1
+    dSpawn=119.38 dExit=24.93 clamped=True clampR=0.09 touchGnd=False
+  #1554 Buissons/Bush_10 biome=Foret cell=(16,14)
+    pos=(95.08,0.00,84.08) scale=(1.35,1.35,1.35)
+    bounds size=(3.00,1.62,2.87) maxDim=3.00 rend=1
+    dSpawn=80.92 dExit=77.67 clamped=True clampR=0.05 touchGnd=True
+  #1587 Feuillage/Foliage_08 biome=Marecage cell=(16,20)
+    pos=(95.23,0.73,120.59) scale=(4.34,4.34,4.34)
+    bounds size=(3.00,0.12,2.96) maxDim=3.00 rend=1
+    dSpawn=106.82 dExit=50.64 clamped=True clampR=0.24 touchGnd=False
+  #1735 Troncs/TreeTrunk_52 biome=ForetAutomne cell=(18,2)
+    pos=(108.75,0.00,13.49) scale=(0.92,0.92,0.92)
+    bounds size=(0.66,3.00,0.66) maxDim=3.00 rend=1
+    dSpawn=81.90 dExit=147.08 clamped=True clampR=0.04 touchGnd=True
+  #1729 Buissons/Bush_04 biome=ForetAutomne cell=(17,27)
+    pos=(101.61,0.00,160.90) scale=(2.41,2.41,2.41)
+    bounds size=(3.00,2.04,2.97) maxDim=3.00 rend=1
+    dSpawn=143.97 dExit=48.85 clamped=True clampR=0.09 touchGnd=True
+  #1697 Feuillage/Foliage_06 biome=Foret cell=(17,19)
+    pos=(100.55,0.00,114.25) scale=(2.98,2.98,2.98)
+    bounds size=(2.98,0.02,3.00) maxDim=3.00 rend=1
+    dSpawn=105.36 dExit=58.69 clamped=True clampR=0.14 touchGnd=True
+  #1691 Feuillage/Foliage_07 biome=Foret cell=(17,18)
+    pos=(102.63,0.00,107.36) scale=(2.95,2.95,2.95)
+    bounds size=(2.95,0.01,3.00) maxDim=3.00 rend=1
+    dSpawn=101.82 dExit=64.68 clamped=True clampR=0.16 touchGnd=True
+  #1596 Buissons/Bush_12 biome=Foret cell=(16,22)
+    pos=(95.02,0.00,132.57) scale=(1.24,1.24,1.24)
+    bounds size=(2.56,1.76,3.00) maxDim=3.00 rend=1
+    dSpawn=116.42 dExit=44.57 clamped=True clampR=0.05 touchGnd=True
+  #1667 Feuillage/Foliage_03 biome=Foret cell=(17,14)
+    pos=(102.60,0.00,83.51) scale=(2.30,2.30,2.30)
+    bounds size=(0.68,3.00,0.18) maxDim=3.00 rend=1
+    dSpawn=86.76 dExit=82.36 clamped=True clampR=0.11 touchGnd=True
+  #1663 Buissons/Bush_06 biome=Foret cell=(17,14)
+    pos=(100.82,0.00,82.63) scale=(1.38,1.38,1.38)
+    bounds size=(1.79,3.00,1.79) maxDim=3.00 rend=1
+    dSpawn=84.80 dExit=82.04 clamped=True clampR=0.05 touchGnd=True
+  #2473 Buissons/Bush_12 biome=ForetAutomne cell=(25,9)
+    pos=(151.03,0.00,53.85) scale=(1.18,1.18,1.18)
+    bounds size=(3.00,1.68,2.66) maxDim=3.00 rend=1
+    dSpawn=122.34 dExit=136.60 clamped=True clampR=0.05 touchGnd=True
+  #1605 Buissons/Bush_04 biome=Prairie cell=(16,24)
+    pos=(96.09,0.00,143.14) scale=(2.30,2.30,2.30)
+    bounds size=(3.00,1.95,2.97) maxDim=3.00 rend=1
+    dSpawn=125.88 dExit=42.64 clamped=True clampR=0.09 touchGnd=True
+  #1693 Buissons/Bush_06 biome=Foret cell=(17,19)
+    pos=(103.24,0.00,113.05) scale=(1.38,1.38,1.38)
+    bounds size=(1.37,3.00,1.37) maxDim=3.00 rend=1
+    dSpawn=106.31 dExit=61.56 clamped=True clampR=0.05 touchGnd=True
+  #1770 RochesTendres/SoftRock_20 biome=Foret cell=(18,12)
+    pos=(107.24,0.00,71.89) scale=(1.82,1.82,1.82)
+    bounds size=(3.00,0.85,2.87) maxDim=3.00 rend=1
+    dSpawn=85.17 dExit=94.53 clamped=True clampR=0.10 touchGnd=True
+  #1854 Troncs/TreeTrunk_21 biome=ForetAutomne cell=(19,3)
+    pos=(113.03,0.00,18.19) scale=(0.74,0.74,0.74)
+    bounds size=(1.56,3.00,1.52) maxDim=3.00 rend=1
+    dSpawn=84.92 dExit=144.42 clamped=True clampR=0.04 touchGnd=True
+  #1823 Buissons/Bush_14 biome=Foret cell=(18,21)
+    pos=(108.11,0.00,126.83) scale=(1.21,1.21,1.21)
+    bounds size=(3.00,1.39,2.53) maxDim=3.00 rend=1
+    dSpawn=119.80 dExit=58.86 clamped=True clampR=0.05 touchGnd=True
+  #2239 RochesTendres/SoftRock_05 biome=ForetAutomne cell=(22,20)
+    pos=(133.04,0.00,120.50) scale=(2.51,2.51,2.51)
+    bounds size=(3.00,2.44,2.76) maxDim=3.00 rend=1
+    dSpawn=133.25 dExit=84.36 clamped=True clampR=0.12 touchGnd=True
+  #171 Buissons/Bush_04 biome=Prairie cell=(3,21)
+    pos=(19.22,1.12,127.18) scale=(1.93,1.93,1.93)
+    bounds size=(3.00,1.64,2.99) maxDim=3.00 rend=1
+    dSpawn=91.81 dExit=41.60 clamped=True clampR=0.08 touchGnd=False
+  #2198 Troncs/TreeTrunk_17 biome=Foret cell=(22,11)
+    pos=(132.68,0.00,67.40) scale=(0.84,0.84,0.84)
+    bounds size=(0.63,3.00,0.74) maxDim=3.00 rend=1
+    dSpawn=107.37 dExit=114.07 clamped=True clampR=0.04 touchGnd=True
+  #2185 Buissons/Bush_04 biome=ForetAutomne cell=(22,8)
+    pos=(132.20,0.00,47.70) scale=(1.91,1.91,1.91)
+    bounds size=(3.00,1.62,2.99) maxDim=3.00 rend=1
+    dSpawn=102.87 dExit=128.77 clamped=True clampR=0.07 touchGnd=True
+  #2159 Buissons/Bush_10 biome=Prairie cell=(21,26)
+    pos=(126.31,0.00,155.57) scale=(1.48,1.48,1.48)
+    bounds size=(2.81,1.77,3.00) maxDim=3.00 rend=1
+    dSpawn=153.54 dExit=72.53 clamped=True clampR=0.06 touchGnd=True
+  #2150 RochesTendres/SoftRock_05 biome=ForetAutomne cell=(21,23)
+    pos=(125.93,0.00,136.79) scale=(2.96,2.96,2.96)
+    bounds size=(2.61,2.89,3.00) maxDim=3.00 rend=1
+    dSpawn=139.14 dExit=73.13 clamped=True clampR=0.15 touchGnd=True
+  #2129 Buissons/Bush_03 biome=Prairie cell=(21,17)
+    pos=(126.90,0.00,102.56) scale=(1.57,1.57,1.57)
+    bounds size=(2.19,1.85,3.00) maxDim=3.00 rend=1
+    dSpawn=117.56 dExit=86.97 clamped=True clampR=0.07 touchGnd=True
+  #2099 Buissons/Bush_06 biome=Foret cell=(21,12)
+    pos=(126.39,0.00,71.69) scale=(1.38,1.38,1.38)
+    bounds size=(1.45,3.00,1.45) maxDim=3.00 rend=1
+    dSpawn=102.78 dExit=106.64 clamped=True clampR=0.05 touchGnd=True
+  #182 Buissons/Bush_15 biome=ForetAutomne cell=(3,24)
+    pos=(17.02,1.19,143.40) scale=(2.52,2.52,2.52)
+    bounds size=(3.00,1.96,3.00) maxDim=3.00 rend=1
+    dSpawn=108.18 dExit=37.57 clamped=True clampR=0.10 touchGnd=False
+  #2408 Buissons/Bush_12 biome=ForetAutomne cell=(24,18)
+    pos=(143.34,0.00,107.88) scale=(1.12,1.12,1.12)
+    bounds size=(2.92,1.59,3.00) maxDim=3.00 rend=1
+    dSpawn=134.21 dExit=98.77 clamped=True clampR=0.05 touchGnd=True
+  #2425 RochesTendres/SoftRock_32 biome=ForetAutomne cell=(24,22)
+    pos=(142.65,0.00,131.85) scale=(2.52,2.52,2.52)
+    bounds size=(2.49,1.32,3.00) maxDim=3.00 rend=1
+    dSpawn=147.91 dExit=90.49 clamped=True clampR=0.12 touchGnd=True
+  #2037 Buissons/Bush_10 biome=Prairie cell=(20,19)
+    pos=(118.55,0.00,113.51) scale=(1.36,1.36,1.36)
+    bounds size=(2.87,1.62,3.00) maxDim=3.00 rend=1
+    dSpawn=117.68 dExit=74.15 clamped=True clampR=0.05 touchGnd=True
+  #1977 Troncs/TreeTrunk_34 biome=ForetAutomne cell=(20,7)
+    pos=(121.32,0.00,40.93) scale=(1.30,1.30,1.30)
+    bounds size=(1.00,3.00,1.50) maxDim=3.00 rend=1
+    dSpawn=91.45 dExit=128.17 clamped=True clampR=0.06 touchGnd=True
+  #1934 Buissons/Bush_12 biome=Prairie cell=(19,20)
+    pos=(114.55,0.00,119.02) scale=(1.19,1.19,1.19)
+    bounds size=(3.00,1.69,2.65) maxDim=3.00 rend=1
+    dSpawn=118.50 dExit=68.01 clamped=True clampR=0.05 touchGnd=True
+  #293 Buissons/Bush_04 biome=ForetAutomne cell=(4,24)
+    pos=(24.75,1.19,144.22) scale=(1.95,1.95,1.95)
+    bounds size=(2.99,1.66,3.00) maxDim=3.00 rend=1
+    dSpawn=108.35 dExit=29.82 clamped=True clampR=0.08 touchGnd=False
+  #1928 Buissons/Bush_14 biome=Foret cell=(19,19)
+    pos=(113.75,0.00,112.59) scale=(1.34,1.34,1.34)
+    bounds size=(3.00,1.54,2.16) maxDim=3.00 rend=1
+    dSpawn=113.49 dExit=70.50 clamped=True clampR=0.05 touchGnd=True
+  #1914 Feuillage/Foliage_09 biome=Foret cell=(19,16)
+    pos=(113.28,0.00,95.91) scale=(3.85,3.85,3.85)
+    bounds size=(2.98,0.83,3.00) maxDim=3.00 rend=1
+    dSpawn=102.60 dExit=80.25 clamped=True clampR=0.18 touchGnd=True
+  #1910 Buissons/Bush_13 biome=Foret cell=(19,16)
+    pos=(112.70,0.00,96.80) scale=(1.67,1.67,1.67)
     bounds size=(3.00,2.43,3.00) maxDim=3.00 rend=1
-    dSpawn=59.23 dExit=90.23 clamped=True clampR=0.07 touchGnd=True
-  #772 RochesTendres/SoftRock_21 biome=ForetAutomne cell=(9,25)
-    pos=(55.26,0.00,149.42) scale=(2.26,2.26,2.26)
-    bounds size=(3.00,2.20,2.96) maxDim=3.00 rend=1
-    dSpawn=126.89 dExit=118.64 clamped=True clampR=0.13 touchGnd=True
-  #670 Buissons/Bush_08 biome=Prairie cell=(8,22)
-    pos=(48.47,0.00,130.91) scale=(1.87,1.87,1.87)
-    bounds size=(2.99,2.06,3.00) maxDim=3.00 rend=1
-    dSpawn=107.63 dExit=114.49 clamped=True clampR=0.08 touchGnd=True
-  #652 Buissons/Bush_05 biome=ForetAutomne cell=(8,17)
-    pos=(46.82,1.04,102.69) scale=(1.66,1.66,1.66)
+    dSpawn=102.64 dExit=79.22 clamped=True clampR=0.07 touchGnd=True
+  #1905 RochesTendres/SoftRock_05 biome=Foret cell=(19,15)
+    pos=(114.26,0.00,90.97) scale=(2.45,2.45,2.45)
+    bounds size=(2.79,2.39,3.00) maxDim=3.00 rend=1
+    dSpawn=100.60 dExit=84.36 clamped=True clampR=0.11 touchGnd=True
+  #1904 Buissons/Bush_14 biome=Foret cell=(19,15)
+    pos=(115.43,0.00,89.07) scale=(1.19,1.19,1.19)
+    bounds size=(3.00,1.37,2.71) maxDim=3.00 rend=1
+    dSpawn=100.58 dExit=86.52 clamped=True clampR=0.04 touchGnd=True
+  #89 RochesDures/HardRock_57 biome=Rocailleux cell=(3,2)
+    pos=(16.58,0.00,10.78) scale=(1.15,1.15,1.15)
+    bounds size=(2.83,1.45,3.00) maxDim=3.00 rend=1
+    dSpawn=28.57 dExit=144.16 clamped=True clampR=0.05 touchGnd=True
+  #1877 Buissons/Bush_13 biome=Prairie cell=(19,10)
+    pos=(113.66,0.00,59.79) scale=(1.68,1.68,1.68)
+    bounds size=(3.00,2.44,3.00) maxDim=3.00 rend=1
+    dSpawn=86.98 dExit=108.15 clamped=True clampR=0.07 touchGnd=True
+  #1839 RochesTendres/SoftRock_21 biome=Prairie cell=(18,25)
+    pos=(107.91,0.00,150.16) scale=(2.33,2.33,2.33)
+    bounds size=(2.86,2.27,3.00) maxDim=3.00 rend=1
+    dSpawn=138.22 dExit=53.91 clamped=True clampR=0.12 touchGnd=True
+  #1805 Buissons/Bush_02 biome=Foret cell=(18,18)
+    pos=(109.05,0.00,108.06) scale=(2.23,2.23,2.23)
+    bounds size=(2.10,1.99,3.00) maxDim=3.00 rend=1
+    dSpawn=106.96 dExit=69.21 clamped=True clampR=0.10 touchGnd=True
+  #1466 RochesTendres/SoftRock_25 biome=Marecage cell=(15,19)
+    pos=(90.90,0.73,114.63) scale=(2.37,2.37,2.37)
+    bounds size=(3.00,1.47,2.98) maxDim=3.00 rend=1
+    dSpawn=99.45 dExit=51.11 clamped=True clampR=0.11 touchGnd=False
+  #1521 RochesTendres/SoftRock_20 biome=Rocailleux cell=(16,6)
+    pos=(94.64,0.80,35.39) scale=(1.92,1.92,1.92)
+    bounds size=(3.00,0.89,2.60) maxDim=3.00 rend=1
+    dSpawn=64.64 dExit=121.60 clamped=True clampR=0.10 touchGnd=False
+  #1038 Buissons/Bush_09 biome=Foret cell=(11,21)
+    pos=(67.46,0.00,125.55) scale=(1.20,1.20,1.20)
+    bounds size=(2.78,1.51,3.00) maxDim=3.00 rend=1
+    dSpawn=97.07 dExit=27.91 clamped=True clampR=0.05 touchGnd=True
+  #583 Buissons/Bush_04 biome=ForetAutomne cell=(7,24)
+    pos=(43.20,0.00,143.19) scale=(2.48,2.48,2.48)
+    bounds size=(3.00,2.11,2.97) maxDim=3.00 rend=1
+    dSpawn=108.00 dExit=12.76 clamped=True clampR=0.10 touchGnd=True
+  #1051 RochesTendres/SoftRock_04 biome=Prairie cell=(11,23)
+    pos=(65.36,0.00,139.36) scale=(2.05,2.05,2.05)
+    bounds size=(3.00,0.95,2.45) maxDim=3.00 rend=1
+    dSpawn=109.24 dExit=15.57 clamped=True clampR=0.11 touchGnd=True
+  #127 Buissons/Bush_08 biome=ForetAutomne cell=(3,11)
+    pos=(18.32,1.36,66.67) scale=(1.87,1.87,1.87)
+    bounds size=(2.99,2.05,3.00) maxDim=3.00 rend=1
+    dSpawn=32.82 dExit=90.64 clamped=True clampR=0.08 touchGnd=False
+  #69 Buissons/Bush_10 biome=Prairie cell=(2,22)
+    pos=(10.89,0.00,132.25) scale=(1.26,1.26,1.26)
+    bounds size=(2.92,1.51,3.00) maxDim=3.00 rend=1
+    dSpawn=98.13 dExit=46.62 clamped=True clampR=0.05 touchGnd=True
+  #1014 RochesTendres/SoftRock_28 biome=Foret cell=(11,15)
+    pos=(66.27,0.00,88.81) scale=(2.55,2.55,2.55)
+    bounds size=(3.00,2.07,2.80) maxDim=3.00 rend=1
+    dSpawn=64.06 dExit=62.41 clamped=True clampR=0.13 touchGnd=True
+  #982 Epines/Thorns_12 biome=Desert cell=(11,5)
+    pos=(64.86,0.00,29.41) scale=(3.70,3.70,3.70)
+    bounds size=(2.26,2.25,3.00) maxDim=3.00 rend=1
+    dSpawn=35.48 dExit=121.08 clamped=True clampR=0.17 touchGnd=True
+  #976 RochesDures/HardRock_08 biome=Rocailleux cell=(11,4)
+    pos=(66.21,0.00,23.78) scale=(1.96,1.96,1.96)
+    bounds size=(2.28,2.48,3.00) maxDim=3.00 rend=1
+    dSpawn=38.21 dExit=126.81 clamped=True clampR=0.07 touchGnd=True
+  #67 RochesTendres/SoftRock_25 biome=Prairie cell=(2,21)
+    pos=(11.07,0.00,125.24) scale=(2.80,2.80,2.80)
+    bounds size=(3.00,1.73,2.58) maxDim=3.00 rend=1
+    dSpawn=91.22 dExit=49.56 clamped=True clampR=0.13 touchGnd=True
+  #913 Buissons/Bush_05 biome=Foret cell=(10,18)
+    pos=(58.75,0.99,107.17) scale=(1.80,1.80,1.80)
+    bounds size=(3.00,1.93,3.00) maxDim=3.00 rend=1
+    dSpawn=76.76 dExit=43.09 clamped=True clampR=0.07 touchGnd=False
+  #900 Feuillage/Foliage_05 biome=Foret cell=(10,15)
+    pos=(60.48,0.00,91.32) scale=(6.31,6.31,6.31)
+    bounds size=(3.00,0.03,2.97) maxDim=3.00 rend=1
+    dSpawn=63.15 dExit=59.04 clamped=True clampR=0.32 touchGnd=True
+  #1074 RochesTendres/SoftRock_21 biome=Rocailleux cell=(12,4)
+    pos=(72.08,0.80,25.10) scale=(2.32,2.32,2.32)
+    bounds size=(2.86,2.27,3.00) maxDim=3.00 rend=1
+    dSpawn=43.47 dExit=126.21 clamped=True clampR=0.12 touchGnd=False
+  #875 Buissons/Bush_14 biome=ForetAutomne cell=(10,11)
+    pos=(61.22,1.14,67.30) scale=(1.28,1.28,1.28)
+    bounds size=(2.31,1.47,3.00) maxDim=3.00 rend=1
+    dSpawn=44.21 dExit=83.02 clamped=True clampR=0.05 touchGnd=False
+  #2658 Buissons/Bush_05 biome=ForetAutomne cell=(27,7)
+    pos=(162.06,0.00,40.80) scale=(1.66,1.66,1.66)
     bounds size=(3.00,1.78,3.00) maxDim=3.00 rend=1
-    dSpawn=79.43 dExit=106.09 clamped=True clampR=0.07 touchGnd=False
-  #77 Buissons/Bush_02 biome=ForetAutomne cell=(2,22)
-    pos=(10.78,0.00,132.65) scale=(2.04,2.04,2.04)
-    bounds size=(2.37,1.82,3.00) maxDim=3.00 rend=1
-    dSpawn=111.54 dExit=149.56 clamped=True clampR=0.09 touchGnd=True
-  #147 Buissons/Bush_11 biome=Prairie cell=(3,14)
-    pos=(17.32,0.00,83.07) scale=(3.83,3.83,3.83)
-    bounds size=(3.00,2.64,3.00) maxDim=3.00 rend=1
-    dSpawn=61.95 dExit=132.78 clamped=True clampR=0.17 touchGnd=True
-  #156 Buissons/Bush_02 biome=Prairie cell=(3,17)
-    pos=(17.43,0.00,103.47) scale=(1.93,1.93,1.93)
-    bounds size=(2.94,1.73,3.00) maxDim=3.00 rend=1
-    dSpawn=81.61 dExit=135.00 clamped=True clampR=0.08 touchGnd=True
-  #171 Buissons/Bush_07 biome=ForetAutomne cell=(3,22)
-    pos=(16.75,0.00,130.52) scale=(1.87,1.87,1.87)
-    bounds size=(2.99,2.71,3.00) maxDim=3.00 rend=1
-    dSpawn=108.24 dExit=143.22 clamped=True clampR=0.07 touchGnd=True
-  #179 Buissons/Bush_13 biome=ForetAutomne cell=(3,24)
-    pos=(16.66,0.00,143.54) scale=(1.99,1.99,1.99)
-    bounds size=(3.00,2.90,3.00) maxDim=3.00 rend=1
-    dSpawn=121.10 dExit=148.58 clamped=True clampR=0.08 touchGnd=True
-  #497 Buissons/Bush_09 biome=ForetAutomne cell=(6,26)
-    pos=(36.00,0.50,155.17) scale=(1.25,1.25,1.25)
-    bounds size=(2.53,1.56,3.00) maxDim=3.00 rend=1
-    dSpawn=131.17 dExit=137.67 clamped=True clampR=0.05 touchGnd=True
-  #183 Buissons/Bush_04 biome=ForetAutomne cell=(3,25)
-    pos=(17.87,0.00,149.45) scale=(1.89,1.89,1.89)
+    dSpawn=132.15 dExit=153.63 clamped=True clampR=0.07 touchGnd=True
+  #2690 Buissons/Bush_10 biome=ForetAutomne cell=(27,15)
+    pos=(162.37,0.00,89.43) scale=(1.38,1.38,1.38)
+    bounds size=(3.00,1.64,2.86) maxDim=3.00 rend=1
+    dSpawn=142.75 dExit=124.15 clamped=True clampR=0.06 touchGnd=True
+  #39 Buissons/Bush_14 biome=ForetAutomne cell=(2,13)
+    pos=(10.73,0.00,77.86) scale=(1.19,1.19,1.19)
+    bounds size=(3.00,1.37,2.65) maxDim=3.00 rend=1
+    dSpawn=46.08 dExit=84.12 clamped=True clampR=0.05 touchGnd=True
+  #776 Feuillage/Foliage_03 biome=Foret cell=(9,16)
+    pos=(54.11,0.00,96.91) scale=(2.30,2.30,2.30)
+    bounds size=(0.60,3.00,0.54) maxDim=3.00 rend=1
+    dSpawn=65.51 dExit=53.09 clamped=True clampR=0.11 touchGnd=True
+  #2714 Buissons/Bush_15 biome=ForetAutomne cell=(27,22)
+    pos=(161.96,0.00,132.06) scale=(2.66,2.66,2.66)
+    bounds size=(3.00,2.06,3.00) maxDim=3.00 rend=1
+    dSpawn=163.22 dExit=109.44 clamped=True clampR=0.11 touchGnd=True
+  #733 RochesTendres/SoftRock_18 biome=Desert cell=(9,7)
+    pos=(53.59,0.00,41.89) scale=(3.16,3.16,3.16)
+    bounds size=(2.16,3.00,2.48) maxDim=3.00 rend=1
+    dSpawn=24.31 dExit=108.11 clamped=True clampR=0.15 touchGnd=True
+  #722 Epines/Thorns_11 biome=Desert cell=(9,3)
+    pos=(53.52,0.00,17.95) scale=(4.32,4.32,4.32)
+    bounds size=(1.99,3.00,2.33) maxDim=3.00 rend=1
+    dSpawn=29.65 dExit=132.05 clamped=True clampR=0.21 touchGnd=True
+  #718 Epines/Thorns_01 biome=Desert cell=(9,2)
+    pos=(52.52,0.00,12.13) scale=(2.18,2.18,2.18)
+    bounds size=(2.70,1.61,3.00) maxDim=3.00 rend=1
+    dSpawn=32.81 dExit=137.87 clamped=True clampR=0.12 touchGnd=True
+  #2722 Buissons/Bush_15 biome=ForetAutomne cell=(27,24)
+    pos=(160.54,0.00,142.60) scale=(2.93,2.93,2.93)
+    bounds size=(3.00,2.28,3.00) maxDim=3.00 rend=1
+    dSpawn=168.54 dExit=106.80 clamped=True clampR=0.12 touchGnd=True
+  #689 Feuillage/Foliage_08 biome=Foret cell=(8,21)
+    pos=(48.96,0.99,126.35) scale=(4.91,4.91,4.91)
+    bounds size=(2.94,0.13,3.00) maxDim=3.00 rend=1
+    dSpawn=92.32 dExit=24.18 clamped=True clampR=0.27 touchGnd=False
+  #837 Buissons/Bush_04 biome=ForetAutomne cell=(9,27)
+    pos=(54.10,0.00,162.38) scale=(2.11,2.11,2.11)
+    bounds size=(2.98,1.79,3.00) maxDim=3.00 rend=1
+    dSpawn=128.66 dExit=12.38 clamped=True clampR=0.09 touchGnd=True
+  #1089 RochesTendres/SoftRock_09 biome=Desert cell=(12,7)
+    pos=(70.57,0.00,42.95) scale=(2.72,2.72,2.72)
+    bounds size=(2.62,1.68,3.00) maxDim=3.00 rend=1
+    dSpawn=41.16 dExit=108.32 clamped=True clampR=0.12 touchGnd=True
+  #2330 Buissons/Bush_04 biome=ForetAutomne cell=(23,21)
+    pos=(138.30,0.00,125.75) scale=(1.90,1.90,1.90)
     bounds size=(3.00,1.61,3.00) maxDim=3.00 rend=1
-    dSpawn=126.75 dExit=150.21 clamped=True clampR=0.08 touchGnd=True
-  #187 Buissons/Bush_07 biome=ForetAutomne cell=(3,26)
-    pos=(17.02,0.00,155.06) scale=(1.81,1.81,1.81)
-    bounds size=(3.00,2.63,2.99) maxDim=3.00 rend=1
-    dSpawn=132.43 dExit=153.70 clamped=True clampR=0.08 touchGnd=True
-  #191 Buissons/Bush_11 biome=ForetAutomne cell=(3,27)
-    pos=(18.59,0.00,163.28) scale=(3.78,3.78,3.78)
-    bounds size=(3.00,2.61,3.00) maxDim=3.00 rend=1
-    dSpawn=140.36 dExit=156.66 clamped=True clampR=0.15 touchGnd=True
-  #347 RochesTendres/SoftRock_20 biome=ForetAutomne cell=(5,14)
-    pos=(28.91,0.00,83.13) scale=(1.88,1.88,1.88)
-    bounds size=(3.00,0.88,2.66) maxDim=3.00 rend=1
-    dSpawn=59.56 dExit=121.20 clamped=True clampR=0.10 touchGnd=True
-  #273 Buissons/Bush_03 biome=ForetAutomne cell=(4,22)
-    pos=(22.59,0.00,133.24) scale=(1.43,1.43,1.43)
-    bounds size=(2.94,1.69,3.00) maxDim=3.00 rend=1
-    dSpawn=110.06 dExit=138.87 clamped=True clampR=0.06 touchGnd=True
-  #263 Buissons/Bush_15 biome=Prairie cell=(4,19)
-    pos=(22.65,0.00,113.82) scale=(2.82,2.82,2.82)
-    bounds size=(3.00,2.19,3.00) maxDim=3.00 rend=1
-    dSpawn=90.81 dExit=132.29 clamped=True clampR=0.11 touchGnd=True
-  #231 RochesTendres/SoftRock_23 biome=Rocailleux cell=(4,10)
-    pos=(25.11,1.79,59.90) scale=(2.18,2.18,2.18)
-    bounds size=(2.87,0.92,3.00) maxDim=3.00 rend=1
-    dSpawn=37.51 dExit=126.19 clamped=True clampR=0.11 touchGnd=False
-  #878 Buissons/Bush_11 biome=ForetAutomne cell=(11,2)
-    pos=(65.94,0.00,10.83) scale=(4.20,4.20,4.20)
-    bounds size=(3.00,2.90,3.00) maxDim=3.00 rend=1
-    dSpawn=32.71 dExit=107.60 clamped=True clampR=0.15 touchGnd=True
-  #898 Buissons/Bush_05 biome=ForetAutomne cell=(11,7)
-    pos=(66.93,0.00,42.26) scale=(1.68,1.68,1.68)
-    bounds size=(3.00,1.80,3.00) maxDim=3.00 rend=1
-    dSpawn=35.92 dExit=90.43 clamped=True clampR=0.07 touchGnd=True
-  #195 RochesTendres/SoftRock_05 biome=Rocailleux cell=(4,2)
-    pos=(25.48,0.00,12.26) scale=(2.64,2.64,2.64)
-    bounds size=(3.00,2.58,2.71) maxDim=3.00 rend=1
-    dSpawn=15.76 dExit=140.81 clamped=True clampR=0.12 touchGnd=True
-  #37 Buissons/Bush_09 biome=ForetAutomne cell=(2,12)
-    pos=(12.64,0.00,71.93) scale=(1.21,1.21,1.21)
-    bounds size=(2.90,1.51,3.00) maxDim=3.00 rend=1
-    dSpawn=53.32 dExit=137.50 clamped=True clampR=0.05 touchGnd=True
-  #1091 Buissons/Bush_05 biome=Prairie cell=(12,24)
-    pos=(72.40,0.00,142.56) scale=(1.73,1.73,1.73)
-    bounds size=(3.00,1.86,3.00) maxDim=3.00 rend=1
-    dSpawn=124.02 dExit=100.94 clamped=True clampR=0.07 touchGnd=True
-  #1073 Feuillage/Foliage_10 biome=Foret cell=(12,20)
-    pos=(71.24,0.64,121.43) scale=(5.01,5.01,5.01)
-    bounds size=(3.00,1.09,2.93) maxDim=3.00 rend=1
-    dSpawn=103.61 dExit=89.94 clamped=True clampR=0.26 touchGnd=False
-  #1196 Buissons/Bush_14 biome=Foret cell=(13,21)
-    pos=(76.80,0.00,127.09) scale=(1.19,1.19,1.19)
-    bounds size=(2.70,1.37,3.00) maxDim=3.00 rend=1
-    dSpawn=110.87 dExit=88.14 clamped=True clampR=0.04 touchGnd=True
-  #1035 RochesTendres/SoftRock_29 biome=Prairie cell=(12,13)
-    pos=(73.39,1.36,76.89) scale=(2.13,2.13,2.13)
-    bounds size=(2.98,1.27,3.00) maxDim=3.00 rend=1
-    dSpawn=64.77 dExit=76.62 clamped=True clampR=0.11 touchGnd=False
-  #1032 Buissons/Bush_11 biome=Prairie cell=(12,13)
-    pos=(72.91,1.36,77.16) scale=(3.93,3.93,3.93)
-    bounds size=(3.00,2.71,3.00) maxDim=3.00 rend=1
-    dSpawn=64.72 dExit=77.09 clamped=True clampR=0.14 touchGnd=False
-  #1138 Buissons/Bush_06 biome=ForetAutomne cell=(13,9)
-    pos=(77.39,0.00,53.68) scale=(1.38,1.38,1.38)
-    bounds size=(1.77,3.00,1.77) maxDim=3.00 rend=1
-    dSpawn=50.93 dExit=76.57 clamped=True clampR=0.06 touchGnd=True
-  #1027 Buissons/Bush_15 biome=Prairie cell=(12,12)
-    pos=(72.82,1.36,71.51) scale=(2.60,2.60,2.60)
+    dSpawn=140.66 dExit=87.72 clamped=True clampR=0.07 touchGnd=True
+  #1120 Buissons/Bush_05 biome=Foret cell=(12,16)
+    pos=(71.00,0.00,97.21) scale=(1.89,1.89,1.89)
     bounds size=(3.00,2.03,3.00) maxDim=3.00 rend=1
-    dSpawn=60.11 dExit=77.45 clamped=True clampR=0.10 touchGnd=False
-  #17 Epines/Thorns_03 biome=Desert cell=(2,6)
-    pos=(13.00,0.00,36.40) scale=(3.21,3.21,3.21)
-    bounds size=(0.60,3.00,1.14) maxDim=3.00 rend=1
-    dSpawn=26.13 dExit=143.18 clamped=True clampR=0.15 touchGnd=True
-  #1139 RochesTendres/SoftRock_31 biome=ForetAutomne cell=(13,9)
-    pos=(78.89,0.00,52.76) scale=(2.79,2.79,2.79)
-    bounds size=(2.81,3.00,2.80) maxDim=3.00 rend=1
-    dSpawn=51.64 dExit=75.45 clamped=True clampR=0.13 touchGnd=True
-  #1013 RochesTendres/SoftRock_24 biome=ForetAutomne cell=(12,8)
-    pos=(71.09,0.00,47.33) scale=(2.72,2.72,2.72)
-    bounds size=(3.00,1.75,2.31) maxDim=3.00 rend=1
-    dSpawn=42.14 dExit=84.66 clamped=True clampR=0.14 touchGnd=True
-  #1006 RochesDures/HardRock_09 biome=Rocailleux cell=(12,7)
-    pos=(72.80,1.74,42.14) scale=(2.19,2.19,2.19)
-    bounds size=(2.95,2.92,3.00) maxDim=3.00 rend=1
-    dSpawn=41.03 dExit=85.12 clamped=True clampR=0.08 touchGnd=False
-  #2615 RochesTendres/SoftRock_31 biome=ForetAutomne cell=(27,23)
-    pos=(162.46,0.00,138.26) scale=(2.79,2.79,2.79)
-    bounds size=(2.65,3.00,2.58) maxDim=3.00 rend=1
-    dSpawn=170.44 dExit=61.54 clamped=True clampR=0.14 touchGnd=True
-  #1171 Buissons/Bush_05 biome=Foret cell=(13,18)
-    pos=(77.49,0.64,107.49) scale=(1.72,1.72,1.72)
-    bounds size=(3.00,1.84,3.00) maxDim=3.00 rend=1
-    dSpawn=93.23 dExit=78.28 clamped=True clampR=0.07 touchGnd=False
-  #1672 Buissons/Bush_13 biome=ForetAutomne cell=(18,7)
-    pos=(108.85,0.00,40.68) scale=(2.06,2.06,2.06)
-    bounds size=(2.82,3.00,2.82) maxDim=3.00 rend=1
-    dSpawn=74.73 dExit=55.56 clamped=True clampR=0.08 touchGnd=True
-  #967 RochesTendres/SoftRock_18 biome=Prairie cell=(11,23)
-    pos=(66.50,0.00,136.61) scale=(3.16,3.16,3.16)
-    bounds size=(2.06,3.00,2.43) maxDim=3.00 rend=1
-    dSpawn=116.67 dExit=102.02 clamped=True clampR=0.17 touchGnd=True
-  #225 RochesDures/HardRock_37 biome=Rocailleux cell=(4,9)
-    pos=(23.88,1.79,52.86) scale=(3.00,3.00,3.00)
-    bounds size=(2.41,3.00,2.43) maxDim=3.00 rend=1
-    dSpawn=31.31 dExit=128.60 clamped=True clampR=0.13 touchGnd=False
-  #2041 Buissons/Bush_11 biome=ForetAutomne cell=(22,3)
-    pos=(131.57,1.22,17.22) scale=(3.34,3.34,3.34)
-    bounds size=(3.00,2.31,3.00) maxDim=3.00 rend=1
-    dSpawn=95.81 dExit=63.51 clamped=True clampR=0.12 touchGnd=False
-  #342 Buissons/Bush_14 biome=ForetAutomne cell=(5,13)
-    pos=(30.56,0.00,78.17) scale=(1.20,1.20,1.20)
-    bounds size=(3.00,1.38,2.92) maxDim=3.00 rend=1
-    dSpawn=54.45 dExit=119.44 clamped=True clampR=0.05 touchGnd=True
-  #293 Buissons/Bush_08 biome=ForetAutomne cell=(4,27)
-    pos=(25.45,0.00,163.43) scale=(2.23,2.23,2.23)
-    bounds size=(3.00,2.45,2.99) maxDim=3.00 rend=1
-    dSpawn=139.83 dExit=151.03 clamped=True clampR=0.10 touchGnd=True
-  #907 RochesTendres/SoftRock_26 biome=ForetAutomne cell=(11,9)
-    pos=(65.24,0.00,52.83) scale=(2.33,2.33,2.33)
-    bounds size=(3.00,1.03,2.98) maxDim=3.00 rend=1
-    dSpawn=41.07 dExit=88.41 clamped=True clampR=0.12 touchGnd=True
-  #2602 Buissons/Bush_12 biome=ForetAutomne cell=(27,20)
-    pos=(161.80,0.00,120.56) scale=(1.34,1.34,1.34)
-    bounds size=(2.44,1.90,3.00) maxDim=3.00 rend=1
-    dSpawn=158.58 dExit=44.16 clamped=True clampR=0.05 touchGnd=True
-  #2023 Buissons/Bush_08 biome=ForetAutomne cell=(21,23)
-    pos=(125.79,0.00,139.34) scale=(2.13,2.13,2.13)
-    bounds size=(3.00,2.34,2.99) maxDim=3.00 rend=1
-    dSpawn=146.17 dExit=65.94 clamped=True clampR=0.08 touchGnd=True
-  #2260 RochesTendres/SoftRock_03 biome=ForetAutomne cell=(24,9)
-    pos=(143.48,0.00,53.29) scale=(2.49,2.49,2.49)
-    bounds size=(3.00,2.78,2.85) maxDim=3.00 rend=1
-    dSpawn=111.40 dExit=25.55 clamped=True clampR=0.11 touchGnd=True
-  #2546 RochesDures/HardRock_41 biome=Rocailleux cell=(27,3)
-    pos=(162.42,0.00,17.49) scale=(1.50,1.50,1.50)
-    bounds size=(3.00,1.41,2.97) maxDim=3.00 rend=1
-    dSpawn=126.59 dExit=61.77 clamped=True clampR=0.06 touchGnd=True
-  #1650 Buissons/Bush_09 biome=Prairie cell=(17,26)
-    pos=(102.74,0.00,154.61) scale=(1.22,1.22,1.22)
-    bounds size=(2.97,1.52,3.00) maxDim=3.00 rend=1
-    dSpawn=146.67 dExit=90.01 clamped=True clampR=0.05 touchGnd=True
-  #2249 Debris/Skull_05 biome=ForetAutomne cell=(24,6)
-    pos=(144.08,1.22,36.80) scale=(1.71,1.71,1.71)
-    bounds size=(2.00,0.83,1.40) maxDim=2.00 rend=1
-    dSpawn=108.83 dExit=41.62 clamped=True clampR=0.10 touchGnd=False
-  #493 Herbe/Grass_21 biome=ForetAutomne cell=(6,25)
-    pos=(34.85,0.50,149.04) scale=(2.09,2.09,2.09)
-    bounds size=(1.86,0.65,2.00) maxDim=2.00 rend=1
-    dSpawn=125.05 dExit=135.30 clamped=True clampR=0.11 touchGnd=True
-  #2448 Minerais/MineralNode_10_C biome=Rocailleux cell=(26,3)
-    pos=(156.20,0.00,17.82) scale=(1.99,1.99,1.99)
-    bounds size=(2.00,1.82,1.78) maxDim=2.00 rend=1
-    dSpawn=120.36 dExit=60.50 clamped=True clampR=0.10 touchGnd=True
-  #929 Herbe/Grass_38 biome=ForetAutomne cell=(11,15)
-    pos=(66.89,1.08,91.27) scale=(1.45,1.45,1.45)
-    bounds size=(1.96,0.68,2.00) maxDim=2.00 rend=1
-    dSpawn=74.02 dExit=84.17 clamped=True clampR=0.07 touchGnd=False
-  #932 Herbe/Grass_39 biome=Prairie cell=(11,16)
-    pos=(65.01,0.95,96.63) scale=(1.52,1.52,1.52)
-    bounds size=(2.00,0.82,1.94) maxDim=2.00 rend=1
-    dSpawn=78.21 dExit=87.01 clamped=True clampR=0.07 touchGnd=False
-  #1038 Herbe/Grass_22 biome=Prairie cell=(12,14)
-    pos=(71.73,1.36,83.00) scale=(1.56,1.56,1.56)
-    bounds size=(2.00,0.45,1.88) maxDim=2.00 rend=1
-    dSpawn=68.97 dExit=78.43 clamped=True clampR=0.08 touchGnd=False
-  #550 Herbe/Grass_38 biome=ForetAutomne cell=(7,16)
-    pos=(43.08,1.04,95.69) scale=(1.64,1.64,1.64)
-    bounds size=(2.00,0.77,1.93) maxDim=2.00 rend=1
-    dSpawn=72.04 dExit=108.38 clamped=True clampR=0.08 touchGnd=False
-  #58 Champignons/Mashroom_10 biome=Foret cell=(2,17)
-    pos=(11.40,0.00,102.47) scale=(4.21,4.21,4.21)
-    bounds size=(1.44,2.00,1.44) maxDim=2.00 rend=1
-    dSpawn=82.24 dExit=140.74 clamped=True clampR=0.22 touchGnd=True
-  #1302 Champignons/Mashroom_16 biome=Foret cell=(14,19)
-    pos=(85.05,0.64,112.59) scale=(3.69,3.69,3.69)
-    bounds size=(2.00,1.54,2.00) maxDim=2.00 rend=1
-    dSpawn=101.26 dExit=73.58 clamped=True clampR=0.21 touchGnd=False
-  #579 Herbe/Grass_21 biome=ForetAutomne cell=(7,23)
-    pos=(40.83,0.50,136.68) scale=(1.73,1.73,1.73)
-    bounds size=(1.96,0.54,2.00) maxDim=2.00 rend=1
-    dSpawn=112.78 dExit=123.94 clamped=True clampR=0.08 touchGnd=True
-  #2147 Herbe/Grass_01 biome=ForetAutomne cell=(23,5)
-    pos=(138.99,1.22,30.34) scale=(4.82,4.82,4.82)
-    bounds size=(0.95,1.77,2.00) maxDim=2.00 rend=1
-    dSpawn=103.19 dExit=48.91 clamped=True clampR=0.23 touchGnd=False
-  #2142 Herbe/Grass_28 biome=ForetAutomne cell=(23,4)
-    pos=(136.55,1.22,24.10) scale=(1.25,1.25,1.25)
-    bounds size=(2.00,0.19,1.80) maxDim=2.00 rend=1
-    dSpawn=100.55 dExit=55.56 clamped=True clampR=0.07 touchGnd=False
-  #2137 Herbe/Grass_13 biome=ForetAutomne cell=(23,3)
-    pos=(138.66,1.22,17.20) scale=(3.10,3.10,3.10)
-    bounds size=(2.00,1.68,1.99) maxDim=2.00 rend=1
-    dSpawn=102.88 dExit=61.85 clamped=True clampR=0.14 touchGnd=False
-  #2061 Herbe/Grass_31 biome=ForetAutomne cell=(22,7)
-    pos=(131.09,1.41,42.03) scale=(1.26,1.26,1.26)
-    bounds size=(2.00,0.80,1.95) maxDim=2.00 rend=1
-    dSpawn=96.78 dExit=40.64 clamped=True clampR=0.06 touchGnd=False
-  #1307 Herbe/Grass_29 biome=Foret cell=(14,20)
-    pos=(83.31,0.64,121.10) scale=(1.40,1.40,1.40)
-    bounds size=(1.90,0.21,2.00) maxDim=2.00 rend=1
-    dSpawn=108.01 dExit=79.40 clamped=True clampR=0.07 touchGnd=False
-  #641 Debris/Skull_02 biome=ForetAutomne cell=(8,14)
-    pos=(46.94,1.31,85.21) scale=(1.57,1.57,1.57)
-    bounds size=(1.99,1.26,2.00) maxDim=2.00 rend=1
-    dSpawn=62.18 dExit=103.31 clamped=True clampR=0.08 touchGnd=False
-  #1973 Herbe/Grass_14 biome=ForetAutomne cell=(21,11)
-    pos=(126.11,1.56,66.00) scale=(1.09,1.09,1.09)
-    bounds size=(0.61,2.00,0.56) maxDim=2.00 rend=1
-    dSpawn=99.41 dExit=26.74 clamped=True clampR=0.06 touchGnd=False
-  #1944 Herbe/Grass_33 biome=ForetAutomne cell=(21,4)
-    pos=(125.47,1.22,24.39) scale=(1.99,1.99,1.99)
-    bounds size=(1.99,0.52,2.00) maxDim=2.00 rend=1
-    dSpawn=89.47 dExit=58.95 clamped=True clampR=0.10 touchGnd=False
-  #727 Debris/Bones_05 biome=ForetAutomne cell=(9,12)
-    pos=(53.46,1.56,71.01) scale=(0.66,0.66,0.66)
-    bounds size=(2.00,1.07,1.58) maxDim=2.00 rend=1
-    dSpawn=50.15 dExit=96.79 clamped=True clampR=0.04 touchGnd=False
-  #1029 Fleurs/Flower_11 biome=Prairie cell=(12,12)
-    pos=(72.90,1.36,72.76) scale=(3.52,3.52,3.52)
-    bounds size=(1.98,0.35,2.00) maxDim=2.00 rend=1
-    dSpawn=61.14 dExit=77.28 clamped=True clampR=0.18 touchGnd=False
-  #1158 Herbe/Grass_16 biome=Prairie cell=(13,14)
-    pos=(78.72,1.36,85.08) scale=(1.65,1.65,1.65)
-    bounds size=(1.12,2.00,0.62) maxDim=2.00 rend=1
-    dSpawn=74.54 dExit=71.63 clamped=True clampR=0.09 touchGnd=False
-  #1268 Fleurs/Flower_17 biome=Prairie cell=(14,12)
-    pos=(85.06,1.36,71.58) scale=(1.59,1.59,1.59)
-    bounds size=(2.00,0.87,1.98) maxDim=2.00 rend=1
-    dSpawn=68.34 dExit=65.25 clamped=True clampR=0.08 touchGnd=False
-  #394 Herbe/Grass_15 biome=ForetAutomne cell=(5,26)
-    pos=(29.03,0.50,155.22) scale=(1.65,1.65,1.65)
-    bounds size=(1.40,2.00,0.91) maxDim=2.00 rend=1
-    dSpawn=131.41 dExit=143.52 clamped=True clampR=0.08 touchGnd=True
-  #1278 Fleurs/Flower_22 biome=Prairie cell=(14,14)
-    pos=(84.33,1.36,83.90) scale=(3.43,3.43,3.43)
-    bounds size=(1.77,2.00,1.74) maxDim=2.00 rend=1
-    dSpawn=76.96 dExit=65.94 clamped=True clampR=0.17 touchGnd=False
-  #498 Herbe/Grass_13 biome=ForetAutomne cell=(6,26)
-    pos=(34.66,0.50,154.96) scale=(3.69,3.69,3.69)
-    bounds size=(1.96,2.00,1.94) maxDim=2.00 rend=1
-    dSpawn=130.97 dExit=138.66 clamped=True clampR=0.18 touchGnd=False
+    dSpawn=73.67 dExit=55.46 clamped=True clampR=0.08 touchGnd=True
+  #2499 Buissons/Bush_01 biome=ForetAutomne cell=(25,17)
+    pos=(149.87,0.00,102.12) scale=(2.32,2.32,2.32)
+    bounds size=(3.00,2.13,2.89) maxDim=3.00 rend=1
+    dSpawn=136.90 dExit=107.17 clamped=True clampR=0.09 touchGnd=True
+  #2726 Buissons/Bush_12 biome=Prairie cell=(27,25)
+    pos=(162.46,0.00,149.01) scale=(1.12,1.12,1.12)
+    bounds size=(3.00,1.60,2.97) maxDim=3.00 rend=1
+    dSpawn=174.12 dExit=108.46 clamped=True clampR=0.05 touchGnd=True
+  #451 Epines/Thorns_11 biome=Desert cell=(6,8)
+    pos=(36.20,0.00,46.60) scale=(4.32,4.32,4.32)
+    bounds size=(2.76,3.00,2.59) maxDim=3.00 rend=1
+    dSpawn=12.28 dExit=104.92 clamped=True clampR=0.21 touchGnd=True
+  #1436 Troncs/TreeTrunk_20 biome=ForetAutomne cell=(15,12)
+    pos=(90.93,0.76,71.60) scale=(0.74,0.74,0.74)
+    bounds size=(1.10,3.00,1.29) maxDim=3.00 rend=1
+    dSpawn=70.57 dExit=86.67 clamped=True clampR=0.04 touchGnd=False
+  #1395 Buissons/Bush_14 biome=Prairie cell=(15,2)
+    pos=(88.51,0.00,12.26) scale=(1.20,1.20,1.20)
+    bounds size=(3.00,1.38,2.94) maxDim=3.00 rend=1
+    dSpawn=63.14 dExit=142.00 clamped=True clampR=0.04 touchGnd=True
+  #1387 Buissons/Bush_15 biome=ForetAutomne cell=(14,26)
+    pos=(83.86,0.00,155.11) scale=(3.08,3.08,3.08)
+    bounds size=(3.00,2.39,3.00) maxDim=3.00 rend=1
+    dSpawn=130.72 dExit=30.29 clamped=True clampR=0.13 touchGnd=True
+  #1375 Buissons/Bush_03 biome=Foret cell=(14,23)
+    pos=(83.14,0.00,138.36) scale=(1.42,1.42,1.42)
+    bounds size=(2.67,1.67,3.00) maxDim=3.00 rend=1
+    dSpawn=115.33 dExit=31.38 clamped=True clampR=0.06 touchGnd=True
+  #1360 Feuillage/Foliage_03 biome=Marecage cell=(14,20)
+    pos=(84.81,0.73,120.59) scale=(2.30,2.30,2.30)
+    bounds size=(0.65,3.00,0.44) maxDim=3.00 rend=1
+    dSpawn=100.80 dExit=42.59 clamped=True clampR=0.12 touchGnd=False
+  #1343 Feuillage/Foliage_07 biome=Foret cell=(14,16)
+    pos=(83.93,0.00,95.35) scale=(2.76,2.76,2.76)
+    bounds size=(2.99,0.01,3.00) maxDim=3.00 rend=1
+    dSpawn=80.19 dExit=62.31 clamped=True clampR=0.13 touchGnd=True
+  #2511 Buissons/Bush_01 biome=ForetAutomne cell=(25,20)
+    pos=(149.78,0.00,120.46) scale=(2.13,2.13,2.13)
+    bounds size=(3.00,1.95,2.91) maxDim=3.00 rend=1
+    dSpawn=146.56 dExit=100.23 clamped=True clampR=0.08 touchGnd=True
+  #1115 RochesTendres/SoftRock_25 biome=Foret cell=(12,15)
+    pos=(72.16,0.00,88.75) scale=(2.73,2.73,2.73)
+    bounds size=(3.00,1.69,2.61) maxDim=3.00 rend=1
+    dSpawn=67.53 dExit=63.88 clamped=True clampR=0.13 touchGnd=True
+  #1287 Buissons/Bush_07 biome=ForetAutomne cell=(14,3)
+    pos=(85.34,0.00,18.38) scale=(1.82,1.82,1.82)
+    bounds size=(3.00,2.64,2.99) maxDim=3.00 rend=1
+    dSpawn=58.08 dExit=135.30 clamped=True clampR=0.08 touchGnd=True
+  #1291 RochesTendres/SoftRock_32 biome=Rocailleux cell=(14,4)
+    pos=(83.48,0.80,23.55) scale=(2.22,2.22,2.22)
+    bounds size=(2.92,1.17,3.00) maxDim=3.00 rend=1
+    dSpawn=54.91 dExit=129.84 clamped=True clampR=0.11 touchGnd=False
+  #1258 RochesTendres/SoftRock_03 biome=Foret cell=(13,22)
+    pos=(78.03,0.00,132.43) scale=(2.13,2.13,2.13)
+    bounds size=(3.00,2.38,3.00) maxDim=3.00 rend=1
+    dSpawn=107.73 dExit=29.77 clamped=True clampR=0.11 touchGnd=True
+  #1124 Feuillage/Foliage_07 biome=Foret cell=(12,16)
+    pos=(70.67,0.00,94.70) scale=(2.75,2.75,2.75)
+    bounds size=(3.00,0.01,3.00) maxDim=3.00 rend=1
+    dSpawn=71.41 dExit=57.75 clamped=True clampR=0.14 touchGnd=True
+  #1143 Feuillage/Foliage_10 biome=Foret cell=(12,21)
+    pos=(71.93,0.00,125.77) scale=(4.28,4.28,4.28)
+    bounds size=(3.00,0.93,2.96) maxDim=3.00 rend=1
+    dSpawn=99.08 dExit=30.14 clamped=True clampR=0.23 touchGnd=True
+  #1257 Buissons/Bush_02 biome=Foret cell=(13,22)
+    pos=(77.12,0.00,133.47) scale=(2.09,2.09,2.09)
+    bounds size=(2.28,1.87,3.00) maxDim=3.00 rend=1
+    dSpawn=108.26 dExit=28.42 clamped=True clampR=0.08 touchGnd=True
+  #560 RochesTendres/SoftRock_16 biome=Prairie cell=(7,16)
+    pos=(41.68,0.00,95.21) scale=(2.33,2.33,2.33)
+    bounds size=(3.00,1.22,2.65) maxDim=3.00 rend=1
+    dSpawn=60.35 dExit=56.16 clamped=True clampR=0.11 touchGnd=True
+  #1251 Buissons/Bush_07 biome=Foret cell=(13,21)
+    pos=(77.76,0.00,124.61) scale=(2.03,2.03,2.03)
+    bounds size=(3.00,2.95,2.99) maxDim=3.00 rend=1
+    dSpawn=100.66 dExit=34.77 clamped=True clampR=0.08 touchGnd=True
+  #1167 Buissons/Bush_10 biome=ForetAutomne cell=(12,27)
+    pos=(72.83,0.00,161.22) scale=(1.45,1.45,1.45)
+    bounds size=(3.00,1.73,2.83) maxDim=3.00 rend=1
+    dSpawn=132.34 dExit=21.92 clamped=True clampR=0.06 touchGnd=True
+  #1231 Feuillage/Foliage_01 biome=Foret cell=(13,16)
+    pos=(76.78,0.00,94.82) scale=(1.74,1.74,1.74)
+    bounds size=(1.58,3.00,1.58) maxDim=3.00 rend=1
+    dSpawn=75.16 dExit=59.70 clamped=True clampR=0.08 touchGnd=True
+  #1364 RochesTendres/SoftRock_15 biome=Foret cell=(14,21)
+    pos=(83.08,0.00,125.11) scale=(2.79,2.79,2.79)
+    bounds size=(2.71,3.00,2.75) maxDim=3.00 rend=1
+    dSpawn=103.72 dExit=38.28 clamped=True clampR=0.15 touchGnd=True
+  #1224 Troncs/TreeTrunk_47 biome=Foret cell=(13,15)
+    pos=(78.98,0.00,90.04) scale=(0.81,0.81,0.81)
+    bounds size=(2.22,3.00,2.11) maxDim=3.00 rend=1
+    dSpawn=72.93 dExit=64.96 clamped=True clampR=0.04 touchGnd=True
+  #1028 Troncs/TreeTrunk_37 biome=Foret cell=(11,17)
+    pos=(65.68,0.00,103.42) scale=(0.75,0.75,0.75)
+    bounds size=(0.72,3.00,0.88) maxDim=3.00 rend=1
+    dSpawn=76.27 dExit=48.03 clamped=True clampR=0.03 touchGnd=True
+  #1540 Buissons/Bush_08 biome=ForetAutomne cell=(16,11)
+    pos=(96.17,0.76,65.45) scale=(1.80,1.80,1.80)
+    bounds size=(3.00,1.98,3.00) maxDim=3.00 rend=1
+    dSpawn=72.43 dExit=94.48 clamped=True clampR=0.08 touchGnd=True
+  #855 RochesDures/HardRock_03 biome=Desert cell=(10,6)
+    pos=(59.02,0.00,36.78) scale=(2.11,2.11,2.11)
+    bounds size=(3.00,1.53,2.99) maxDim=3.00 rend=1
+    dSpawn=29.03 dExit=113.33 clamped=True clampR=0.08 touchGnd=True
+  #1068 RochesTendres/SoftRock_17 biome=ForetAutomne cell=(12,2)
+    pos=(71.51,0.00,11.51) scale=(2.90,2.90,2.90)
+    bounds size=(3.00,1.13,2.95) maxDim=3.00 rend=1
+    dSpawn=48.19 dExit=139.59 clamped=True clampR=0.15 touchGnd=True
+  #2135 Buissons/Bush_08 biome=Prairie cell=(21,19)
+    pos=(127.37,0.00,114.87) scale=(1.95,1.95,1.95)
+    bounds size=(2.99,2.14,3.00) maxDim=3.00 rend=1
+    dSpawn=125.30 dExit=81.35 clamped=True clampR=0.08 touchGnd=True
+  #1669 Buissons/Bush_01 biome=Foret cell=(17,15)
+    pos=(101.08,0.00,91.08) scale=(1.72,1.72,1.72)
+    bounds size=(3.00,1.57,3.00) maxDim=3.00 rend=1
+    dSpawn=89.92 dExit=75.42 clamped=True clampR=0.07 touchGnd=True
+  #2070 RochesTendres/SoftRock_28 biome=Rocailleux cell=(21,4)
+    pos=(125.11,0.00,25.37) scale=(2.39,2.39,2.39)
+    bounds size=(3.00,1.94,2.92) maxDim=3.00 rend=1
+    dSpawn=95.70 dExit=143.49 clamped=True clampR=0.12 touchGnd=True
+  #2537 Buissons/Bush_08 biome=Prairie cell=(25,27)
+    pos=(149.78,0.00,160.96) scale=(2.28,2.28,2.28)
+    bounds size=(3.00,2.50,2.99) maxDim=3.00 rend=1
+    dSpawn=173.09 dExit=96.40 clamped=True clampR=0.08 touchGnd=True
+  #2622 Buissons/Bush_12 biome=ForetAutomne cell=(26,23)
+    pos=(155.38,0.00,136.87) scale=(1.13,1.13,1.13)
+    bounds size=(2.78,1.62,3.00) maxDim=3.00 rend=1
+    dSpawn=160.92 dExit=102.23 clamped=True clampR=0.05 touchGnd=True
+  #2432 Buissons/Bush_03 biome=ForetAutomne cell=(24,24)
+    pos=(144.13,0.00,142.71) scale=(1.60,1.60,1.60)
+    bounds size=(2.14,1.89,3.00) maxDim=3.00 rend=1
+    dSpawn=156.25 dExit=90.43 clamped=True clampR=0.06 touchGnd=True
+  #261 Herbe/Grass_01 biome=ForetAutomne cell=(4,16)
+    pos=(25.40,1.18,96.07) scale=(5.16,5.16,5.16)
+    bounds size=(2.00,1.90,1.47) maxDim=2.00 rend=1
+    dSpawn=60.25 dExit=61.04 clamped=True clampR=0.28 touchGnd=False
+  #128 Herbe/Grass_31 biome=ForetAutomne cell=(3,11)
+    pos=(17.07,1.36,67.17) scale=(1.34,1.34,1.34)
+    bounds size=(2.00,0.86,1.82) maxDim=2.00 rend=1
+    dSpawn=33.75 dExit=90.69 clamped=True clampR=0.07 touchGnd=False
+  #179 Herbe/Grass_37 biome=ForetAutomne cell=(3,23)
+    pos=(19.22,1.12,137.61) scale=(1.40,1.40,1.40)
+    bounds size=(2.00,0.42,1.96) maxDim=2.00 rend=1
+    dSpawn=102.18 dExit=36.92 clamped=True clampR=0.07 touchGnd=False
+  #388 Herbe/Grass_12 biome=Prairie cell=(5,20)
+    pos=(29.07,1.12,120.89) scale=(3.44,3.44,3.44)
+    bounds size=(2.00,1.58,1.36) maxDim=2.00 rend=1
+    dSpawn=84.89 dExit=38.33 clamped=True clampR=0.18 touchGnd=False
+  #2068 Minerais/MineralNode_03_A biome=Rocailleux cell=(21,3)
+    pos=(125.00,0.00,16.89) scale=(1.18,1.18,1.18)
+    bounds size=(1.92,0.90,2.00) maxDim=2.00 rend=1
+    dSpawn=96.90 dExit=150.86 clamped=True clampR=0.05 touchGnd=True
+  #660 Herbe/Grass_21 biome=Foret cell=(8,18)
+    pos=(48.17,0.99,108.98) scale=(2.19,2.19,2.19)
+    bounds size=(1.84,0.68,2.00) maxDim=2.00 rend=1
+    dSpawn=75.21 dExit=41.43 clamped=True clampR=0.11 touchGnd=False
+  #754 Herbe/Grass_31 biome=ForetAutomne cell=(9,12)
+    pos=(52.85,1.14,73.08) scale=(1.29,1.29,1.29)
+    bounds size=(2.00,0.82,1.88) maxDim=2.00 rend=1
+    dSpawn=43.55 dExit=76.93 clamped=True clampR=0.06 touchGnd=False
+  #628 Herbe/Grass_22 biome=ForetAutomne cell=(8,11)
+    pos=(48.54,1.14,66.33) scale=(1.86,1.86,1.86)
+    bounds size=(1.50,0.54,2.00) maxDim=2.00 rend=1
+    dSpawn=35.54 dExit=83.85 clamped=True clampR=0.09 touchGnd=False
+  #809 Fleurs/Flower_18 biome=Foret cell=(9,21)
+    pos=(53.70,0.99,126.37) scale=(3.78,3.78,3.78)
+    bounds size=(1.84,2.00,1.82) maxDim=2.00 rend=1
+    dSpawn=93.42 dExit=23.64 clamped=True clampR=0.18 touchGnd=False
+  #811 Champignons/Mashroom_04 biome=Foret cell=(9,21)
+    pos=(52.67,0.99,124.63) scale=(3.66,3.66,3.66)
+    bounds size=(2.00,1.62,1.98) maxDim=2.00 rend=1
+    dSpawn=91.48 dExit=25.41 clamped=True clampR=0.22 touchGnd=False
+  #876 Herbe/Grass_36 biome=ForetAutomne cell=(10,11)
+    pos=(60.47,1.14,66.06) scale=(1.29,1.29,1.29)
+    bounds size=(2.00,0.39,1.98) maxDim=2.00 rend=1
+    dSpawn=42.81 dExit=84.19 clamped=True clampR=0.07 touchGnd=False
+  #116 Gemmes/Jem_26 biome=Fantaisie cell=(3,7)
+    pos=(17.22,1.43,40.57) scale=(2.97,2.97,2.97)
+    bounds size=(1.32,2.00,1.32) maxDim=2.00 rend=1
+    dSpawn=13.58 dExit=115.45 clamped=True clampR=0.16 touchGnd=True
+  #1210 Herbe/Grass_24 biome=ForetAutomne cell=(13,12)
+    pos=(79.19,0.76,72.21) scale=(1.47,1.47,1.47)
+    bounds size=(1.93,0.67,2.00) maxDim=2.00 rend=1
+    dSpawn=61.08 dExit=81.77 clamped=True clampR=0.07 touchGnd=False
+  #1021 Champignons/Mashroom_24 biome=Foret cell=(11,16)
+    pos=(64.80,0.00,94.76) scale=(3.70,3.70,3.70)
+    bounds size=(1.38,2.00,1.38) maxDim=2.00 rend=1
+    dSpawn=68.29 dExit=56.28 clamped=True clampR=0.21 touchGnd=True
+  #1467 Champignons/Mashroom_16 biome=Marecage cell=(15,19)
+    pos=(91.06,0.73,113.14) scale=(3.25,3.25,3.25)
+    bounds size=(2.00,1.36,2.00) maxDim=2.00 rend=1
+    dSpawn=98.38 dExit=52.27 clamped=True clampR=0.17 touchGnd=False
+  #1469 Debris/Log_03 biome=Marecage cell=(15,19)
+    pos=(89.50,0.73,113.59) scale=(0.61,0.61,0.61)
+    bounds size=(2.00,0.41,1.41) maxDim=2.00 rend=1
+    dSpawn=97.77 dExit=50.85 clamped=True clampR=0.03 touchGnd=False
+  #1473 Debris/Stick_01 biome=Marecage cell=(15,20)
+    pos=(90.10,0.73,119.06) scale=(1.89,1.89,1.89)
+    bounds size=(2.00,1.96,1.80) maxDim=2.00 rend=1
+    dSpawn=102.52 dExit=47.55 clamped=True clampR=0.10 touchGnd=False
+  #1598 Champignons/Mashroom_18 biome=Foret cell=(16,22)
+    pos=(96.46,0.00,133.12) scale=(4.57,4.57,4.57)
+    bounds size=(1.84,2.00,1.84) maxDim=2.00 rend=1
+    dSpawn=117.68 dExit=45.70 clamped=True clampR=0.25 touchGnd=True
+  #307 Debris/Skull_01 biome=ForetAutomne cell=(4,26)
+    pos=(25.24,1.19,155.72) scale=(2.25,2.25,2.25)
+    bounds size=(1.82,0.89,2.00) maxDim=2.00 rend=1
+    dSpawn=119.81 dExit=29.33 clamped=True clampR=0.12 touchGnd=False
+  #281 Debris/Stick_01 biome=Prairie cell=(4,20)
+    pos=(25.11,1.12,120.23) scale=(1.58,1.58,1.58)
+    bounds size=(1.92,1.63,2.00) maxDim=2.00 rend=1
+    dSpawn=84.38 dExit=41.48 clamped=True clampR=0.09 touchGnd=False
+  #1303 Gemmes/Jem_21 biome=Rocailleux cell=(14,6)
+    pos=(82.70,0.80,35.90) scale=(3.79,3.79,3.79)
+    bounds size=(2.00,0.31,2.00) maxDim=2.00 rend=1
+    dSpawn=52.70 dExit=117.65 clamped=True clampR=0.21 touchGnd=False
+  #685 Fleurs/Flower_32 biome=Foret cell=(8,21)
+    pos=(47.32,0.99,127.31) scale=(1.64,1.64,1.64)
+    bounds size=(0.33,2.00,0.35) maxDim=2.00 rend=1
+    dSpawn=92.94 dExit=23.65 clamped=True clampR=0.08 touchGnd=False
+  #931 Fleurs/Flower_14 biome=Foret cell=(10,20)
+    pos=(60.84,0.99,120.04) scale=(3.46,3.46,3.46)
+    bounds size=(0.83,2.00,0.83) maxDim=2.00 rend=1
+    dSpawn=89.52 dExit=30.73 clamped=True clampR=0.16 touchGnd=False
+  #234 Herbe/Grass_05 biome=ForetAutomne cell=(4,10)
+    pos=(24.23,1.36,58.69) scale=(2.96,2.96,2.96)
+    bounds size=(1.45,2.00,1.58) maxDim=2.00 rend=1
+    dSpawn=23.42 dExit=96.04 clamped=True clampR=0.16 touchGnd=False
+  #939 Fleurs/Flower_09 biome=Foret cell=(10,21)
+    pos=(58.72,0.99,125.05) scale=(5.50,5.50,5.50)
+    bounds size=(2.00,0.09,1.94) maxDim=2.00 rend=1
+    dSpawn=93.56 dExit=25.40 clamped=True clampR=0.30 touchGnd=False
 
 --------------------------------------------------------------------------------
   REJECTION SUMMARY
 --------------------------------------------------------------------------------
-  RochesDures: skip_chance=96 
-  RochesTendres: skip_chance=654 skip_spawnZone=2 
-  Minerais: skip_chance=94 
-  Cactus: skip_chance=5 
-  Epines: skip_chance=6 
-  Buissons: skip_chance=410 skip_spacing=1 
-  Troncs: skip_chance=297 
-  Arbres: skip_chance=348 skip_spacing=8 
-  Champignons: skip_chance=43 
-  Feuillage: skip_chance=41 
-  Gemmes: skip_chance=55 
-  Debris: skip_chance=239 
-  Herbe: skip_chance=147 skip_spawnZone=2 
-  Fleurs: skip_chance=26 skip_spawnZone=1 
+  RochesDures: skip_chance=99 
+  RochesTendres: skip_chance=651 skip_spawnZone=1 
+  Minerais: skip_chance=110 
+  Arbres: skip_chance=342 skip_spacing=5 
+  Buissons: skip_chance=409 
+  Troncs: skip_chance=301 skip_spawnZone=3 skip_spacing=1 
+  Cactus: skip_chance=21 
+  Epines: skip_chance=21 
+  Fleurs: skip_chance=29 skip_spawnZone=3 
+  Champignons: skip_chance=139 skip_spawnZone=1 
+  Gemmes: skip_chance=25 
+  Debris: skip_chance=178 skip_spawnZone=1 
+  Herbe: skip_chance=111 skip_spawnZone=2 
+  Feuillage: skip_chance=99 
 
 --------------------------------------------------------------------------------
   TILE DE SOL — DIAGNOSTIC DETAILLE
 --------------------------------------------------------------------------------
-  Total tiles reelles: 242
-  Strips (ratio>2): 0/242
-  Couvrent la cellule (>90%): 242/242
+  Total tiles reelles: 183
+  Strips (ratio>2): 0/183
+  Couvrent la cellule (>90%): 183/183
 
   Prefabs utilises:
-    TileGround_48: 6
-    TileGround_09: 8
-    TileGround_14: 6
-    TileGround_01: 4
-    TileGround_33: 4
-    TileGround_26: 10
-    TileGround_44: 3
-    TileGround_23: 9
-    TileGround_20: 7
-    TileGround_15: 8
-    TileGround_43: 4
-    TileGround_04: 6
-    TileGround_24: 3
-    TileGround_32: 9
-    TileGround_47: 6
-    TileGround_42: 3
-    TileGround_38: 4
-    TileGround_03: 6
-    TileGround_06: 6
-    TileGround_37: 3
-    TileGround_10: 9
-    TileGround_41: 2
-    TileGround_31: 4
-    TileGround_39: 9
-    TileGround_22: 4
-    TileGround_27: 5
-    TileGround_34: 8
-    TileGround_11: 7
-    TileGround_05: 6
-    TileGround_21: 4
-    TileGround_08: 3
-    TileGround_17: 3
-    TileGround_25: 8
-    TileGround_35: 7
-    TileGround_07: 5
-    TileGround_18: 6
-    TileGround_40: 4
-    TileGround_16: 2
-    TileGround_28: 7
-    TileGround_30: 3
+    TileGround_16: 6
     TileGround_19: 4
-    TileGround_13: 2
-    TileGround_29: 1
-    TileGround_02: 5
-    TileGround_45: 2
-    TileGround_12: 3
-    TileGround_36: 2
+    TileGround_32: 4
+    TileGround_30: 7
+    TileGround_28: 4
+    TileGround_17: 5
+    TileGround_29: 5
+    TileGround_03: 2
+    TileGround_23: 4
+    TileGround_37: 9
+    TileGround_35: 5
+    TileGround_13: 4
+    TileGround_07: 4
     TileGround_46: 2
+    TileGround_24: 2
+    TileGround_31: 3
+    TileGround_44: 5
+    TileGround_22: 4
+    TileGround_38: 2
+    TileGround_06: 6
+    TileGround_33: 3
+    TileGround_18: 2
+    TileGround_14: 4
+    TileGround_08: 6
+    TileGround_41: 3
+    TileGround_34: 3
+    TileGround_12: 8
+    TileGround_02: 9
+    TileGround_25: 1
+    TileGround_48: 3
+    TileGround_15: 5
+    TileGround_43: 5
+    TileGround_45: 2
+    TileGround_04: 2
+    TileGround_27: 5
+    TileGround_20: 2
+    TileGround_47: 2
+    TileGround_26: 1
+    TileGround_21: 4
+    TileGround_39: 5
+    TileGround_09: 6
+    TileGround_01: 2
+    TileGround_10: 4
+    TileGround_05: 2
+    TileGround_36: 5
+    TileGround_42: 1
+    TileGround_40: 1
 
   Meshes utilises:
-    TileGround_48: 6
-    TileGround_09: 8
-    TileGround_14: 6
-    TileGround_01: 4
-    TileGround_33: 4
-    TileGround_26: 10
-    TileGround_44: 3
-    TileGround_23: 9
-    TileGround_20: 7
-    TileGround_15: 8
-    TileGround_43: 4
-    TileGround_04: 6
-    TileGround_24: 3
-    TileGround_32: 9
-    TileGround_47: 6
-    TileGround_42: 3
-    TileGround_38: 4
-    TileGround_03: 6
-    TileGround_06: 6
-    TileGround_37: 3
-    TileGround_10: 9
-    TileGround_41: 2
-    TileGround_31: 4
-    TileGround_39: 9
-    TileGround_22: 4
-    TileGround_27: 5
-    TileGround_34: 8
-    TileGround_11: 7
-    TileGround_05: 6
-    TileGround_21: 4
-    TileGround_08: 3
-    TileGround_17: 3
-    TileGround_25: 8
-    TileGround_35: 7
-    TileGround_07: 5
-    TileGround_18: 6
-    TileGround_40: 4
-    TileGround_16: 2
-    TileGround_28: 7
-    TileGround_30: 3
+    TileGround_16: 6
     TileGround_19: 4
-    TileGround_13: 2
-    TileGround_29: 1
-    TileGround_02: 5
-    TileGround_45: 2
-    TileGround_12: 3
-    TileGround_36: 2
+    TileGround_32: 4
+    TileGround_30: 7
+    TileGround_28: 4
+    TileGround_17: 5
+    TileGround_29: 5
+    TileGround_03: 2
+    TileGround_23: 4
+    TileGround_37: 9
+    TileGround_35: 5
+    TileGround_13: 4
+    TileGround_07: 4
     TileGround_46: 2
+    TileGround_24: 2
+    TileGround_31: 3
+    TileGround_44: 5
+    TileGround_22: 4
+    TileGround_38: 2
+    TileGround_06: 6
+    TileGround_33: 3
+    TileGround_18: 2
+    TileGround_14: 4
+    TileGround_08: 6
+    TileGround_41: 3
+    TileGround_34: 3
+    TileGround_12: 8
+    TileGround_02: 9
+    TileGround_25: 1
+    TileGround_48: 3
+    TileGround_15: 5
+    TileGround_43: 5
+    TileGround_45: 2
+    TileGround_04: 2
+    TileGround_27: 5
+    TileGround_20: 2
+    TileGround_47: 2
+    TileGround_26: 1
+    TileGround_21: 4
+    TileGround_39: 5
+    TileGround_09: 6
+    TileGround_01: 2
+    TileGround_10: 4
+    TileGround_05: 2
+    TileGround_36: 5
+    TileGround_42: 1
+    TileGround_40: 1
 
   Axe up detecte:
-    Y: 242
+    Y: 183
 
   Top 20 tiles aspect ratio le plus extreme:
-    (22,11) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
-    (21,5) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
-    (23,6) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
-    (5,22) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
-    (12,5) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
-    (7,13) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (19,11) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (12,13) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (20,4) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (24,13) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (25,11) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (13,19) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
-    (16,6) TileGround_06 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (16,7) TileGround_22 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (16,12) TileGround_21 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (16,13) TileGround_09 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (16,14) TileGround_27 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (17,4) TileGround_25 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (17,5) TileGround_02 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
-    (17,6) TileGround_19 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
+    (13,6) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
+    (16,18) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (12,19) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (12,5) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
+    (13,4) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
+    (8,24) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
+    (12,6) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (15,20) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (3,14) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (3,15) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (7,13) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (3,17) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (11,19) TileGround_36 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,3.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,3.22,5.85) strip=False covers=True
+    (13,19) TileGround_37 ratio=1.19 upAxis=Y rot=identity rawBounds=(5.00,4.00,5.97) sf=(1.17,1.07,0.98) final=(5.85,4.30,5.85) strip=False covers=True
+    (4,17) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
+    (15,6) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
+    (14,9) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
+    (3,16) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
+    (15,11) TileGround_35 ratio=1.09 upAxis=Y rot=identity rawBounds=(5.00,2.00,5.46) sf=(1.17,1.12,1.07) final=(5.85,2.24,5.85) strip=False covers=True
+    (11,11) TileGround_17 ratio=1.00 upAxis=Y rot=identity rawBounds=(5.00,1.00,5.00) sf=(1.17,1.17,1.17) final=(5.85,1.17,5.85) strip=False covers=True
 
   Top 20 tiles plus petit footprintDepth:
-    (22,11) TileGround_36 fpW=5.85 fpD=5.85 fpH=3.22 covers=True
-    (6,3) TileGround_41 fpW=5.85 fpD=5.85 fpH=2.41 covers=True
-    (3,4) TileGround_09 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (3,5) TileGround_14 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (4,3) TileGround_01 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (4,4) TileGround_33 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
-    (4,5) TileGround_09 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (4,8) TileGround_26 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (4,9) TileGround_44 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (4,10) TileGround_23 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (5,3) TileGround_20 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (5,4) TileGround_15 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (5,5) TileGround_43 fpW=5.85 fpD=5.85 fpH=2.07 covers=True
-    (6,5) TileGround_10 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (5,6) TileGround_04 fpW=5.85 fpD=5.85 fpH=1.02 covers=True
-    (5,7) TileGround_24 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
-    (5,9) TileGround_33 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
-    (5,10) TileGround_32 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
-    (5,16) TileGround_47 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
-    (5,17) TileGround_42 fpW=5.85 fpD=5.85 fpH=2.85 covers=True
+    (13,6) TileGround_36 fpW=5.85 fpD=5.85 fpH=3.22 covers=True
+    (4,8) TileGround_33 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
+    (4,6) TileGround_06 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,6) TileGround_19 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,7) TileGround_32 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
+    (3,8) TileGround_30 fpW=5.85 fpD=5.85 fpH=1.82 covers=True
+    (3,9) TileGround_28 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,10) TileGround_17 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,11) TileGround_29 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,12) TileGround_03 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,13) TileGround_23 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (4,7) TileGround_16 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,18) TileGround_13 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,20) TileGround_03 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,21) TileGround_46 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
+    (3,22) TileGround_24 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,23) TileGround_31 fpW=5.85 fpD=5.85 fpH=2.34 covers=True
+    (3,24) TileGround_44 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,25) TileGround_22 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
+    (3,26) TileGround_44 fpW=5.85 fpD=5.85 fpH=1.17 covers=True
