@@ -71,6 +71,7 @@ MonoBehaviour:
   maxPerCell: 1
   minSpacing: 0
   allowRotationVariation: 0
+  scaleMultiplier: 1
   minScaleVariation: 1
   maxScaleVariation: 1
   yOffset: 0
@@ -78,3 +79,4 @@ MonoBehaviour:
   isDecoration: 0
   isGameplay: 0
   isRequired: 0
+  densityType: 3

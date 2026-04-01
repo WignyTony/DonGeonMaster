@@ -41,10 +41,11 @@ MonoBehaviour:
   - {fileID: 5216394446470634824, guid: a3d88a823f9d75e459d7468b729ef485, type: 3}
   allowedCellTypes: 0100000002000000
   allowedBiomes: 
-  placementChance: 0.08
+  placementChance: 0.05
   maxPerCell: 1
-  minSpacing: 3
+  minSpacing: 4
   allowRotationVariation: 1
+  scaleMultiplier: 0.2
   minScaleVariation: 0.9
   maxScaleVariation: 1.1
   yOffset: 0
@@ -52,3 +53,4 @@ MonoBehaviour:
   isDecoration: 1
   isGameplay: 0
   isRequired: 0
+  densityType: 2
