@@ -36,16 +36,18 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         public struct CellRenderInfo
         {
             public int x, y;
-            public string cellType;
-            public string biome;
-            public string renderMode;
-            public string materialName;
-            public string prefabName;
-            public string meshName;
-            public string objectName;
-            public Vector3 worldPos;
-            public Vector3 scale;
-            public Vector3 rotation;
+            public string cellType, biome, renderMode;
+            public string materialName, prefabName, meshName, objectName;
+            public Vector3 worldPos, scale, rotation;
+            // Tile diagnostic (rempli seulement en mode realGround_prefab)
+            public Vector3 rawBoundsSize;     // bounds a identity/scale1
+            public float rawX, rawY, rawZ;    // dims triees
+            public float footprintW, footprintD, footprintH; // emprise retenue
+            public float scaleFactorX, scaleFactorY, scaleFactorZ;
+            public Vector3 finalBoundsSize;   // bounds apres scale+rotation
+            public float aspectRatio;         // max(W,D)/min(W,D)
+            public bool looksLikeStrip;       // ratio > 2
+            public bool coversCellProperly;   // both dims >= blockSize * 0.9
         }
         public List<CellRenderInfo> cellRenderInfos = new();
 
@@ -141,6 +143,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     string objName = "";
                     Vector3 usedScale = Vector3.zero;
                     Vector3 usedRot = Vector3.zero;
+                    TilePlaceResult? tileInfo = null;
 
                     switch (cell.type)
                     {
@@ -148,6 +151,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                             if (canRealGround)
                             {
                                 var info = PlaceTile(pos, cs, block, x, y, "Floor");
+                                tileInfo = info;
                                 renderMode = "realGround_prefab";
                                 matName = info.matName;
                                 prefabName = info.prefabName;
@@ -172,6 +176,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                             if (canRealGround)
                             {
                                 var info = PlaceTile(pos, cs, block, x, y, "Corridor");
+                                tileInfo = info;
                                 renderMode = "realGround_prefab";
                                 matName = info.matName;
                                 prefabName = info.prefabName;
@@ -212,7 +217,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     }
                     RenderedCellCount++;
 
-                    cellRenderInfos.Add(new CellRenderInfo
+                    var cri = new CellRenderInfo
                     {
                         x = x, y = y,
                         cellType = cell.type.ToString(),
@@ -225,7 +230,20 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                         worldPos = pos,
                         scale = usedScale,
                         rotation = usedRot
-                    });
+                    };
+                    if (tileInfo.HasValue)
+                    {
+                        var t = tileInfo.Value;
+                        cri.rawBoundsSize = t.rawBoundsSize;
+                        cri.rawX = t.rawX; cri.rawY = t.rawY; cri.rawZ = t.rawZ;
+                        cri.footprintW = t.footprintW; cri.footprintD = t.footprintD; cri.footprintH = t.footprintH;
+                        cri.scaleFactorX = t.sfX; cri.scaleFactorY = t.sfY; cri.scaleFactorZ = t.sfZ;
+                        cri.finalBoundsSize = t.finalBoundsSize;
+                        cri.aspectRatio = t.aspectRatio;
+                        cri.looksLikeStrip = t.looksLikeStrip;
+                        cri.coversCellProperly = t.coversCellProperly;
+                    }
+                    cellRenderInfos.Add(cri);
 
                     // Marqueurs spawn/exit
                     float markerBase = canRealGround && (cell.type == CellType.Sol || cell.type == CellType.Couloir) ? 0.1f : floorThickness;
@@ -273,6 +291,13 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         {
             public string prefabName, matName, meshName, objName;
             public Vector3 scale, rot;
+            // Diagnostics pour le dump
+            public Vector3 rawBoundsSize, finalBoundsSize;
+            public float rawX, rawY, rawZ;
+            public float footprintW, footprintD, footprintH;
+            public float sfX, sfY, sfZ;
+            public float aspectRatio;
+            public bool looksLikeStrip, coversCellProperly;
         }
 
         TilePlaceResult PlaceTile(Vector3 cellCenter, float cellSize, float blockSize, int cx, int cy, string prefix)
@@ -305,51 +330,67 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             }
 
             // 2) Mesurer les bounds a scale 1, rotation identity
+            //    Pandazole FBX est Z-up → a identity dans Unity :
+            //    surface du mesh dans le plan XY, epaisseur sur Z
             Bounds cb = renderers[0].bounds;
             for (int i = 1; i < renderers.Length; i++)
                 cb.Encapsulate(renderers[i].bounds);
 
-            // La surface du mesh est dans le plan XZ (ou XY selon le FBX)
-            // Prendre les deux plus grandes dimensions comme emprise au sol
-            float dimA = cb.size.x;
-            float dimB = cb.size.y;
-            float dimC = cb.size.z;
+            float rawX = Mathf.Max(cb.size.x, 0.001f);
+            float rawY = Mathf.Max(cb.size.y, 0.001f);
+            float rawZ = Mathf.Max(cb.size.z, 0.001f);
+            res.rawBoundsSize = cb.size;
+            res.rawX = rawX; res.rawY = rawY; res.rawZ = rawZ;
 
-            // Trier pour trouver les 2 plus grandes (= emprise sol)
-            float maxDim = Mathf.Max(dimA, dimB, dimC);
-            float minDim = Mathf.Min(dimA, dimB, dimC);
-            float midDim = dimA + dimB + dimC - maxDim - minDim;
+            // 3) Scale NON-UNIFORME pour couvrir exactement la cellule
+            //    Apres rotation -90°X : local X → world X, local Y → world -Z
+            //    Donc on scale X et Y independamment pour que les deux = blockSize
+            //    Z (epaisseur) prend un scale moyen pour rester proportionnel
+            float sfX = blockSize / rawX;  // couvre world X
+            float sfY = blockSize / rawY;  // couvre world Z (apres rotation)
+            float sfZ = (sfX + sfY) * 0.5f; // epaisseur proportionnelle
+            res.sfX = sfX; res.sfY = sfY; res.sfZ = sfZ;
 
-            // Scale uniforme base sur la plus grande dimension de surface
-            float footprint = Mathf.Max(maxDim, midDim);
-            float scaleFactor = footprint > 0.001f ? blockSize / footprint : cellSize;
+            go.transform.localScale = new Vector3(sfX, sfY, sfZ);
 
-            go.transform.localScale = Vector3.one * scaleFactor;
+            // Diagnostics d'emprise
+            res.footprintW = rawX * sfX; // = blockSize
+            res.footprintD = rawY * sfY; // = blockSize
+            res.footprintH = rawZ * sfZ; // epaisseur
+            float minSurface = Mathf.Min(rawX, rawY);
+            float maxSurface = Mathf.Max(rawX, rawY);
+            res.aspectRatio = minSurface > 0.001f ? maxSurface / minSurface : 999f;
+            res.looksLikeStrip = res.aspectRatio > 2f;
 
-            // 3) Appliquer la rotation structurelle Pandazole (-90 X)
+            // 4) Appliquer la rotation structurelle Pandazole (-90 X)
             go.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
 
-            // 4) Recentrer sur la cellule apres rotation + scale
+            // 5) Recentrer sur la cellule apres rotation + scale
             var newBounds = new Bounds(go.transform.position, Vector3.zero);
             foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
             Vector3 offset = cellCenter - newBounds.center;
             offset.y = 0;
             go.transform.position += offset;
 
-            // 5) Poser au sol : le bas des bounds doit etre a y=0
+            // 6) Poser au sol : le bas des bounds doit etre a y~0
             newBounds = new Bounds(go.transform.position, Vector3.zero);
             foreach (var r in renderers) newBounds.Encapsulate(r.bounds);
-            if (newBounds.min.y < -0.01f || newBounds.min.y > 0.5f)
-                go.transform.position += Vector3.up * (-newBounds.min.y);
+            go.transform.position += Vector3.up * (-newBounds.min.y);
+
+            // Mesurer les bounds finales
+            var finalBounds = new Bounds(go.transform.position, Vector3.zero);
+            foreach (var r in renderers) finalBounds.Encapsulate(r.bounds);
+            res.finalBoundsSize = finalBounds.size;
+            res.coversCellProperly = finalBounds.size.x >= blockSize * 0.9f && finalBounds.size.z >= blockSize * 0.9f;
 
             // Desactiver les MeshColliders du prefab
             foreach (var mc in go.GetComponentsInChildren<MeshCollider>())
                 mc.enabled = false;
 
-            // BoxCollider simple pour la physique hero
+            // BoxCollider pour la physique hero
             var box = go.AddComponent<BoxCollider>();
-            box.center = Vector3.up * 0.05f;
-            box.size = new Vector3(blockSize / scaleFactor, 0.1f / scaleFactor, blockSize / scaleFactor);
+            box.center = Vector3.up * 0.025f;
+            box.size = new Vector3(blockSize / sfX, 0.05f / sfZ, blockSize / sfY);
 
             // Info pour les logs
             res.scale = go.transform.localScale;

@@ -201,7 +201,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     structureRenderer.useRealGround,
                     structureRenderer.RealGroundFloorCount,
                     structureRenderer.RealGroundCorridorCount,
-                    structureRenderer.BlockoutCellCount);
+                    structureRenderer.BlockoutCellCount,
+                    structureRenderer.cellRenderInfos);
 
                 // Export debug dump (ecrase les fichiers precedents)
                 PlacementDebugDump.Export();

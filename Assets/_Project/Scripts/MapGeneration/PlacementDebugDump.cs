@@ -98,6 +98,7 @@ namespace DonGeonMaster.MapGeneration
         static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
         static PlacementDumpGlobal global;
+        static List<DebugTools.MapStructureDebugRenderer.CellRenderInfo> tileInfos;
         static List<PlacementAttempt> attempts;
 
         public static void Begin(MapGenConfig config, MapData map, int activeCats)
@@ -122,13 +123,15 @@ namespace DonGeonMaster.MapGeneration
             };
         }
 
-        public static void SetGroundRenderInfo(bool realGroundEnabled, int realFloor, int realCorridor, int blockout)
+        public static void SetGroundRenderInfo(bool realGroundEnabled, int realFloor, int realCorridor, int blockout,
+            List<DebugTools.MapStructureDebugRenderer.CellRenderInfo> tiles = null)
         {
             if (global == null) return;
             global.realGroundEnabled = realGroundEnabled;
             global.realGroundFloorCells = realFloor;
             global.realGroundCorridorCells = realCorridor;
             global.blockoutCells = blockout;
+            tileInfos = tiles;
         }
 
         public static void Record(PlacementAttempt a)
@@ -362,6 +365,78 @@ namespace DonGeonMaster.MapGeneration
                 foreach (var r in kvp.Value)
                     sb.Append($"{r.Key}={r.Value} ");
                 sb.AppendLine();
+            }
+
+            // ── TILE DEBUG ──
+            if (tileInfos != null && tileInfos.Count > 0)
+            {
+                var realTiles = new List<DebugTools.MapStructureDebugRenderer.CellRenderInfo>();
+                foreach (var t in tileInfos)
+                    if (t.renderMode == "realGround_prefab") realTiles.Add(t);
+
+                if (realTiles.Count > 0)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("-".PadRight(80, '-'));
+                    sb.AppendLine("  TILE DE SOL — DIAGNOSTIC DETAILLE");
+                    sb.AppendLine("-".PadRight(80, '-'));
+                    sb.AppendLine($"  Total tiles reelles: {realTiles.Count}");
+
+                    int strips = 0, covers = 0;
+                    var prefabFreq = new Dictionary<string, int>();
+                    var meshFreq = new Dictionary<string, int>();
+
+                    foreach (var t in realTiles)
+                    {
+                        if (t.looksLikeStrip) strips++;
+                        if (t.coversCellProperly) covers++;
+                        string pn = t.prefabName ?? "?";
+                        if (!prefabFreq.ContainsKey(pn)) prefabFreq[pn] = 0; prefabFreq[pn]++;
+                        string mn = t.meshName ?? "?";
+                        if (!meshFreq.ContainsKey(mn)) meshFreq[mn] = 0; meshFreq[mn]++;
+                    }
+
+                    sb.AppendLine($"  Strips (ratio>2): {strips}/{realTiles.Count}");
+                    sb.AppendLine($"  Couvrent la cellule (>90%): {covers}/{realTiles.Count}");
+                    sb.AppendLine();
+
+                    // Prefab frequency
+                    sb.AppendLine("  Prefabs utilises:");
+                    foreach (var kvp in prefabFreq) sb.AppendLine($"    {kvp.Key}: {kvp.Value}");
+                    sb.AppendLine();
+
+                    // Mesh frequency
+                    sb.AppendLine("  Meshes utilises:");
+                    foreach (var kvp in meshFreq) sb.AppendLine($"    {kvp.Key}: {kvp.Value}");
+                    sb.AppendLine();
+
+                    // Top 20 plus suspectes (par ratio aspect)
+                    realTiles.Sort((a, b) => b.aspectRatio.CompareTo(a.aspectRatio));
+                    sb.AppendLine("  Top 20 tiles aspect ratio le plus extreme:");
+                    int count = 0;
+                    foreach (var t in realTiles)
+                    {
+                        if (count >= 20) break;
+                        sb.AppendLine($"    ({t.x},{t.y}) {t.prefabName} ratio={F(t.aspectRatio)} " +
+                            $"rawBounds=({F(t.rawBoundsSize.x)},{F(t.rawBoundsSize.y)},{F(t.rawBoundsSize.z)}) " +
+                            $"sf=({F(t.scaleFactorX)},{F(t.scaleFactorY)},{F(t.scaleFactorZ)}) " +
+                            $"final=({F(t.finalBoundsSize.x)},{F(t.finalBoundsSize.y)},{F(t.finalBoundsSize.z)}) " +
+                            $"strip={t.looksLikeStrip} covers={t.coversCellProperly}");
+                        count++;
+                    }
+                    sb.AppendLine();
+
+                    // Top 20 par plus petit footprintD
+                    realTiles.Sort((a, b) => a.footprintD.CompareTo(b.footprintD));
+                    sb.AppendLine("  Top 20 tiles plus petit footprintDepth:");
+                    count = 0;
+                    foreach (var t in realTiles)
+                    {
+                        if (count >= 20) break;
+                        sb.AppendLine($"    ({t.x},{t.y}) {t.prefabName} fpW={F(t.footprintW)} fpD={F(t.footprintD)} fpH={F(t.footprintH)} covers={t.coversCellProperly}");
+                        count++;
+                    }
+                }
             }
 
             return sb.ToString();
