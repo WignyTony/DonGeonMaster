@@ -143,6 +143,8 @@ namespace DonGeonMaster.MapGeneration
                                 categoryId = cat.categoryId,
                                 biome = cell.biome.ToString(),
                                 supportCellType = cell.type.ToString(),
+                                surfaceShape = cell.surfaceShape.ToString(),
+                                cellFloorHeight = cell.floorHeight,
                                 cellX = x, cellY = y,
                                 supportCenterX = x * config.cellSize,
                                 supportCenterY = 0,
@@ -188,7 +190,7 @@ namespace DonGeonMaster.MapGeneration
                                 shaderWarned.Add(cat.categoryId);
                             }
 
-                            Vector3 wp = CellToWorld(x, y) + GetRandomOffset(cat);
+                            Vector3 wp = CellToWorld(x, y, cell.floorHeight) + GetRandomOffset(cat);
                             rec.worldPosX = wp.x; rec.worldPosY = wp.y; rec.worldPosZ = wp.z;
 
                             float dS = Mathf.Sqrt((wp.x - spawnW.x) * (wp.x - spawnW.x) + (wp.z - spawnW.z) * (wp.z - spawnW.z));
@@ -399,7 +401,7 @@ namespace DonGeonMaster.MapGeneration
             return bd * (cell.type == CellType.Couloir ? 0.3f : 1f);
         }
 
-        Vector3 CellToWorld(int x, int y) => new Vector3(x * config.cellSize, 0f, y * config.cellSize);
+        Vector3 CellToWorld(int x, int y, float floorHeight = 0f) => new Vector3(x * config.cellSize, floorHeight, y * config.cellSize);
 
         Vector3 GetRandomOffset(AssetCategory cat)
         {

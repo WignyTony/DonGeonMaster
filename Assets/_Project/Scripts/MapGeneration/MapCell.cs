@@ -3,6 +3,17 @@ using UnityEngine;
 
 namespace DonGeonMaster.MapGeneration
 {
+    /// <summary>Type de surface pour la cellule.</summary>
+    public enum SurfaceShape
+    {
+        Flat,
+        RampNorth,
+        RampSouth,
+        RampEast,
+        RampWest,
+        Stairs
+    }
+
     [System.Serializable]
     public class MapCell
     {
@@ -17,6 +28,12 @@ namespace DonGeonMaster.MapGeneration
         public bool isOccupied;
         public List<string> placedAssetCategories = new();
 
+        /// <summary>Hauteur du sol en unites monde. Utilise par le renderer et le collision ground.</summary>
+        public float floorHeight;
+
+        /// <summary>Forme de la surface (plat, rampe, escalier).</summary>
+        public SurfaceShape surfaceShape = SurfaceShape.Flat;
+
         [System.NonSerialized]
         public List<GameObject> placedObjects = new();
 
@@ -28,6 +45,9 @@ namespace DonGeonMaster.MapGeneration
 
         public bool IsWalkable => type == CellType.Sol || type == CellType.Couloir;
         public bool IsInRoom => roomId >= 0;
+
+        /// <summary>Position monde du dessus du sol pour cette cellule.</summary>
+        public float WorldFloorY => floorHeight;
     }
 
     [System.Serializable]

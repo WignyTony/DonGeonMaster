@@ -48,6 +48,7 @@ namespace DonGeonMaster.MapGeneration
                 Step2_GenerateRooms();
                 Step3_ConnectRooms();
                 Step4_AssignBiomes();
+                Step4b_AssignHeights();
                 Step5_SetSpawnAndExit();
                 Step6_FinalizeMap();
             }
@@ -381,6 +382,56 @@ namespace DonGeonMaster.MapGeneration
             }
 
             result.AddPipelineStep("Biomes assignés par bruit de Perlin + cohérence par salle");
+        }
+
+        /// <summary>
+        /// Assigne une hauteur de sol a chaque cellule marchable via Perlin noise.
+        /// Les salles ont une hauteur coherente par salle.
+        /// Les couloirs interpolent entre les salles connectees.
+        /// </summary>
+        void Step4b_AssignHeights()
+        {
+            result.AddPipelineStep("Attribution des hauteurs de sol");
+
+            float offsetX = rng.Next(0, 10000);
+            float offsetY = rng.Next(0, 10000);
+            float heightScale = 0.05f; // frequence du relief
+            float maxHeight = 2.0f;    // hauteur max en unites monde
+
+            // 1) Perlin noise pour chaque cellule
+            for (int x = 0; x < config.mapWidth; x++)
+            {
+                for (int y = 0; y < config.mapHeight; y++)
+                {
+                    var cell = map.cells[x, y];
+                    if (!cell.IsWalkable) continue;
+
+                    float noise = Mathf.PerlinNoise(x * heightScale + offsetX, y * heightScale + offsetY);
+                    cell.floorHeight = noise * maxHeight;
+                    cell.surfaceShape = SurfaceShape.Flat;
+                }
+            }
+
+            // 2) Coherence par salle : toutes les cellules d'une salle prennent la hauteur du centre
+            foreach (var room in map.rooms)
+            {
+                float roomHeight = map.cells[room.center.x, room.center.y].floorHeight;
+                for (int x = room.bounds.x; x < room.bounds.xMax; x++)
+                {
+                    for (int y = room.bounds.y; y < room.bounds.yMax; y++)
+                    {
+                        if (!map.InBounds(x, y)) continue;
+                        var cell = map.cells[x, y];
+                        if (cell.IsWalkable && cell.roomId == room.id)
+                            cell.floorHeight = roomHeight;
+                    }
+                }
+            }
+
+            // 3) Couloirs : garder la hauteur Perlin pour un profil ondulant naturel
+            //    (deja fait au step 1, pas de surcharge necessaire)
+
+            result.AddPipelineStep($"Hauteurs assignees (maxHeight={maxHeight}, scale={heightScale})");
         }
 
         BiomeType NoiseToBiome(float noise)

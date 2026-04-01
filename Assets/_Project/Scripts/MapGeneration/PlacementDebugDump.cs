@@ -20,7 +20,9 @@ namespace DonGeonMaster.MapGeneration
         public string prefabName;
         public string biome;
         public string supportCellType;
+        public string surfaceShape;
         public int cellX, cellY;
+        public float cellFloorHeight;
 
         // Transform monde
         public float worldPosX, worldPosY, worldPosZ;
@@ -251,7 +253,7 @@ namespace DonGeonMaster.MapGeneration
                 var a = attempts[i];
                 sb.Append("    {");
                 sb.Append($"\"i\":{a.attemptIndex},\"status\":\"{a.finalStatus}\",\"cat\":\"{Esc(a.categoryId)}\",\"prefab\":\"{Esc(a.prefabName)}\",");
-                sb.Append($"\"biome\":\"{Esc(a.biome)}\",\"cellType\":\"{Esc(a.supportCellType)}\",\"cx\":{a.cellX},\"cy\":{a.cellY},");
+                sb.Append($"\"biome\":\"{Esc(a.biome)}\",\"cellType\":\"{Esc(a.supportCellType)}\",\"surface\":\"{Esc(a.surfaceShape)}\",\"cx\":{a.cellX},\"cy\":{a.cellY},\"floorH\":{F(a.cellFloorHeight)},");
                 sb.Append($"\"pos\":[{F(a.worldPosX)},{F(a.worldPosY)},{F(a.worldPosZ)}],");
                 sb.Append($"\"rot\":[{F(a.rotEulerX)},{F(a.rotEulerY)},{F(a.rotEulerZ)}],");
                 sb.Append($"\"scale\":[{F(a.scaleX)},{F(a.scaleY)},{F(a.scaleZ)}],");
@@ -283,7 +285,7 @@ namespace DonGeonMaster.MapGeneration
         // ════════════════════════════════════════
 
         static readonly string CsvHeader =
-            "attemptIndex,finalStatus,categoryId,prefabName,biome,supportCellType,cellX,cellY," +
+            "attemptIndex,finalStatus,categoryId,prefabName,biome,supportCellType,surfaceShape,cellX,cellY,cellFloorHeight," +
             "worldPosX,worldPosY,worldPosZ,rotEulerX,rotEulerY,rotEulerZ,scaleX,scaleY,scaleZ," +
             "supportCenterX,supportCenterY,supportCenterZ,yOffsetApplied,distanceToSpawn,distanceToExit," +
             "boundsCenterX,boundsCenterY,boundsCenterZ,boundsSizeX,boundsSizeY,boundsSizeZ," +
@@ -300,7 +302,7 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine(CsvHeader);
             foreach (var a in attempts)
             {
-                sb.Append($"{a.attemptIndex},{a.finalStatus},{Esc(a.categoryId)},{Esc(a.prefabName)},{Esc(a.biome)},{Esc(a.supportCellType)},{a.cellX},{a.cellY},");
+                sb.Append($"{a.attemptIndex},{a.finalStatus},{Esc(a.categoryId)},{Esc(a.prefabName)},{Esc(a.biome)},{Esc(a.supportCellType)},{Esc(a.surfaceShape)},{a.cellX},{a.cellY},{F(a.cellFloorHeight)},");
                 sb.Append($"{F(a.worldPosX)},{F(a.worldPosY)},{F(a.worldPosZ)},{F(a.rotEulerX)},{F(a.rotEulerY)},{F(a.rotEulerZ)},{F(a.scaleX)},{F(a.scaleY)},{F(a.scaleZ)},");
                 sb.Append($"{F(a.supportCenterX)},{F(a.supportCenterY)},{F(a.supportCenterZ)},{F(a.yOffsetApplied)},{F(a.distanceToSpawn)},{F(a.distanceToExit)},");
                 sb.Append($"{F(a.boundsCenterX)},{F(a.boundsCenterY)},{F(a.boundsCenterZ)},{F(a.boundsSizeX)},{F(a.boundsSizeY)},{F(a.boundsSizeZ)},");

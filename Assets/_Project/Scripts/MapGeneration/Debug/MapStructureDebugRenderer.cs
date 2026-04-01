@@ -145,7 +145,10 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     var cell = map.cells[x, y];
                     if (cell.type == CellType.Vide) continue;
 
-                    Vector3 pos = new Vector3(x * cs, 0, y * cs);
+                    // Hauteur reelle de la cellule
+                    float cellY = cell.IsWalkable ? cell.floorHeight : 0f;
+                    Vector3 pos = new Vector3(x * cs, cellY, y * cs);
+
                     string renderMode = "blockout";
                     string matName = "";
                     string prefabName = "";
@@ -274,7 +277,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 }
             }
 
-            // ── COLLISION GROUND : sol physique invisible pour chaque cellule marchable ──
+            // ── COLLISION GROUND : sol physique invisible a la vraie hauteur de chaque cellule ──
             var collGO = new GameObject("CollisionGround");
             collisionRoot = collGO.transform;
             collisionRoot.SetParent(structureRoot);
@@ -288,8 +291,9 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
                     var cgo = new GameObject($"CollGround_{x}_{y}");
                     cgo.transform.SetParent(collisionRoot);
-                    cgo.transform.position = new Vector3(x * cs, CollisionGroundY, y * cs);
-                    cgo.layer = 0; // Default layer
+                    // Position a la vraie hauteur de la cellule
+                    cgo.transform.position = new Vector3(x * cs, cell.floorHeight, y * cs);
+                    cgo.layer = 0;
 
                     var box = cgo.AddComponent<BoxCollider>();
                     box.center = Vector3.down * (CollisionGroundThickness * 0.5f);

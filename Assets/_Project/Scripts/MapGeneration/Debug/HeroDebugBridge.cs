@@ -162,20 +162,28 @@ namespace DonGeonMaster.MapGeneration.DebugTools
 
         Vector3 GetSpawnPosition(MapData map, MapGenConfig config)
         {
-            // Spawn juste au-dessus du collision ground (Y=0)
-            const float spawnY = 0.15f;
+            // Spawn sur la vraie hauteur de la cellule + petit offset pour poser les pieds
+            const float aboveGround = 0.15f;
 
             if (map.spawnCell.x >= 0)
-                return new Vector3(map.spawnCell.x * config.cellSize, spawnY, map.spawnCell.y * config.cellSize);
+            {
+                var cell = map.GetCell(map.spawnCell.x, map.spawnCell.y);
+                float h = cell != null ? cell.floorHeight : 0f;
+                UnityEngine.Debug.Log($"[HeroDebugBridge] Spawn cell ({map.spawnCell.x},{map.spawnCell.y}) " +
+                    $"floorHeight={h:F2} → spawnY={h + aboveGround:F2}");
+                return new Vector3(map.spawnCell.x * config.cellSize, h + aboveGround, map.spawnCell.y * config.cellSize);
+            }
 
             if (map.rooms.Count > 0)
             {
                 var c = map.rooms[0].center;
-                return new Vector3(c.x * config.cellSize, spawnY, c.y * config.cellSize);
+                var cell = map.GetCell(c.x, c.y);
+                float h = cell != null ? cell.floorHeight : 0f;
+                return new Vector3(c.x * config.cellSize, h + aboveGround, c.y * config.cellSize);
             }
 
             return new Vector3(
-                map.width * config.cellSize * 0.5f, spawnY,
+                map.width * config.cellSize * 0.5f, aboveGround,
                 map.height * config.cellSize * 0.5f);
         }
 
