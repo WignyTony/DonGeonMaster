@@ -38,126 +38,126 @@ public class DefaultAssetCategorySetup
             allowRotation: false, minScale: 1f, maxScale: 1f, minSpacing: 0,
             densityType: DensityType.Structural, scaleMultiplier: 1f));
 
-        // === ARBRES ===
+        // === ARBRES === (rare en debug, gros volume — forte reduction)
         categories.Add(CreateCategory("Arbres", "Arbres", "Arbres (Spring/Fall/Winter)",
             new Color(0.2f, 0.6f, 0.2f), "Tree",
             new List<CellType> { CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.ForetAutomne, BiomeType.ForetHiver, BiomeType.Prairie },
-            placementChance: 0.55f, maxPerCell: 1, minSpacing: 4f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.4f));
+            placementChance: 0.12f, maxPerCell: 1, minSpacing: 8f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
 
-        // === BUISSONS ===
+        // === BUISSONS === (reduit — volume moyen)
         categories.Add(CreateCategory("Buissons", "Buissons", "Buissons bas",
             new Color(0.3f, 0.5f, 0.2f), "Bush",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Prairie, BiomeType.ForetAutomne },
-            placementChance: 0.35f, maxPerCell: 1, minSpacing: 2f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.3f));
+            placementChance: 0.12f, maxPerCell: 1, minSpacing: 5f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.18f));
 
-        // === HERBE ===
+        // === HERBE === (leger, conserve — petit volume)
         categories.Add(CreateCategory("Herbe", "Herbe", "Touffes d'herbe",
             new Color(0.4f, 0.7f, 0.3f), "Grass",
             new List<CellType> { CellType.Sol, CellType.Couloir },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Prairie, BiomeType.ForetAutomne },
-            placementChance: 0.40f, maxPerCell: 1, minSpacing: 1f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.2f));
+            placementChance: 0.25f, maxPerCell: 1, minSpacing: 2f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.12f));
 
-        // === FLEURS ===
+        // === FLEURS === (leger, conserve — petit volume)
         categories.Add(CreateCategory("Fleurs", "Fleurs", "Fleurs décoratives",
             new Color(0.9f, 0.4f, 0.6f), "Flower",
             new List<CellType> { CellType.Sol },
             new List<BiomeType> { BiomeType.Prairie, BiomeType.Foret, BiomeType.Fantaisie },
-            placementChance: 0.30f, maxPerCell: 1, minSpacing: 1f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.2f));
+            placementChance: 0.20f, maxPerCell: 1, minSpacing: 2f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.12f));
 
-        // === ROCHES DURES ===
+        // === ROCHES DURES === (reduit)
         categories.Add(CreateCategory("RochesDures", "Roches dures", "Gros blocs rocheux",
             new Color(0.5f, 0.5f, 0.5f), "HardRock",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Rocailleux, BiomeType.Desert, BiomeType.ForetHiver },
-            placementChance: 0.35f, maxPerCell: 1, minSpacing: 3f,
-            densityType: DensityType.Rock, scaleMultiplier: 0.35f));
+            placementChance: 0.15f, maxPerCell: 1, minSpacing: 5f,
+            densityType: DensityType.Rock, scaleMultiplier: 0.20f));
 
-        // === ROCHES TENDRES ===
+        // === ROCHES TENDRES === (conserve — petit)
         categories.Add(CreateCategory("RochesTendres", "Roches tendres", "Petites pierres et galets",
             new Color(0.6f, 0.55f, 0.5f), "SoftRock",
             new List<CellType> { CellType.Sol, CellType.Couloir, CellType.Mur },
             new List<BiomeType>(),
-            placementChance: 0.25f, maxPerCell: 1, minSpacing: 1.5f,
-            densityType: DensityType.Rock, scaleMultiplier: 0.25f));
+            placementChance: 0.15f, maxPerCell: 1, minSpacing: 3f,
+            densityType: DensityType.Rock, scaleMultiplier: 0.15f));
 
-        // === CACTUS ===
+        // === CACTUS === (reduit)
         categories.Add(CreateCategory("Cactus", "Cactus", "Végétation désertique",
             new Color(0.4f, 0.6f, 0.2f), "Cactus",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Desert },
-            placementChance: 0.40f, maxPerCell: 1, minSpacing: 3f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.35f));
+            placementChance: 0.15f, maxPerCell: 1, minSpacing: 6f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f));
 
-        // === CHAMPIGNONS ===
+        // === CHAMPIGNONS === (conserve — petit)
         categories.Add(CreateCategory("Champignons", "Champignons", "Champignons variés",
             new Color(0.7f, 0.3f, 0.3f), "Mashroom",
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Marecage, BiomeType.Fantaisie },
-            placementChance: 0.20f, maxPerCell: 1, minSpacing: 2f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.2f));
+            placementChance: 0.12f, maxPerCell: 1, minSpacing: 3f,
+            densityType: DensityType.Decor, scaleMultiplier: 0.12f));
 
-        // === MINERAIS ===
+        // === MINERAIS === (inchange)
         categories.Add(CreateCategory("Minerais", "Minerais", "Nodes minéraux et gemmes",
             new Color(0.3f, 0.7f, 0.9f), "MineralNode",
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Rocailleux, BiomeType.Fantaisie },
-            placementChance: 0.15f, maxPerCell: 1, minSpacing: 4f,
-            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.3f));
+            placementChance: 0.10f, maxPerCell: 1, minSpacing: 5f,
+            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.18f));
 
-        // === GEMMES ===
+        // === GEMMES === (inchange)
         categories.Add(CreateCategory("Gemmes", "Gemmes", "Cristaux et pierres précieuses",
             new Color(0.8f, 0.3f, 0.9f), "Jem",
             new List<CellType> { CellType.Sol },
             new List<BiomeType> { BiomeType.Fantaisie, BiomeType.Rocailleux },
-            placementChance: 0.08f, maxPerCell: 1, minSpacing: 6f,
-            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.2f));
+            placementChance: 0.06f, maxPerCell: 1, minSpacing: 8f,
+            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.12f));
 
-        // === TRONCS ===
+        // === TRONCS === (forte reduction — gros volume au sol)
         categories.Add(CreateCategory("Troncs", "Troncs d'arbres", "Troncs coupés et souches",
             new Color(0.5f, 0.35f, 0.2f), "TreeTrunk",
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.ForetAutomne, BiomeType.ForetHiver },
-            placementChance: 0.20f, maxPerCell: 1, minSpacing: 3f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.3f));
+            placementChance: 0.06f, maxPerCell: 1, minSpacing: 8f,
+            densityType: DensityType.Decor, scaleMultiplier: 0.18f));
 
-        // === ÉPINES ===
+        // === ÉPINES === (reduit)
         categories.Add(CreateCategory("Epines", "Épines", "Buissons épineux",
             new Color(0.4f, 0.3f, 0.2f), "Thorns",
             new List<CellType> { CellType.Mur },
             new List<BiomeType> { BiomeType.Desert, BiomeType.Marecage },
-            placementChance: 0.30f, maxPerCell: 1, minSpacing: 2f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
+            placementChance: 0.12f, maxPerCell: 1, minSpacing: 4f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.15f));
 
-        // === FEUILLAGE ===
+        // === FEUILLAGE === (forte reduction — occupe beaucoup de volume)
         categories.Add(CreateCategory("Feuillage", "Feuillage", "Masses de feuilles",
             new Color(0.3f, 0.55f, 0.2f), "Foliage",
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Marecage },
-            placementChance: 0.25f, maxPerCell: 1, minSpacing: 2f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
+            placementChance: 0.08f, maxPerCell: 1, minSpacing: 6f,
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.15f));
 
-        // === DÉBRIS ===
+        // === DÉBRIS === (conserve — petit)
         var debrisPrefabs = new List<string> { "Bones", "Skull", "Log", "Stick", "Leave" };
         categories.Add(CreateCategoryMultiPrefix("Debris", "Débris", "Os, crânes, bûches, bâtons",
             new Color(0.6f, 0.5f, 0.4f), debrisPrefabs,
             new List<CellType> { CellType.Sol, CellType.Couloir },
             new List<BiomeType>(),
-            placementChance: 0.12f, maxPerCell: 1, minSpacing: 3f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.2f));
+            placementChance: 0.08f, maxPerCell: 1, minSpacing: 4f,
+            densityType: DensityType.Decor, scaleMultiplier: 0.12f));
 
-        // === CORAUX ===
+        // === CORAUX === (conserve)
         categories.Add(CreateCategory("Coraux", "Coraux", "Formations coralliennes",
             new Color(0.9f, 0.4f, 0.5f), "Coral",
             new List<CellType> { CellType.Eau },
             new List<BiomeType> { BiomeType.Marecage },
-            placementChance: 0.30f, maxPerCell: 1, minSpacing: 2f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.3f));
+            placementChance: 0.15f, maxPerCell: 1, minSpacing: 3f,
+            densityType: DensityType.Decor, scaleMultiplier: 0.18f));
 
         // === Créer le Registry ===
         var registry = ScriptableObject.CreateInstance<AssetCategoryRegistry>();
