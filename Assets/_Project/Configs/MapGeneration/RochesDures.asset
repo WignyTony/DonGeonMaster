@@ -79,7 +79,7 @@ MonoBehaviour:
   - {fileID: 5390053118054904703, guid: e7ca3ad07c6f76541b78c3a99d83f36e, type: 3}
   allowedCellTypes: 0300000001000000
   allowedBiomes: 060000000400000002000000
-  placementChance: 0.2
+  placementChance: 0.35
   maxPerCell: 1
   minSpacing: 3
   allowRotationVariation: 1
