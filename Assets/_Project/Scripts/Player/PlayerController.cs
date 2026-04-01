@@ -91,6 +91,21 @@ namespace DonGeonMaster.Player
                 controller.Move(move * Time.deltaTime);
             }
 
+            // Ground snap : coller au sol sur les petites marches / bords de mesh
+            if (!isGrounded && velocity.y <= 0 && !IsJumping)
+            {
+                if (Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, out RaycastHit snapHit, 1.2f))
+                {
+                    float dist = transform.position.y - snapHit.point.y;
+                    if (dist > 0f && dist < 0.8f)
+                    {
+                        // Snap vers le sol
+                        controller.Move(Vector3.down * dist);
+                        isGrounded = true;
+                    }
+                }
+            }
+
             // Gravity + landing (BEFORE jump so jump can override)
             if (isGrounded)
             {

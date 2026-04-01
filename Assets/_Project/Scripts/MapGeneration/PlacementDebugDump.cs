@@ -95,6 +95,13 @@ namespace DonGeonMaster.MapGeneration
         public int collisionCellsCorridor;
         public float collisionGroundY;
         public float collisionGroundThickness;
+
+        // Hero locomotion
+        public float heroStepOffset;
+        public float heroSlopeLimit;
+        public float heroHeight;
+        public float heroRadius;
+        public float heroSkinWidth;
     }
 
     /// <summary>
@@ -141,6 +148,16 @@ namespace DonGeonMaster.MapGeneration
             global.realGroundCorridorCells = realCorridor;
             global.blockoutCells = blockout;
             tileInfos = tiles;
+        }
+
+        public static void SetHeroLocomotion(float stepOffset, float slopeLimit, float height, float radius, float skinWidth)
+        {
+            if (global == null) return;
+            global.heroStepOffset = stepOffset;
+            global.heroSlopeLimit = slopeLimit;
+            global.heroHeight = height;
+            global.heroRadius = radius;
+            global.heroSkinWidth = skinWidth;
         }
 
         public static void SetCollisionInfo(int total, int floor, int corridor, float groundY, float thickness)
@@ -243,7 +260,12 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine($"    \"collisionCellsFloor\": {global.collisionCellsFloor},");
             sb.AppendLine($"    \"collisionCellsCorridor\": {global.collisionCellsCorridor},");
             sb.AppendLine($"    \"collisionGroundY\": {F(global.collisionGroundY)},");
-            sb.AppendLine($"    \"collisionGroundThickness\": {F(global.collisionGroundThickness)}");
+            sb.AppendLine($"    \"collisionGroundThickness\": {F(global.collisionGroundThickness)},");
+            sb.AppendLine($"    \"heroStepOffset\": {F(global.heroStepOffset)},");
+            sb.AppendLine($"    \"heroSlopeLimit\": {F(global.heroSlopeLimit)},");
+            sb.AppendLine($"    \"heroHeight\": {F(global.heroHeight)},");
+            sb.AppendLine($"    \"heroRadius\": {F(global.heroRadius)},");
+            sb.AppendLine($"    \"heroSkinWidth\": {F(global.heroSkinWidth)}");
             sb.AppendLine("  },");
 
             // Attempts
@@ -355,6 +377,13 @@ namespace DonGeonMaster.MapGeneration
             sb.AppendLine($"  Couloir cells:   {global.collisionCellsCorridor}");
             sb.AppendLine($"  Ground Y:        {F(global.collisionGroundY)}");
             sb.AppendLine($"  Thickness:       {F(global.collisionGroundThickness)}");
+            sb.AppendLine();
+            sb.AppendLine($"Hero locomotion:");
+            sb.AppendLine($"  stepOffset:  {F(global.heroStepOffset)}");
+            sb.AppendLine($"  slopeLimit:  {F(global.heroSlopeLimit)}");
+            sb.AppendLine($"  height:      {F(global.heroHeight)}");
+            sb.AppendLine($"  radius:      {F(global.heroRadius)}");
+            sb.AppendLine($"  skinWidth:   {F(global.heroSkinWidth)}");
             sb.AppendLine();
 
             sb.AppendLine("-".PadRight(80, '-'));

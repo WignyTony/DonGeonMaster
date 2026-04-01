@@ -121,15 +121,25 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             // Desactiver les armures par defaut (comme le fait ProjectSetup)
             DonGeonMaster.Character.GanzSeHelper.DisableAllArmor(heroInstance);
 
-            // CharacterController (comme dans le vrai Hub)
+            // CharacterController configure pour le relief debug
             var cc = heroInstance.GetComponent<CharacterController>();
             if (cc == null)
-            {
                 cc = heroInstance.AddComponent<CharacterController>();
-                cc.height = 1.7f;
-                cc.radius = 0.3f;
-                cc.center = new Vector3(0, 0.85f, 0);
-            }
+
+            cc.height = 1.7f;
+            cc.radius = 0.3f;
+            cc.center = new Vector3(0, 0.85f, 0);
+            cc.stepOffset = 0.8f;   // franchir les marches jusqu'a 0.8 unites (relief Perlin max ~2.0)
+            cc.slopeLimit = 60f;    // pentes raides des MeshColliders TileGround
+            cc.skinWidth = 0.08f;   // eviter le jitter sur les bords de mesh
+            cc.minMoveDistance = 0f; // pas de seuil minimum
+
+            UnityEngine.Debug.Log($"[HeroDebugBridge] CharacterController: " +
+                $"stepOffset={cc.stepOffset} slopeLimit={cc.slopeLimit} " +
+                $"height={cc.height} radius={cc.radius} skin={cc.skinWidth}");
+
+            // Enregistrer dans le dump
+            PlacementDebugDump.SetHeroLocomotion(cc.stepOffset, cc.slopeLimit, cc.height, cc.radius, cc.skinWidth);
 
             // Le VRAI PlayerController du projet
             playerController = heroInstance.GetComponent<PlayerController>();
