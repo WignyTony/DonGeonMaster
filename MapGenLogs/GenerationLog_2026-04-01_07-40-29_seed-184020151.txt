@@ -1,0 +1,157 @@
+﻿============================================================
+  LOG DE GÉNÉRATION PROCÉDURALE
+============================================================
+
+Date:       2026-04-01 07:40:29
+Seed:       -184020151
+Statut:     Succes
+Temps:      0,19 ms
+
+--- PARAMÈTRES ---
+Taille map:       30 x 30
+Taille cellule:   6
+Marge bord:       2
+Salles:           5-10
+Taille salles:    3-8
+Largeur couloirs: 2
+Densité végét.:   100 ٪
+Densité roches:   0 ٪
+Densité décor:    0 ٪
+Mode:             Complet
+Layout:           BSP
+Accessibilité:    True
+Dist min S→E:     15
+Boss room:        False
+Salle spéciale:   False
+
+--- CATÉGORIES ACTIVÉES ---
+  [x] Sols
+  [x] Eau
+  [x] Arbres
+  [x] Buissons
+  [x] Herbe
+  [x] Fleurs
+  [x] RochesDures
+  [x] RochesTendres
+  [x] Cactus
+  [x] Champignons
+  [x] Minerais
+  [x] Gemmes
+  [x] Troncs
+  [x] Epines
+  [x] Feuillage
+  [x] Debris
+  [x] Coraux
+
+--- RÉSULTATS ---
+Salles générées:        10
+Couloirs:               9
+Cellules marchables:    203
+Cellules mur:           473
+Cellules eau:           0
+Objets placés (total):  1143
+Spawn:                  (4, 5)
+Sortie:                 (4, 25)
+Distance spawn→sortie:  120,0
+
+--- OBJETS PAR CATÉGORIE ---
+  Sols: 473
+  Minerais: 7
+  Arbres: 216
+  Buissons: 94
+  RochesTendres: 193
+  Champignons: 31
+  Feuillage: 14
+  RochesDures: 40
+  Troncs: 35
+  Epines: 17
+  Cactus: 23
+
+--- PIPELINE ---
+  [07:40:29.292] Initialisation de la grille
+  [07:40:29.292] Grille 30x30 initialisée (tout en Mur)
+  [07:40:29.292] Génération des salles (BSP)
+  [07:40:29.292] 10 salles générées sur 10 ciblées
+  [07:40:29.292] Connexion des salles (couloirs)
+  [07:40:29.292] 9 couloirs créés
+  [07:40:29.292] Attribution des biomes
+  [07:40:29.292] Biomes assignés par bruit de Perlin + cohérence par salle
+  [07:40:29.292] Placement du spawn et de la sortie
+  [07:40:29.292] Spawn: (4,5), Sortie: (4,25), Distance: 120,0
+  [07:40:29.292] Finalisation de la map
+  [07:40:29.292] Map finalisée
+  [07:40:29.294] Validation terminée: SUCCES (0E / 0W / 13I)
+  [07:40:29.307] Début du placement des assets
+  [07:40:29.330] Placement terminé: 1143 objets
+  [07:40:29.330]   Sols: 473
+  [07:40:29.330]   Minerais: 7
+  [07:40:29.330]   Arbres: 216
+  [07:40:29.330]   Buissons: 94
+  [07:40:29.330]   RochesTendres: 193
+  [07:40:29.330]   Champignons: 31
+  [07:40:29.330]   Feuillage: 14
+  [07:40:29.330]   RochesDures: 40
+  [07:40:29.330]   Troncs: 35
+  [07:40:29.330]   Epines: 17
+  [07:40:29.330]   Cactus: 23
+
+--- DÉTAIL DES SALLES ---
+  Salle 0: 3x3 @(3,4) biome=ForetAutomne [SPAWN] connexions=[1,2]
+  Salle 1: 3x5 @(8,3) biome=Rocailleux connexions=[0,8]
+  Salle 2: 3x5 @(3,10) biome=Foret connexions=[0,4,3]
+  Salle 3: 3x3 @(3,17) biome=ForetAutomne connexions=[2,5]
+  Salle 4: 3x4 @(8,10) biome=Foret connexions=[2,9]
+  Salle 5: 3x3 @(8,17) biome=Prairie connexions=[3,7]
+  Salle 6: 3x3 @(3,24) biome=Prairie [EXIT] connexions=[7]
+  Salle 7: 3x3 @(8,22) biome=ForetAutomne connexions=[5,6]
+  Salle 8: 4x5 @(15,3) biome=Prairie connexions=[1]
+  Salle 9: 7x4 @(13,11) biome=Rocailleux connexions=[4]
+
+--- VALIDATION ---
+Erreurs: 0 | Warnings: 0 | Infos: 13
+  [INFO] SpawnValide: Spawn valide à (4,5) @(4,5)
+  [INFO] Connectivité: Map entièrement connectée (203 cellules)
+  [INFO] SalleVide: Salle 0 ne contient aucun objet placé @(4,5)
+  [INFO] SalleVide: Salle 1 ne contient aucun objet placé @(9,5)
+  [INFO] SalleVide: Salle 2 ne contient aucun objet placé @(4,12)
+  [INFO] SalleVide: Salle 3 ne contient aucun objet placé @(4,18)
+  [INFO] SalleVide: Salle 4 ne contient aucun objet placé @(9,12)
+  [INFO] SalleVide: Salle 5 ne contient aucun objet placé @(9,18)
+  [INFO] SalleVide: Salle 6 ne contient aucun objet placé @(4,25)
+  [INFO] SalleVide: Salle 7 ne contient aucun objet placé @(9,23)
+  [INFO] SalleVide: Salle 8 ne contient aucun objet placé @(17,5)
+  [INFO] SalleVide: Salle 9 ne contient aucun objet placé @(16,13)
+  [INFO] CheminSpawnExit: Chemin trouvé: 29 cellules (174 unités)
+
+--- MINI-CARTE ---
+                              
+                              
+  ##########################  
+  #...++++##################  
+  #.E.+++++#################  
+  #...++...#################  
+  ######...#################  
+  ######...#################  
+  ######+++#################  
+  ######+++#################  
+  #...++...#################  
+  #...++...#################  
+  #...++...#################  
+  #+++######################  
+  #+++######################  
+  #...#######.......########  
+  #...++...++.......########  
+  #...++...++.......########  
+  #...++...++.......########  
+  #...##...#################  
+  #+++######################  
+  #+++######################  
+  #+++##...####....#########  
+  #...++...++++....#########  
+  #.S.++...++++....#########  
+  #...++...++++....#########  
+  ######...####....#########  
+  ##########################  
+                              
+                              
+

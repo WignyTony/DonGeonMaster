@@ -1,0 +1,14 @@
+﻿============================================================
+  RAPPORT DE BATCH TEST
+============================================================
+Date: 2026-03-27 11:57:41
+Map: 50x50, Cellule: 6
+Salles: 5-12, Mode: Complet
+
+=== Rapport Batch ===
+Total: 100
+Succès: 100 | Warnings: 0 | Échecs: 0
+Temps moyen: 0,4ms (min: 0,3, max: 9,4)
+Seeds échouées: []
+Seeds warnings: []
+

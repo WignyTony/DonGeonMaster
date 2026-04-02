@@ -1,0 +1,115 @@
+﻿============================================================
+  LOG DE GÉNÉRATION PROCÉDURALE
+============================================================
+
+Date:       2026-03-27 17:01:57
+Seed:       -1813708907
+Statut:     Succes
+Temps:      6,79 ms
+
+--- PARAMÈTRES ---
+Taille map:       30 x 30
+Taille cellule:   6
+Marge bord:       2
+Salles:           5-10
+Taille salles:    3-8
+Largeur couloirs: 2
+Densité végét.:   600 ٪
+Densité roches:   200 ٪
+Densité décor:    300 ٪
+Mode:             Complet
+Layout:           BSP
+Accessibilité:    True
+Dist min S→E:     15
+Boss room:        False
+Salle spéciale:   False
+
+--- CATÉGORIES ACTIVÉES ---
+  (toutes)
+
+--- RÉSULTATS ---
+Salles générées:        10
+Couloirs:               9
+Cellules marchables:    226
+Cellules mur:           450
+Cellules eau:           0
+Objets placés (total):  0
+Spawn:                  (5, 5)
+Sortie:                 (5, 23)
+Distance spawn→sortie:  108,0
+
+--- PIPELINE ---
+  [17:01:57.747] Initialisation de la grille
+  [17:01:57.748] Grille 30x30 initialisée (tout en Mur)
+  [17:01:57.748] Génération des salles (BSP)
+  [17:01:57.749] 10 salles générées sur 6 ciblées
+  [17:01:57.750] Connexion des salles (couloirs)
+  [17:01:57.750] 9 couloirs créés
+  [17:01:57.750] Attribution des biomes
+  [17:01:57.750] Biome forcé: Foret
+  [17:01:57.752] Placement du spawn et de la sortie
+  [17:01:57.752] Spawn: (5,5), Sortie: (5,23), Distance: 108,0
+  [17:01:57.752] Finalisation de la map
+  [17:01:57.753] Map finalisée
+  [17:01:57.760] Validation terminée: SUCCES (0E / 0W / 13I)
+
+--- DÉTAIL DES SALLES ---
+  Salle 0: 4x5 @(3,3) biome=Foret [SPAWN] connexions=[1,3]
+  Salle 1: 4x3 @(3,10) biome=Foret connexions=[0,2]
+  Salle 2: 3x4 @(4,15) biome=Foret connexions=[1,7,9]
+  Salle 3: 3x3 @(10,3) biome=Foret connexions=[0,5,4]
+  Salle 4: 7x3 @(15,3) biome=Foret connexions=[3]
+  Salle 5: 4x4 @(10,8) biome=Foret connexions=[3]
+  Salle 6: 6x4 @(16,9) biome=Foret connexions=[8]
+  Salle 7: 4x4 @(9,15) biome=Foret connexions=[2,8]
+  Salle 8: 5x4 @(16,15) biome=Foret connexions=[7,6]
+  Salle 9: 4x4 @(3,21) biome=Foret [EXIT] connexions=[2]
+
+--- VALIDATION ---
+Erreurs: 0 | Warnings: 0 | Infos: 13
+  [INFO] SpawnValide: Spawn valide à (5,5) @(5,5)
+  [INFO] Connectivité: Map entièrement connectée (226 cellules)
+  [INFO] SalleVide: Salle 0 ne contient aucun objet placé @(5,5)
+  [INFO] SalleVide: Salle 1 ne contient aucun objet placé @(5,11)
+  [INFO] SalleVide: Salle 2 ne contient aucun objet placé @(5,17)
+  [INFO] SalleVide: Salle 3 ne contient aucun objet placé @(11,4)
+  [INFO] SalleVide: Salle 4 ne contient aucun objet placé @(18,4)
+  [INFO] SalleVide: Salle 5 ne contient aucun objet placé @(12,10)
+  [INFO] SalleVide: Salle 6 ne contient aucun objet placé @(19,11)
+  [INFO] SalleVide: Salle 7 ne contient aucun objet placé @(11,17)
+  [INFO] SalleVide: Salle 8 ne contient aucun objet placé @(18,17)
+  [INFO] SalleVide: Salle 9 ne contient aucun objet placé @(5,23)
+  [INFO] CheminSpawnExit: Chemin trouvé: 19 cellules (114 unités)
+
+--- MINI-CARTE ---
+                              
+                              
+  ##########################  
+  ##########################  
+  ##########################  
+  #....#####################  
+  #..E.#####################  
+  #....#####################  
+  #....#####################  
+  ##+++#####################  
+  ##+++#####################  
+  ##...++....+++.....#######  
+  ##...++....+++.....#######  
+  ##...++....+++.....#######  
+  ##...##....###.....#######  
+  ##+++##########+++########  
+  ##+++##########+++########  
+  #....#########......######  
+  #....###....##......######  
+  #....###....##......######  
+  ##+++###....##......######  
+  ##+++###....##############  
+  #....####+++##############  
+  #....####+++##############  
+  #..S.+++...++.......######  
+  #....+++...++.......######  
+  #....+++...++.......######  
+  ##########################  
+                              
+                              
+

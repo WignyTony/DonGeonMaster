@@ -1,0 +1,163 @@
+﻿============================================================
+  LOG DE GÉNÉRATION PROCÉDURALE
+============================================================
+
+Date:       2026-04-01 15:03:42
+Seed:       1291971520
+Statut:     Succes
+Temps:      6,85 ms
+
+--- PARAMÈTRES ---
+Taille map:       30 x 30
+Taille cellule:   6
+Marge bord:       2
+Salles:           5-10
+Taille salles:    3-8
+Largeur couloirs: 2
+Densité végét.:   60 ٪
+Densité roches:   20 ٪
+Densité décor:    30 ٪
+Mode:             Complet
+Layout:           BSP
+Accessibilité:    True
+Dist min S→E:     15
+Boss room:        False
+Salle spéciale:   False
+
+--- CATÉGORIES ACTIVÉES ---
+  [x] Sols
+  [x] Eau
+  [x] Arbres
+  [x] Buissons
+  [x] Herbe
+  [x] Fleurs
+  [x] RochesDures
+  [x] RochesTendres
+  [x] Cactus
+  [x] Champignons
+  [x] Minerais
+  [x] Gemmes
+  [x] Troncs
+  [x] Epines
+  [x] Feuillage
+  [x] Debris
+  [x] Coraux
+
+--- RÉSULTATS ---
+Salles générées:        10
+Couloirs:               9
+Cellules marchables:    242
+Cellules mur:           434
+Cellules eau:           0
+Objets placés (total):  157
+Spawn:                  (6, 4)
+Sortie:                 (25, 13)
+Distance spawn→sortie:  126,1
+
+--- OBJETS PAR CATÉGORIE ---
+  RochesDures: 6
+  Cactus: 2
+  Epines: 1
+  Arbres: 31
+  Buissons: 65
+  Champignons: 2
+  RochesTendres: 20
+  Herbe: 16
+  Debris: 3
+  Feuillage: 4
+  Fleurs: 3
+  Troncs: 3
+  Minerais: 1
+
+--- PIPELINE ---
+  [15:03:42.365] Initialisation de la grille
+  [15:03:42.366] Grille 30x30 initialisée (tout en Mur)
+  [15:03:42.367] Génération des salles (BSP)
+  [15:03:42.367] 10 salles générées sur 10 ciblées
+  [15:03:42.368] Connexion des salles (couloirs)
+  [15:03:42.369] 9 couloirs créés
+  [15:03:42.370] Attribution des biomes
+  [15:03:42.370] Biomes assignés par bruit de Perlin + cohérence par salle
+  [15:03:42.370] Attribution des hauteurs de sol
+  [15:03:42.370] Hauteurs assignees (maxHeight=2, scale=0,05)
+  [15:03:42.370] Placement du spawn et de la sortie
+  [15:03:42.370] Spawn: (6,4), Sortie: (25,13), Distance: 126,1
+  [15:03:42.370] Finalisation de la map
+  [15:03:42.372] Map finalisée
+  [15:03:42.377] Validation terminée: SUCCES (0E / 0W / 13I)
+  [15:03:42.421] Debut placement
+  [15:03:42.456] Placement: 157/2632 (chance:2461 spacing:9 spawn:5 over:0)
+  [15:03:42.456]   RochesDures: 6
+  [15:03:42.456]   Cactus: 2
+  [15:03:42.456]   Epines: 1
+  [15:03:42.456]   Arbres: 31
+  [15:03:42.456]   Buissons: 65
+  [15:03:42.456]   Champignons: 2
+  [15:03:42.456]   RochesTendres: 20
+  [15:03:42.456]   Herbe: 16
+  [15:03:42.456]   Debris: 3
+  [15:03:42.456]   Feuillage: 4
+  [15:03:42.456]   Fleurs: 3
+  [15:03:42.456]   Troncs: 3
+  [15:03:42.456]   Minerais: 1
+
+--- DÉTAIL DES SALLES ---
+  Salle 0: 7x3 @(3,3) biome=Rocailleux [SPAWN] connexions=[1]
+  Salle 1: 3x3 @(4,8) biome=Rocailleux connexions=[0,2]
+  Salle 2: 3x3 @(7,15) biome=ForetAutomne connexions=[1,6,9,3]
+  Salle 3: 3x6 @(5,21) biome=ForetAutomne connexions=[2]
+  Salle 4: 5x5 @(12,3) biome=Rocailleux connexions=[5]
+  Salle 5: 5x4 @(20,3) biome=ForetAutomne connexions=[7,4]
+  Salle 6: 3x3 @(12,12) biome=Prairie connexions=[2,7]
+  Salle 7: 3x4 @(19,10) biome=ForetAutomne connexions=[6,8,5]
+  Salle 8: 3x4 @(24,11) biome=Prairie [EXIT] connexions=[7]
+  Salle 9: 3x3 @(12,18) biome=Foret connexions=[2]
+
+--- VALIDATION ---
+Erreurs: 0 | Warnings: 0 | Infos: 13
+  [INFO] SpawnValide: Spawn valide à (6,4) @(6,4)
+  [INFO] Connectivité: Map entièrement connectée (242 cellules)
+  [INFO] SalleVide: Salle 0 ne contient aucun objet placé @(6,4)
+  [INFO] SalleVide: Salle 1 ne contient aucun objet placé @(5,9)
+  [INFO] SalleVide: Salle 2 ne contient aucun objet placé @(8,16)
+  [INFO] SalleVide: Salle 3 ne contient aucun objet placé @(6,24)
+  [INFO] SalleVide: Salle 4 ne contient aucun objet placé @(14,5)
+  [INFO] SalleVide: Salle 5 ne contient aucun objet placé @(22,5)
+  [INFO] SalleVide: Salle 6 ne contient aucun objet placé @(13,13)
+  [INFO] SalleVide: Salle 7 ne contient aucun objet placé @(20,12)
+  [INFO] SalleVide: Salle 8 ne contient aucun objet placé @(25,13)
+  [INFO] SalleVide: Salle 9 ne contient aucun objet placé @(13,19)
+  [INFO] CheminSpawnExit: Chemin trouvé: 33 cellules (198 unités)
+
+--- MINI-CARTE ---
+                              
+                              
+  ##########################  
+  ###...####################  
+  ###...####################  
+  ###...####################  
+  ###...####################  
+  ###...####################  
+  ###...####################  
+  ###+++####...#############  
+  ###+++####...#############  
+  ###+++####...#############  
+  ###++...+++++#############  
+  ###++...+++++#############  
+  ####+...+++++#############  
+  #####+++##...+++++++++...#  
+  #####+++##...++++...++.E.#  
+  #####+++##...++++...++...#  
+  #####+++#########...++...#  
+  ##...+++#########...++####  
+  ##...+++###########+++####  
+  ##...++############+++####  
+  ###+++####.....####+++####  
+  ###+++####.....+++.....###  
+  #.......##.....+++.....###  
+  #...S...##.....+++.....###  
+  #.......##.....###.....###  
+  ##########################  
+                              
+                              
+

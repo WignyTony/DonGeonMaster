@@ -1,0 +1,157 @@
+﻿============================================================
+  LOG DE GÉNÉRATION PROCÉDURALE
+============================================================
+
+Date:       2026-04-01 11:38:20
+Seed:       599697056
+Statut:     Succes
+Temps:      0,25 ms
+
+--- PARAMÈTRES ---
+Taille map:       30 x 30
+Taille cellule:   6
+Marge bord:       2
+Salles:           5-10
+Taille salles:    3-8
+Largeur couloirs: 2
+Densité végét.:   60 ٪
+Densité roches:   20 ٪
+Densité décor:    30 ٪
+Mode:             Complet
+Layout:           BSP
+Accessibilité:    True
+Dist min S→E:     15
+Boss room:        False
+Salle spéciale:   False
+
+--- CATÉGORIES ACTIVÉES ---
+  [x] Sols
+  [x] Eau
+  [x] Arbres
+  [x] Buissons
+  [x] Herbe
+  [x] Fleurs
+  [x] RochesDures
+  [x] RochesTendres
+  [x] Cactus
+  [x] Champignons
+  [x] Minerais
+  [x] Gemmes
+  [x] Troncs
+  [x] Epines
+  [x] Feuillage
+  [x] Debris
+  [x] Coraux
+
+--- RÉSULTATS ---
+Salles générées:        10
+Couloirs:               9
+Cellules marchables:    220
+Cellules mur:           456
+Cellules eau:           0
+Objets placés (total):  154
+Spawn:                  (5, 5)
+Sortie:                 (25, 13)
+Distance spawn→sortie:  129,2
+
+--- OBJETS PAR CATÉGORIE ---
+  Epines: 4
+  Buissons: 47
+  RochesDures: 3
+  Arbres: 25
+  Herbe: 18
+  Troncs: 6
+  Champignons: 11
+  Fleurs: 11
+  RochesTendres: 16
+  Debris: 1
+  Feuillage: 12
+
+--- PIPELINE ---
+  [11:38:20.047] Initialisation de la grille
+  [11:38:20.047] Grille 30x30 initialisée (tout en Mur)
+  [11:38:20.047] Génération des salles (BSP)
+  [11:38:20.047] 10 salles générées sur 8 ciblées
+  [11:38:20.047] Connexion des salles (couloirs)
+  [11:38:20.047] 9 couloirs créés
+  [11:38:20.047] Attribution des biomes
+  [11:38:20.047] Biomes assignés par bruit de Perlin + cohérence par salle
+  [11:38:20.047] Placement du spawn et de la sortie
+  [11:38:20.047] Spawn: (5,5), Sortie: (25,13), Distance: 129,2
+  [11:38:20.047] Finalisation de la map
+  [11:38:20.047] Map finalisée
+  [11:38:20.047] Validation terminée: SUCCES (0E / 0W / 13I)
+  [11:38:20.067] Debut placement
+  [11:38:20.082] Placement: 154/2931 (chance:2760 spacing:3 spawn:14 over:0)
+  [11:38:20.082]   Epines: 4
+  [11:38:20.082]   Buissons: 47
+  [11:38:20.082]   RochesDures: 3
+  [11:38:20.082]   Arbres: 25
+  [11:38:20.082]   Herbe: 18
+  [11:38:20.082]   Troncs: 6
+  [11:38:20.082]   Champignons: 11
+  [11:38:20.082]   Fleurs: 11
+  [11:38:20.082]   RochesTendres: 16
+  [11:38:20.082]   Debris: 1
+  [11:38:20.082]   Feuillage: 12
+
+--- DÉTAIL DES SALLES ---
+  Salle 0: 5x4 @(3,3) biome=Foret [SPAWN] connexions=[1]
+  Salle 1: 3x3 @(5,11) biome=Prairie connexions=[0,2,4]
+  Salle 2: 5x3 @(3,17) biome=ForetAutomne connexions=[1]
+  Salle 3: 6x4 @(11,3) biome=Prairie connexions=[6]
+  Salle 4: 3x3 @(12,12) biome=Prairie connexions=[1,5,8]
+  Salle 5: 6x3 @(11,17) biome=Foret connexions=[4]
+  Salle 6: 3x4 @(19,6) biome=Foret connexions=[8,7,3]
+  Salle 7: 3x5 @(24,5) biome=Prairie connexions=[6]
+  Salle 8: 3x3 @(19,12) biome=Marecage connexions=[4,6,9]
+  Salle 9: 3x3 @(24,12) biome=Prairie [EXIT] connexions=[8]
+
+--- VALIDATION ---
+Erreurs: 0 | Warnings: 0 | Infos: 13
+  [INFO] SpawnValide: Spawn valide à (5,5) @(5,5)
+  [INFO] Connectivité: Map entièrement connectée (220 cellules)
+  [INFO] SalleVide: Salle 0 ne contient aucun objet placé @(5,5)
+  [INFO] SalleVide: Salle 1 ne contient aucun objet placé @(6,12)
+  [INFO] SalleVide: Salle 2 ne contient aucun objet placé @(5,18)
+  [INFO] SalleVide: Salle 3 ne contient aucun objet placé @(14,5)
+  [INFO] SalleVide: Salle 4 ne contient aucun objet placé @(13,13)
+  [INFO] SalleVide: Salle 5 ne contient aucun objet placé @(14,18)
+  [INFO] SalleVide: Salle 6 ne contient aucun objet placé @(20,8)
+  [INFO] SalleVide: Salle 7 ne contient aucun objet placé @(25,7)
+  [INFO] SalleVide: Salle 8 ne contient aucun objet placé @(20,13)
+  [INFO] SalleVide: Salle 9 ne contient aucun objet placé @(25,13)
+  [INFO] CheminSpawnExit: Chemin trouvé: 29 cellules (174 unités)
+
+--- MINI-CARTE ---
+                              
+                              
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  #.....###......###########  
+  #.....###......###########  
+  #.....###......###########  
+  ###+++#####+++############  
+  ###+++#####+++############  
+  ###+++++++...++++...++...#  
+  ###...++++...++++...++.E.#  
+  ###...++++...++++...++...#  
+  ###...###########+++######  
+  ###+++###########+++######  
+  ###+++###########...##...#  
+  ###+++###########...++...#  
+  ###+++###########...++...#  
+  #.....###......++...++...#  
+  #..S..###......+++++##...#  
+  #.....###......++++#######  
+  #.....###......###########  
+  ##########################  
+                              
+                              
+

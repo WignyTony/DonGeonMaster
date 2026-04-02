@@ -1,0 +1,120 @@
+﻿============================================================
+  LOG DE GÉNÉRATION PROCÉDURALE
+============================================================
+
+Date:       2026-03-27 12:15:42
+Seed:       -711867082
+Statut:     Succes
+Temps:      0,30 ms
+
+--- PARAMÈTRES ---
+Taille map:       30 x 30
+Taille cellule:   6
+Marge bord:       2
+Salles:           5-12
+Taille salles:    3-8
+Largeur couloirs: 2
+Densité végét.:   60 ٪
+Densité roches:   20 ٪
+Densité décor:    30 ٪
+Mode:             Complet
+Layout:           BSP
+Accessibilité:    True
+Dist min S→E:     15
+Boss room:        False
+Salle spéciale:   False
+
+--- CATÉGORIES ACTIVÉES ---
+  (toutes)
+
+--- RÉSULTATS ---
+Salles générées:        12
+Couloirs:               11
+Cellules marchables:    215
+Cellules mur:           461
+Cellules eau:           0
+Objets placés (total):  0
+Spawn:                  (5, 5)
+Sortie:                 (23, 4)
+Distance spawn→sortie:  108,2
+
+--- PIPELINE ---
+  [12:15:42.041] Initialisation de la grille
+  [12:15:42.041] Grille 30x30 initialisée (tout en Mur)
+  [12:15:42.041] Génération des salles (BSP)
+  [12:15:42.041] 12 salles générées sur 10 ciblées
+  [12:15:42.041] Connexion des salles (couloirs)
+  [12:15:42.041] 11 couloirs créés
+  [12:15:42.041] Attribution des biomes
+  [12:15:42.041] Biomes assignés par bruit de Perlin + cohérence par salle
+  [12:15:42.041] Placement du spawn et de la sortie
+  [12:15:42.041] Spawn: (5,5), Sortie: (23,4), Distance: 108,2
+  [12:15:42.041] Finalisation de la map
+  [12:15:42.041] Map finalisée
+  [12:15:42.041] Placement des assets
+  [12:15:42.042] Validation terminée: SUCCES (0E / 0W / 15I)
+
+--- DÉTAIL DES SALLES ---
+  Salle 0: 4x4 @(3,3) biome=Rocailleux [SPAWN] connexions=[3]
+  Salle 1: 4x5 @(3,9) biome=ForetAutomne connexions=[4]
+  Salle 2: 4x3 @(3,17) biome=Rocailleux connexions=[9]
+  Salle 3: 3x3 @(9,3) biome=Rocailleux connexions=[0,4]
+  Salle 4: 3x3 @(9,8) biome=Rocailleux connexions=[3,7,1]
+  Salle 5: 4x3 @(14,3) biome=Prairie connexions=[6,11]
+  Salle 6: 4x3 @(14,8) biome=ForetAutomne connexions=[8,5]
+  Salle 7: 3x3 @(9,13) biome=Prairie connexions=[4,8,9]
+  Salle 8: 3x3 @(14,13) biome=Prairie connexions=[7,6]
+  Salle 9: 4x3 @(9,18) biome=Prairie connexions=[7,10,2]
+  Salle 10: 3x3 @(15,18) biome=ForetAutomne connexions=[9]
+  Salle 11: 5x3 @(21,3) biome=Prairie [EXIT] connexions=[5]
+
+--- VALIDATION ---
+Erreurs: 0 | Warnings: 0 | Infos: 15
+  [INFO] SpawnValide: Spawn valide à (5,5) @(5,5)
+  [INFO] Connectivité: Map entièrement connectée (215 cellules)
+  [INFO] SalleVide: Salle 0 ne contient aucun objet placé @(5,5)
+  [INFO] SalleVide: Salle 1 ne contient aucun objet placé @(5,11)
+  [INFO] SalleVide: Salle 2 ne contient aucun objet placé @(5,18)
+  [INFO] SalleVide: Salle 3 ne contient aucun objet placé @(10,4)
+  [INFO] SalleVide: Salle 4 ne contient aucun objet placé @(10,9)
+  [INFO] SalleVide: Salle 5 ne contient aucun objet placé @(16,4)
+  [INFO] SalleVide: Salle 6 ne contient aucun objet placé @(16,9)
+  [INFO] SalleVide: Salle 7 ne contient aucun objet placé @(10,14)
+  [INFO] SalleVide: Salle 8 ne contient aucun objet placé @(15,14)
+  [INFO] SalleVide: Salle 9 ne contient aucun objet placé @(11,19)
+  [INFO] SalleVide: Salle 10 ne contient aucun objet placé @(16,19)
+  [INFO] SalleVide: Salle 11 ne contient aucun objet placé @(23,4)
+  [INFO] CheminSpawnExit: Chemin trouvé: 36 cellules (216 unités)
+
+--- MINI-CARTE ---
+                              
+                              
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ##########################  
+  ###++++....++...##########  
+  #....++....++...##########  
+  #....++....++...##########  
+  #....##+++################  
+  #######+++################  
+  #######...++...###########  
+  #######...++...###########  
+  #....##...++...###########  
+  #....+++++##+++###########  
+  #....+++++##+++###########  
+  #....++...##....##########  
+  #....##...##....##########  
+  #######...##....##########  
+  #######+++###+++##########  
+  #....##+++###+++##########  
+  #..S.++...##....+++.....##  
+  #....++...##....+++..E..##  
+  #....++...##....+++.....##  
+  ##########################  
+                              
+                              
+

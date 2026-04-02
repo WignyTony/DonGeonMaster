@@ -1,0 +1,60 @@
+﻿{
+    "timestamp": "2026-03-27 12:29:23",
+    "seed": 2080328518,
+    "status": "Succes",
+    "generationTimeMs": 7.421599864959717,
+    "config": {
+        "mapWidth": 30,
+        "mapHeight": 30,
+        "cellSize": 6.0,
+        "minRooms": 5,
+        "maxRooms": 12,
+        "mode": "Complet",
+        "enabledCategories": []
+    },
+    "results": {
+        "roomCount": 12,
+        "corridorCount": 11,
+        "totalObjectsPlaced": 0,
+        "walkableCells": 245,
+        "wallCells": 431,
+        "spawnCell": "4,5",
+        "exitCell": "12,24",
+        "spawnToExitDistance": 123.69316864013672
+    },
+    "errors": 0,
+    "warnings": 0,
+    "validationEntries": [
+        "[INFO] SpawnValide: Spawn valide à (4,5) @(4,5)",
+        "[INFO] Connectivité: Map entièrement connectée (245 cellules)",
+        "[INFO] SalleVide: Salle 0 ne contient aucun objet placé @(4,5)",
+        "[INFO] SalleVide: Salle 1 ne contient aucun objet placé @(9,5)",
+        "[INFO] SalleVide: Salle 2 ne contient aucun objet placé @(18,4)",
+        "[INFO] SalleVide: Salle 3 ne contient aucun objet placé @(24,4)",
+        "[INFO] SalleVide: Salle 4 ne contient aucun objet placé @(5,11)",
+        "[INFO] SalleVide: Salle 5 ne contient aucun objet placé @(6,17)",
+        "[INFO] SalleVide: Salle 6 ne contient aucun objet placé @(12,10)",
+        "[INFO] SalleVide: Salle 7 ne contient aucun objet placé @(12,16)",
+        "[INFO] SalleVide: Salle 8 ne contient aucun objet placé @(4,23)",
+        "[INFO] SalleVide: Salle 9 ne contient aucun objet placé @(12,24)",
+        "[INFO] SalleVide: Salle 10 ne contient aucun objet placé @(19,11)",
+        "[INFO] SalleVide: Salle 11 ne contient aucun objet placé @(18,18)",
+        "[INFO] CheminSpawnExit: Chemin trouvé: 28 cellules (168 unités)"
+    ],
+    "pipeline": [
+        "[12:29:23.939] Initialisation de la grille",
+        "[12:29:23.941] Grille 30x30 initialisée (tout en Mur)",
+        "[12:29:23.941] Génération des salles (BSP)",
+        "[12:29:23.942] 12 salles générées sur 7 ciblées",
+        "[12:29:23.943] Connexion des salles (couloirs)",
+        "[12:29:23.944] 11 couloirs créés",
+        "[12:29:23.944] Attribution des biomes",
+        "[12:29:23.944] Biomes assignés par bruit de Perlin + cohérence par salle",
+        "[12:29:23.945] Placement du spawn et de la sortie",
+        "[12:29:23.945] Spawn: (4,5), Sortie: (12,24), Distance: 123,7",
+        "[12:29:23.945] Finalisation de la map",
+        "[12:29:23.947] Map finalisée",
+        "[12:29:23.948] Placement des assets",
+        "[12:29:23.954] Validation terminée: SUCCES (0E / 0W / 15I)"
+    ]
+}

@@ -18,12 +18,6 @@ namespace DonGeonMaster.MapGeneration
 
         Dictionary<string, List<Vector3>> placedPerCategory = new();
 
-        static readonly HashSet<string> VegetationIds = new()
-        { "Arbres", "Buissons", "Herbe", "Fleurs", "Cactus", "Feuillage", "Epines" };
-
-        static readonly HashSet<string> RockIds = new()
-        { "RochesDures", "RochesTendres", "Minerais", "Gemmes" };
-
         // Compteurs
         Dictionary<string, int> cntPlaced = new();
         Dictionary<string, int> cntSkipChance = new();
@@ -397,7 +391,14 @@ namespace DonGeonMaster.MapGeneration
 
         float GetDensityMultiplier(AssetCategory cat, MapCell cell)
         {
-            float bd = cat.isStructural ? 1f : VegetationIds.Contains(cat.categoryId) ? config.vegetationDensity : RockIds.Contains(cat.categoryId) ? config.rockDensity : config.decorDensity;
+            float bd;
+            switch (cat.densityType)
+            {
+                case DensityType.Structural: bd = 1f; break;
+                case DensityType.Vegetation: bd = config.vegetationDensity; break;
+                case DensityType.Rock:       bd = config.rockDensity; break;
+                default:                     bd = config.decorDensity; break;
+            }
             return bd * (cell.type == CellType.Couloir ? 0.3f : 1f);
         }
 

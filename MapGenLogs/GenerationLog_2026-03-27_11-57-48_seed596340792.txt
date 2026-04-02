@@ -1,0 +1,167 @@
+﻿============================================================
+  LOG DE GÉNÉRATION PROCÉDURALE
+============================================================
+
+Date:       2026-03-27 11:57:48
+Seed:       596340792
+Statut:     Succes
+Temps:      0,35 ms
+
+--- PARAMÈTRES ---
+Taille map:       50 x 50
+Taille cellule:   6
+Marge bord:       2
+Salles:           5-12
+Taille salles:    3-8
+Largeur couloirs: 2
+Densité végét.:   45 ٪
+Densité roches:   19 ٪
+Densité décor:    23 ٪
+Mode:             Complet
+Layout:           BSP
+Accessibilité:    True
+Dist min S→E:     15
+Boss room:        False
+Salle spéciale:   False
+
+--- CATÉGORIES ACTIVÉES ---
+  [x] Sols
+  [x] Eau
+  [x] Arbres
+  [x] Buissons
+  [x] Fleurs
+  [x] RochesDures
+  [x] RochesTendres
+  [x] Cactus
+  [x] Champignons
+  [x] Minerais
+  [x] Gemmes
+  [x] Troncs
+  [x] Feuillage
+  [x] Coraux
+
+--- RÉSULTATS ---
+Salles générées:        12
+Couloirs:               11
+Cellules marchables:    223
+Cellules mur:           1893
+Cellules eau:           0
+Objets placés (total):  2224
+Spawn:                  (6, 4)
+Sortie:                 (23, 17)
+Distance spawn→sortie:  128,4
+
+--- OBJETS PAR CATÉGORIE ---
+  Sols: 870
+  Arbres: 467
+  Buissons: 247
+  RochesTendres: 355
+  Troncs: 58
+  RochesDures: 54
+  Champignons: 66
+  Minerais: 19
+  Feuillage: 57
+  Cactus: 20
+  Fleurs: 11
+
+--- PIPELINE ---
+  [11:57:48.062] Initialisation de la grille
+  [11:57:48.062] Grille 50x50 initialisée (tout en Mur)
+  [11:57:48.062] Génération des salles (BSP)
+  [11:57:48.062] 12 salles générées sur 7 ciblées
+  [11:57:48.062] Connexion des salles (couloirs)
+  [11:57:48.062] 11 couloirs créés
+  [11:57:48.062] Attribution des biomes
+  [11:57:48.062] Biomes assignés par bruit de Perlin + cohérence par salle
+  [11:57:48.062] Placement du spawn et de la sortie
+  [11:57:48.062] Spawn: (6,4), Sortie: (23,17), Distance: 128,4
+  [11:57:48.062] Finalisation de la map
+  [11:57:48.062] Map finalisée
+  [11:57:48.062] Placement des assets en scène
+  [11:57:48.064] Début du placement des assets
+  [11:57:48.230] Placement terminé: 2224 objets
+  [11:57:48.230]   Sols: 870
+  [11:57:48.230]   Arbres: 467
+  [11:57:48.230]   Buissons: 247
+  [11:57:48.230]   RochesTendres: 355
+  [11:57:48.230]   Troncs: 58
+  [11:57:48.230]   RochesDures: 54
+  [11:57:48.230]   Champignons: 66
+  [11:57:48.230]   Minerais: 19
+  [11:57:48.230]   Feuillage: 57
+  [11:57:48.230]   Cactus: 20
+  [11:57:48.230]   Fleurs: 11
+  [11:57:48.231] Validation terminée: SUCCES (0E / 0W / 3I)
+
+--- DÉTAIL DES SALLES ---
+  Salle 0: 5x3 @(4,3) biome=ForetAutomne [SPAWN] connexions=[2,1]
+  Salle 1: 3x3 @(11,3) biome=Prairie connexions=[0,3]
+  Salle 2: 5x3 @(3,8) biome=Rocailleux connexions=[0,4]
+  Salle 3: 4x3 @(10,8) biome=ForetAutomne connexions=[1,8,5]
+  Salle 4: 5x3 @(4,13) biome=Rocailleux connexions=[2]
+  Salle 5: 3x3 @(11,14) biome=Prairie connexions=[3,10]
+  Salle 6: 4x4 @(16,3) biome=Prairie connexions=[8]
+  Salle 7: 3x3 @(23,4) biome=Rocailleux connexions=[9]
+  Salle 8: 3x3 @(16,9) biome=Prairie connexions=[3,6,9]
+  Salle 9: 5x3 @(21,9) biome=ForetAutomne connexions=[8,7]
+  Salle 10: 3x4 @(16,14) biome=Foret connexions=[5,11]
+  Salle 11: 3x3 @(22,16) biome=Foret [EXIT] connexions=[10]
+
+--- VALIDATION ---
+Erreurs: 0 | Warnings: 0 | Infos: 3
+  [INFO] SpawnValide: Spawn valide à (6,4) @(6,4)
+  [INFO] Connectivité: Map entièrement connectée (223 cellules)
+  [INFO] CheminSpawnExit: Chemin trouvé: 31 cellules (186 unités)
+
+--- MINI-CARTE ---
+                                                  
+                                                  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ##############################################  
+  ####################...#######################  
+  ##########++++...+++.E.#######################  
+  #########...++...+++...#######################  
+  ##.....##...++...+++++########################  
+  ##.....##...##...#############################  
+  ##.....##+++##################################  
+  ###+++###+++##################################  
+  ###+++###+++++...++.....######################  
+  #.....##....++...++.....######################  
+  #.....##....++...++.....######################  
+  #.....##....###+++##+++#######################  
+  ##+++####+++###+++##+++#######################  
+  ##+++####+++##....##+...######################  
+  ##.....++...##....##+...######################  
+  ##..S..++...##....###...######################  
+  ##.....++...##....############################  
+  ##############################################  
+                                                  
+                                                  
+
