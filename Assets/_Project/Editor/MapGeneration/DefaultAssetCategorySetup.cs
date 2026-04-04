@@ -44,7 +44,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.ForetAutomne, BiomeType.ForetHiver, BiomeType.Prairie },
             placementChance: 0.15f, maxPerCell: 1, minSpacing: 8f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.30f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.30f, maxBoundsSize: 4.5f));
 
         // === BUISSONS === (remonte — volume moyen, lisible)
         categories.Add(CreateCategory("Buissons", "Buissons", "Buissons bas",
@@ -52,7 +52,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Prairie, BiomeType.ForetAutomne },
             placementChance: 0.20f, maxPerCell: 1, minSpacing: 4f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f, maxBoundsSize: 3.0f));
 
         // === HERBE === (remonte — vie au sol, petit volume)
         categories.Add(CreateCategory("Herbe", "Herbe", "Touffes d'herbe",
@@ -60,7 +60,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol, CellType.Couloir },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Prairie, BiomeType.ForetAutomne },
             placementChance: 0.30f, maxPerCell: 1, minSpacing: 1.5f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f, maxBoundsSize: 2.0f));
 
         // === FLEURS === (remonte — couleur, lisibilite)
         categories.Add(CreateCategory("Fleurs", "Fleurs", "Fleurs décoratives",
@@ -68,7 +68,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol },
             new List<BiomeType> { BiomeType.Prairie, BiomeType.Foret, BiomeType.Fantaisie },
             placementChance: 0.25f, maxPerCell: 1, minSpacing: 1.5f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f, maxBoundsSize: 2.0f));
 
         // === ROCHES DURES === (remonte legerement)
         categories.Add(CreateCategory("RochesDures", "Roches dures", "Gros blocs rocheux",
@@ -76,7 +76,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Rocailleux, BiomeType.Desert, BiomeType.ForetHiver },
             placementChance: 0.20f, maxPerCell: 1, minSpacing: 4f,
-            densityType: DensityType.Rock, scaleMultiplier: 0.25f));
+            densityType: DensityType.Rock, scaleMultiplier: 0.25f, maxBoundsSize: 3.0f));
 
         // === ROCHES TENDRES === (remonte — repere visuel au sol)
         categories.Add(CreateCategory("RochesTendres", "Roches tendres", "Petites pierres et galets",
@@ -84,7 +84,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol, CellType.Couloir, CellType.Mur },
             new List<BiomeType>(),
             placementChance: 0.20f, maxPerCell: 1, minSpacing: 2f,
-            densityType: DensityType.Rock, scaleMultiplier: 0.20f));
+            densityType: DensityType.Rock, scaleMultiplier: 0.20f, maxBoundsSize: 3.0f));
 
         // === CACTUS === (legerement remonte)
         categories.Add(CreateCategory("Cactus", "Cactus", "Végétation désertique",
@@ -92,7 +92,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Desert },
             placementChance: 0.20f, maxPerCell: 1, minSpacing: 5f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.25f, maxBoundsSize: 4.5f));
 
         // === CHAMPIGNONS === (remonte — petit, decore bien)
         categories.Add(CreateCategory("Champignons", "Champignons", "Champignons variés",
@@ -100,7 +100,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Marecage, BiomeType.Fantaisie },
             placementChance: 0.18f, maxPerCell: 1, minSpacing: 2.5f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.18f));
+            densityType: DensityType.Decor, scaleMultiplier: 0.18f, maxBoundsSize: 2.0f));
 
         // === MINERAIS === (legerement remonte)
         categories.Add(CreateCategory("Minerais", "Minerais", "Nodes minéraux et gemmes",
@@ -108,7 +108,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Rocailleux, BiomeType.Fantaisie },
             placementChance: 0.12f, maxPerCell: 1, minSpacing: 4f,
-            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.22f));
+            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.22f, maxBoundsSize: 2.0f));
 
         // === GEMMES === (inchange — rares par design)
         categories.Add(CreateCategory("Gemmes", "Gemmes", "Cristaux et pierres précieuses",
@@ -116,7 +116,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol },
             new List<BiomeType> { BiomeType.Fantaisie, BiomeType.Rocailleux },
             placementChance: 0.08f, maxPerCell: 1, minSpacing: 6f,
-            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.18f));
+            isGameplay: true, densityType: DensityType.Rock, scaleMultiplier: 0.18f, maxBoundsSize: 2.0f));
 
         // === TRONCS === (remonte legerement — repere visuel)
         categories.Add(CreateCategory("Troncs", "Troncs d'arbres", "Troncs coupés et souches",
@@ -124,7 +124,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol, CellType.Mur },
             new List<BiomeType> { BiomeType.Foret, BiomeType.ForetAutomne, BiomeType.ForetHiver },
             placementChance: 0.10f, maxPerCell: 1, minSpacing: 6f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.22f));
+            densityType: DensityType.Decor, scaleMultiplier: 0.22f, maxBoundsSize: 3.0f));
 
         // === ÉPINES === (remonte legerement)
         categories.Add(CreateCategory("Epines", "Épines", "Buissons épineux",
@@ -132,7 +132,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Mur },
             new List<BiomeType> { BiomeType.Desert, BiomeType.Marecage },
             placementChance: 0.18f, maxPerCell: 1, minSpacing: 3f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f, maxBoundsSize: 3.0f));
 
         // === FEUILLAGE === (remonte moderement — controle par bounds clamp)
         categories.Add(CreateCategory("Feuillage", "Feuillage", "Masses de feuilles",
@@ -140,7 +140,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Mur, CellType.Sol },
             new List<BiomeType> { BiomeType.Foret, BiomeType.Marecage },
             placementChance: 0.12f, maxPerCell: 1, minSpacing: 5f,
-            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f));
+            densityType: DensityType.Vegetation, scaleMultiplier: 0.20f, maxBoundsSize: 3.0f));
 
         // === DÉBRIS === (remonte — detail au sol)
         var debrisPrefabs = new List<string> { "Bones", "Skull", "Log", "Stick", "Leave" };
@@ -149,7 +149,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Sol, CellType.Couloir },
             new List<BiomeType>(),
             placementChance: 0.12f, maxPerCell: 1, minSpacing: 3f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.18f));
+            densityType: DensityType.Decor, scaleMultiplier: 0.18f, maxBoundsSize: 2.0f));
 
         // === CORAUX === (legerement remonte)
         categories.Add(CreateCategory("Coraux", "Coraux", "Formations coralliennes",
@@ -157,7 +157,7 @@ public class DefaultAssetCategorySetup
             new List<CellType> { CellType.Eau },
             new List<BiomeType> { BiomeType.Marecage },
             placementChance: 0.20f, maxPerCell: 1, minSpacing: 2.5f,
-            densityType: DensityType.Decor, scaleMultiplier: 0.22f));
+            densityType: DensityType.Decor, scaleMultiplier: 0.22f, maxBoundsSize: 2.0f));
 
         // === Créer le Registry ===
         var registry = ScriptableObject.CreateInstance<AssetCategoryRegistry>();
@@ -183,7 +183,8 @@ public class DefaultAssetCategorySetup
         float placementChance = 0.5f, int maxPerCell = 1, float minSpacing = 1f,
         bool isStructural = false, bool isDecoration = true, bool isGameplay = false,
         bool allowRotation = true, float minScale = 0.9f, float maxScale = 1.1f,
-        DensityType densityType = DensityType.Decor, float scaleMultiplier = 1f)
+        DensityType densityType = DensityType.Decor, float scaleMultiplier = 1f,
+        float maxBoundsSize = 0f)
     {
         var cat = ScriptableObject.CreateInstance<AssetCategory>();
         cat.categoryId = id;
@@ -203,6 +204,7 @@ public class DefaultAssetCategorySetup
         cat.maxScaleVariation = maxScale;
         cat.densityType = densityType;
         cat.scaleMultiplier = scaleMultiplier;
+        cat.maxBoundsSize = maxBoundsSize;
 
         // Charger les prefabs
         cat.prefabs = LoadPrefabsByPrefix(prefabPrefix);
@@ -217,7 +219,8 @@ public class DefaultAssetCategorySetup
         List<CellType> allowedCells, List<BiomeType> allowedBiomes,
         float placementChance = 0.5f, int maxPerCell = 1, float minSpacing = 1f,
         bool isStructural = false, bool isDecoration = true, bool isGameplay = false,
-        DensityType densityType = DensityType.Decor, float scaleMultiplier = 1f)
+        DensityType densityType = DensityType.Decor, float scaleMultiplier = 1f,
+        float maxBoundsSize = 0f)
     {
         var cat = ScriptableObject.CreateInstance<AssetCategory>();
         cat.categoryId = id;
@@ -234,6 +237,7 @@ public class DefaultAssetCategorySetup
         cat.isGameplay = isGameplay;
         cat.densityType = densityType;
         cat.scaleMultiplier = scaleMultiplier;
+        cat.maxBoundsSize = maxBoundsSize;
 
         cat.prefabs = new List<GameObject>();
         foreach (var prefix in prefabPrefixes)

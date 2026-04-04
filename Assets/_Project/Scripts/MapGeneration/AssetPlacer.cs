@@ -33,10 +33,6 @@ namespace DonGeonMaster.MapGeneration
         bool hasAnyPlaced;
         int attemptIndex;
 
-        const float MaxBoundsTree = 4.5f;
-        const float MaxBoundsBush = 3.0f;
-        const float MaxBoundsRock = 3.0f;
-        const float MaxBoundsSmall = 2.0f;
         const float SpawnExclusionRadius = 12f;
 
         struct BigInfo { public string prefab; public string cat; public Vector3 bSize; public Vector3 pos; public float maxDim; }
@@ -62,14 +58,6 @@ namespace DonGeonMaster.MapGeneration
         {
             if (!hasAnyPlaced) { posMin = p; posMax = p; hasAnyPlaced = true; }
             else { if (p.x < posMin.x) posMin.x = p.x; if (p.z < posMin.z) posMin.z = p.z; if (p.x > posMax.x) posMax.x = p.x; if (p.z > posMax.z) posMax.z = p.z; }
-        }
-
-        float GetMaxBounds(string id)
-        {
-            if (id == "Arbres" || id == "Cactus") return MaxBoundsTree;
-            if (id == "Buissons" || id == "Feuillage" || id == "Epines") return MaxBoundsBush;
-            if (id == "RochesDures" || id == "RochesTendres" || id == "Troncs") return MaxBoundsRock;
-            return MaxBoundsSmall;
         }
 
         public void Initialize(Transform root, MapGenConfig cfg, int seed, GenerationResult res)
@@ -146,7 +134,7 @@ namespace DonGeonMaster.MapGeneration
                                 initScaleX = config.assetScale.x,
                                 initScaleY = config.assetScale.y,
                                 initScaleZ = config.assetScale.z,
-                                categorySizeCap = GetMaxBounds(cat.categoryId),
+                                categorySizeCap = cat.EffectiveMaxBoundsSize,
                                 supportRenderMode = supMode,
                                 supportVisualType = supType,
                                 supportObjectName = supObj
@@ -244,7 +232,7 @@ namespace DonGeonMaster.MapGeneration
                             float maxDim = Mathf.Max(cb.size.x, cb.size.y, cb.size.z);
 
                             // Clamp
-                            float cap = GetMaxBounds(cat.categoryId);
+                            float cap = cat.EffectiveMaxBoundsSize;
                             bool clamped = false;
                             float clampRatio = 1f;
                             if (maxDim > cap && maxDim > 0.01f)

@@ -39,6 +39,8 @@ namespace DonGeonMaster.MapGeneration
         [Range(0.5f, 2f)] public float minScaleVariation = 0.9f;
         [Range(0.5f, 2f)] public float maxScaleVariation = 1.1f;
         public float yOffset;
+        [Tooltip("Taille max (bounds) autorisee avant clamp/rejet. 0 = utilise la valeur par defaut (2.0)")]
+        public float maxBoundsSize;
 
         [Header("Catégorisation")]
         public bool isStructural;
@@ -49,6 +51,11 @@ namespace DonGeonMaster.MapGeneration
         [Header("Densité")]
         [Tooltip("Determine quel slider de densite (vegetation/rock/decor) controle cette categorie")]
         public DensityType densityType = DensityType.Decor;
+
+        const float DefaultMaxBoundsSize = 2.0f;
+
+        /// <summary>Retourne maxBoundsSize effectif (fallback 2.0 si non initialise).</summary>
+        public float EffectiveMaxBoundsSize => maxBoundsSize > 0f ? maxBoundsSize : DefaultMaxBoundsSize;
 
         public bool IsAllowedOnCell(CellType cellType, BiomeType biome)
         {

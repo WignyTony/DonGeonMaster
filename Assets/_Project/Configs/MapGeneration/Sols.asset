@@ -75,6 +75,7 @@ MonoBehaviour:
   minScaleVariation: 1
   maxScaleVariation: 1
   yOffset: 0
+  maxBoundsSize: 0
   isStructural: 1
   isDecoration: 0
   isGameplay: 0
