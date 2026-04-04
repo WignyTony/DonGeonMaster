@@ -344,13 +344,15 @@ namespace DonGeonMaster.MapGeneration
             var ids = new HashSet<string>();
             foreach (var k in cntPlaced.Keys) ids.Add(k);
             foreach (var k in cntSkipChance.Keys) ids.Add(k);
+            foreach (var k in cntSkipOversize.Keys) ids.Add(k);
             foreach (var id in ids)
             {
                 int p = cntPlaced.ContainsKey(id) ? cntPlaced[id] : 0;
                 int sc = cntSkipChance.ContainsKey(id) ? cntSkipChance[id] : 0;
                 int ss = cntSkipSpacing.ContainsKey(id) ? cntSkipSpacing[id] : 0;
                 int sz = cntSkipSpawnZone.ContainsKey(id) ? cntSkipSpawnZone[id] : 0;
-                Debug.Log($"[AssetPlacer]   {id}: {p} placed | ch:{sc} sp:{ss} sz:{sz}");
+                int ov = cntSkipOversize.ContainsKey(id) ? cntSkipOversize[id] : 0;
+                Debug.Log($"[AssetPlacer]   {id}: {p} placed | ch:{sc} sp:{ss} sz:{sz} over:{ov}");
             }
 
             if (totalPlaced == 0)
