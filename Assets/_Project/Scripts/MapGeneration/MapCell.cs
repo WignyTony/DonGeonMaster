@@ -25,7 +25,6 @@ namespace DonGeonMaster.MapGeneration
         public bool isPath;
         public bool isSpawnPoint;
         public bool isExit;
-        public bool isOccupied;
         public List<string> placedAssetCategories = new();
 
         /// <summary>Hauteur du sol en unites monde. Utilise par le renderer et le collision ground.</summary>
