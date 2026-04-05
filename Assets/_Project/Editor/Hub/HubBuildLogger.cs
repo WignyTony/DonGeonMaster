@@ -171,6 +171,18 @@ public static class HubBuildLogger
     public static void Warning(string msg) { warnings.Add(msg); Debug.LogWarning($"[HubBuild] {msg}"); }
     public static void Error(string msg)   { errors.Add(msg);   Debug.LogError($"[HubBuild] {msg}"); }
 
+    public static int CountFamily(Family f) {
+        switch (f) {
+            case Family.Building: return cntBuilding;
+            case Family.Prop: return cntProp;
+            case Family.Environment: return cntEnvironment;
+            case Family.Nature: return cntNature;
+            case Family.Marker: return cntMarker;
+            case Family.Helper: return cntHelper;
+            default: return 0;
+        }
+    }
+
     // ═══ BOUNDS HELPERS ═══
 
     static void TrackBounds(Vector3 p) {
@@ -280,6 +292,20 @@ public static class HubBuildLogger
                 var (mn, mx, _) = kvp.Value;
                 sb.AppendLine($"  {kvp.Key,-12} X:[{mn.x:F1}, {mx.x:F1}]  Z:[{mn.z:F1}, {mx.z:F1}]");
             }
+        }
+        sb.AppendLine();
+
+        // Per-zone summary
+        sb.AppendLine("--- PER-ZONE SUMMARY ---");
+        foreach (var zone in zones) {
+            if (zone.entries.Count == 0) continue;
+            int zBld=0,zPrp=0,zEnv=0,zNat=0,zMk=0,zHlp=0;
+            foreach (var e in zone.entries) {
+                switch(e.family) { case Family.Building:zBld++;break; case Family.Prop:zPrp++;break;
+                    case Family.Environment:zEnv++;break; case Family.Nature:zNat++;break;
+                    case Family.Marker:zMk++;break; case Family.Helper:zHlp++;break; }
+            }
+            sb.AppendLine($"  {zone.zoneId,-20} total:{zone.entries.Count} Bld:{zBld} Prp:{zPrp} Env:{zEnv} Nat:{zNat} Mk:{zMk} Hlp:{zHlp}");
         }
         sb.AppendLine();
 
