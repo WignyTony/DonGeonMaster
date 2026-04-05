@@ -34,3 +34,6 @@ crashlytics-build.properties
 # MapGeneration debug output (logs, dumps, presets)
 MapGenLogs/
 MapGenPresets/
+
+# Hub build logs
+HubLogs/
