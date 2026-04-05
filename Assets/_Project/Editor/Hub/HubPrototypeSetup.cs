@@ -1,81 +1,46 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using DonGeonMaster.Hub;
 
 /// <summary>
-/// Cree la scene HubPrototype et le SlavicHubCatalog.asset.
+/// STEP 1 — Sol + Markers uniquement.
 /// Menu: DonGeonMaster > Creer Hub Prototype
 /// </summary>
 public class HubPrototypeSetup
 {
-    static readonly string PackPrefabs = "Assets/EmaceArt/Slavic World Free/Prefabs";
-    static readonly string CatalogPath = "Assets/_Project/Configs/Hub/SlavicHubCatalog.asset";
+    static readonly string Pack = "Assets/EmaceArt/Slavic World Free/Prefabs";
     static readonly string ScenePath = "Assets/_Project/Scenes/HubPrototype.unity";
 
-    // ── Prefab selection (exactly what the plan specifies) ──
-
-    static readonly string[] BuildingPaths = {
-        "Town/Building/EA03_Town_House_Comp_01a_PRE.prefab",
-        "Town/Building/EA03_Town_House_Comp_02a_PRE.prefab",
-        "Town/Administrative/EA03_Town_Building_Administrative _01a_PRE.prefab",
-        "Village/OutBuilding/EA03_Village_OutBuilding_Shed_01a_PRE.prefab",
-    };
-
-    static readonly string[] PropPaths = {
-        "Prop/Container/EA03_Prop_Container_Barrel_01d_PRE.prefab",
-        "Prop/Container/EA03_Prop_Container_Crate_01a_PRE.prefab",
-        "Prop/Furniture/EA03_Prop_Town_Bench_01a_PRE.prefab",
-        "Prop/Sign/EA03_Prop_Sign_Chapel_01_PRE.prefab",
-        "Prop/Village/EA03_Prop_Stand_Sheet_01a_PRE.prefab",
-        "Environment/Stairs/EA03_Village_step_platform_Stair_R_03a_PRE.prefab",
-    };
-
-    static readonly string[] EnvironmentPaths = {
-        "Environment/Road/EA03_Environment_Road_Cobble_01a_PRE.prefab",
-        "Environment/Road/EA03_Environment_Road_Cobble_01b_PRE.prefab",
-        "Environment/Road/EA03_Environment_Road_Cobble_Corner_01a_PRE.prefab",
-        "Fence/Plank2/EA03_Fence_Plank_02a_PRE.prefab",
-        "Fence/Plank2/EA03_Fence_Plank_02b_PRE.prefab",
-        "Fence/Plank2/EA03_Fence_Plank_02c_PRE.prefab",
-        "Fence/Plank2/EA03_Fence_Plank_02d_PRE.prefab",
-        "Fence/Wall/EA03_Fence_WallGate_01a_PRE.prefab",
-        "Fence/RockGate/EA03_Fence_RockGate_01a_PRE.prefab",
-        "Environment/Rock/EA03_Environment_Rock_Big_Head_01a_PRE.prefab",
-        "Environment/Rock/EA03_Environment_Rock_Flat_04c_PRE.prefab",
-    };
-
-    static readonly string[] NaturePaths = {
-        "Nature/Tree/EA03_Nature_Tree_01b_PRE.prefab",
-        "Nature/Tree/EA03_Nature_Tree_02b_PRE.prefab",
-        "Nature/Tree/EA03_Nature_Tree_03b_PRE.prefab",
-        "Nature/Bushes/EA03_Nature_Bush_01a_PRE.prefab",
-        "Nature/Bushes/EA03_Nature_Bush_02a_PRE.prefab",
-        "Nature/Bushes/EA03_Nature_Bush_03a_PRE.prefab",
-    };
+    // Sol prefabs
+    static readonly string CobbleA   = "Environment/Road/EA03_Environment_Road_Cobble_01a_PRE.prefab";
+    static readonly string CobbleB   = "Environment/Road/EA03_Environment_Road_Cobble_01b_PRE.prefab";
+    static readonly string CobbleCorner = "Environment/Road/EA03_Environment_Road_Cobble_Corner_01a_PRE.prefab";
+    static readonly string WoodRoad  = "Environment/Road/EA03_Env_Road_Wooden_01d_PRE.prefab";
+    static readonly string MudFlat   = "Environment/Mud/EA03_Env_Mud_Flat_01b_PRE.prefab";
+    static readonly string MudFlatX  = "Environment/Mud/EA03_Env_Mud_Flat_01b_x_PRE.prefab";
+    static readonly string SandFlat  = "Environment/Sand/EA03_Env_Sand_Flat_01a_PRE.prefab";
+    static readonly string Platform  = "Environment/Road/EA03_Village_platform_01a_PRE.prefab";
 
     [MenuItem("DonGeonMaster/Creer Hub Prototype", false, 300)]
     public static void CreateHubPrototype()
     {
-        // ═══ CATALOG ═══
-        Directory.CreateDirectory(Path.GetDirectoryName(CatalogPath));
+        // ═══ LOAD PREFABS ═══
+        var cobbleA = Load(CobbleA);
+        var cobbleB = Load(CobbleB);
+        var cobbleCorner = Load(CobbleCorner);
+        var woodRoad = Load(WoodRoad);
+        var mudFlat = Load(MudFlat);
+        var mudFlatX = Load(MudFlatX);
+        var sandFlat = Load(SandFlat);
+        var platform = Load(Platform);
 
-        var catalog = ScriptableObject.CreateInstance<HubAssetCatalog>();
-        catalog.buildings = LoadPrefabs(BuildingPaths);
-        catalog.props = LoadPrefabs(PropPaths);
-        catalog.environment = LoadPrefabs(EnvironmentPaths);
-        catalog.nature = LoadPrefabs(NaturePaths);
+        if (cobbleA == null) { Debug.LogError("[HubSetup] Cobble prefab not found — aborting"); return; }
 
-        AssetDatabase.CreateAsset(catalog, CatalogPath);
-        AssetDatabase.SaveAssets();
-        Debug.Log($"[HubPrototypeSetup] Catalog: {catalog.buildings.Count}B {catalog.props.Count}P {catalog.environment.Count}E {catalog.nature.Count}N");
-
-        // ═══ SCENE ═══
+        // ═══ NEW SCENE ═══
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // -- Lighting --
+        // Lighting
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
         RenderSettings.ambientSkyColor = new Color(0.35f, 0.35f, 0.45f);
         RenderSettings.ambientEquatorColor = new Color(0.25f, 0.25f, 0.3f);
@@ -86,212 +51,219 @@ public class HubPrototypeSetup
         sun.type = LightType.Directional;
         sun.color = new Color(1f, 0.92f, 0.75f);
         sun.intensity = 1.2f;
+        sun.shadows = LightShadows.Soft;
         sunGO.transform.rotation = Quaternion.Euler(45f, -30f, 0f);
 
-        // -- Ground plane --
-        var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        ground.name = "GroundPlane";
-        ground.transform.position = Vector3.zero;
-        ground.transform.localScale = new Vector3(8f, 1f, 8f);
-        ground.isStatic = true;
-
-        // -- Hierarchy containers --
-        var hubRoot = new GameObject("HubLayout");
-        var buildingsRoot = new GameObject("Buildings");
-        buildingsRoot.transform.SetParent(hubRoot.transform);
-        var propsRoot = new GameObject("Props");
-        propsRoot.transform.SetParent(hubRoot.transform);
-        var envRoot = new GameObject("Environment");
-        envRoot.transform.SetParent(hubRoot.transform);
-        var natureRoot = new GameObject("Nature");
-        natureRoot.transform.SetParent(hubRoot.transform);
-        var markersRoot = new GameObject("Markers");
-        markersRoot.transform.SetParent(hubRoot.transform);
-
-        // ── GAMEPLAY MARKERS ──
-        CreateMarker("PlayerSpawn", new Vector3(0f, 0f, -15f), markersRoot.transform);
-        CreateMarker("DungeonEntranceMarker", new Vector3(0f, 0f, 25f), markersRoot.transform);
-        CreateMarker("MerchantAreaMarker", new Vector3(-12f, 0f, 5f), markersRoot.transform);
-        CreateMarker("ForgeAreaMarker", new Vector3(12f, 0f, 5f), markersRoot.transform);
-
-        // ── BUILDINGS ──
-        // Marchand (west side)
-        Place(catalog.buildings, 0, new Vector3(-12f, 0f, 5f), 90f, buildingsRoot.transform, "Marchand_Building");
-        // Forge (east side)
-        Place(catalog.buildings, 3, new Vector3(12f, 0f, 5f), -90f, buildingsRoot.transform, "Forge_Building");
-        // Central (administrative)
-        Place(catalog.buildings, 2, new Vector3(0f, 0f, 12f), 180f, buildingsRoot.transform, "Central_Building");
-        // Ambiance (second house, south-west)
-        Place(catalog.buildings, 1, new Vector3(-10f, 0f, -8f), 45f, buildingsRoot.transform, "Ambiance_Building");
-
-        // ── ROADS (place centrale) ──
-        float roadSpacing = 4f;
-        int roadIdx_a = FindIdx(catalog.environment, "Cobble_01a");
-        int roadIdx_b = FindIdx(catalog.environment, "Cobble_01b");
-        int roadIdx_corner = FindIdx(catalog.environment, "Corner");
-        if (roadIdx_a >= 0)
-        {
-            // Central grid 3x3
-            for (int rx = -1; rx <= 1; rx++)
-                for (int rz = -1; rz <= 1; rz++)
-                {
-                    int idx = (rx == 0 && rz == 0) ? roadIdx_b : roadIdx_a;
-                    if (idx < 0) idx = roadIdx_a;
-                    Place(catalog.environment, idx, new Vector3(rx * roadSpacing, 0f, rz * roadSpacing), 0f, envRoot.transform);
-                }
-        }
-
-        // ── FENCES (perimeter) ──
-        int fenceA = FindIdx(catalog.environment, "Plank_02a");
-        int fenceB = FindIdx(catalog.environment, "Plank_02b");
-        int fenceC = FindIdx(catalog.environment, "Plank_02c");
-        int gate = FindIdx(catalog.environment, "WallGate");
-        float fenceSpacing = 5f;
-
-        // South fence (with gate at center)
-        if (fenceA >= 0)
-        {
-            Place(catalog.environment, fenceA, new Vector3(-15f, 0f, -18f), 0f, envRoot.transform);
-            Place(catalog.environment, fenceB >= 0 ? fenceB : fenceA, new Vector3(-10f, 0f, -18f), 0f, envRoot.transform);
-            Place(catalog.environment, fenceC >= 0 ? fenceC : fenceA, new Vector3(-5f, 0f, -18f), 0f, envRoot.transform);
-            if (gate >= 0) Place(catalog.environment, gate, new Vector3(0f, 0f, -18f), 0f, envRoot.transform, "SouthGate");
-            Place(catalog.environment, fenceA, new Vector3(5f, 0f, -18f), 0f, envRoot.transform);
-            Place(catalog.environment, fenceB >= 0 ? fenceB : fenceA, new Vector3(10f, 0f, -18f), 0f, envRoot.transform);
-            Place(catalog.environment, fenceA, new Vector3(15f, 0f, -18f), 0f, envRoot.transform);
-        }
-
-        // West fence
-        if (fenceA >= 0)
-            for (int i = -3; i <= 3; i++)
-                Place(catalog.environment, fenceA, new Vector3(-18f, 0f, i * fenceSpacing), 90f, envRoot.transform);
-
-        // East fence
-        if (fenceA >= 0)
-            for (int i = -3; i <= 3; i++)
-                Place(catalog.environment, fenceA, new Vector3(18f, 0f, i * fenceSpacing), 90f, envRoot.transform);
-
-        // ── DUNGEON ENTRANCE (north) ──
-        int rockBig = FindIdx(catalog.environment, "Rock_Big_Head");
-        int rockFlat = FindIdx(catalog.environment, "Rock_Flat");
-        int rockGate = FindIdx(catalog.environment, "RockGate");
-        int stairs = FindIdx(catalog.props, "Stair");
-
-        if (rockBig >= 0) Place(catalog.environment, rockBig, new Vector3(-4f, 0f, 26f), 0f, envRoot.transform, "DungeonRock_L");
-        if (rockBig >= 0) Place(catalog.environment, rockBig, new Vector3(4f, 0f, 26f), 180f, envRoot.transform, "DungeonRock_R");
-        if (rockFlat >= 0) Place(catalog.environment, rockFlat, new Vector3(0f, 0f, 28f), 0f, envRoot.transform, "DungeonRock_Back");
-        if (rockGate >= 0) Place(catalog.environment, rockGate, new Vector3(0f, 0f, 24f), 0f, envRoot.transform, "DungeonGate");
-        if (stairs >= 0) Place(catalog.props, stairs, new Vector3(0f, 0f, 22f), 0f, propsRoot.transform, "DungeonStairs");
-
-        // ── PROPS ──
-        int barrel = FindIdx(catalog.props, "Barrel");
-        int crate = FindIdx(catalog.props, "Crate_01a");
-        int bench = FindIdx(catalog.props, "Bench");
-        int sign = FindIdx(catalog.props, "Sign");
-        int stand = FindIdx(catalog.props, "Stand");
-
-        if (barrel >= 0) Place(catalog.props, barrel, new Vector3(-3f, 0f, 3f), 0f, propsRoot.transform);
-        if (barrel >= 0) Place(catalog.props, barrel, new Vector3(-3.5f, 0f, 2.5f), 30f, propsRoot.transform);
-        if (crate >= 0) Place(catalog.props, crate, new Vector3(-2.5f, 0f, 3.5f), 15f, propsRoot.transform);
-        if (bench >= 0) Place(catalog.props, bench, new Vector3(4f, 0f, -2f), 90f, propsRoot.transform, "PlaceBench");
-        if (sign >= 0) Place(catalog.props, sign, new Vector3(0f, 0f, -12f), 0f, propsRoot.transform, "VillageSign");
-        if (stand >= 0) Place(catalog.props, stand, new Vector3(-10f, 0f, 2f), 90f, propsRoot.transform, "MerchantStand");
-        if (crate >= 0) Place(catalog.props, crate, new Vector3(11f, 0f, 3f), 45f, propsRoot.transform, "ForgeCrate");
-
-        // ── NATURE ──
-        if (catalog.nature.Count >= 3)
-        {
-            Place(catalog.nature, 0, new Vector3(-16f, 0f, 10f), 0f, natureRoot.transform);
-            Place(catalog.nature, 1, new Vector3(16f, 0f, 12f), 120f, natureRoot.transform);
-            Place(catalog.nature, 2, new Vector3(-14f, 0f, -12f), 240f, natureRoot.transform);
-        }
-        if (catalog.nature.Count >= 6)
-        {
-            Place(catalog.nature, 3, new Vector3(-8f, 0f, 15f), 0f, natureRoot.transform);
-            Place(catalog.nature, 4, new Vector3(8f, 0f, -10f), 60f, natureRoot.transform);
-            Place(catalog.nature, 5, new Vector3(14f, 0f, -5f), 180f, natureRoot.transform);
-        }
-
-        // ── CAMERA ──
+        // Camera
         var camGO = new GameObject("Main Camera");
         camGO.tag = "MainCamera";
         var cam = camGO.AddComponent<Camera>();
         cam.clearFlags = CameraClearFlags.Skybox;
         cam.fieldOfView = 50f;
-        camGO.transform.position = new Vector3(0f, 25f, -30f);
-        camGO.transform.rotation = Quaternion.Euler(40f, 0f, 0f);
+        camGO.transform.position = new Vector3(0f, 40f, -35f);
+        camGO.transform.rotation = Quaternion.Euler(50f, 0f, 0f);
 
-        // ── SAVE SCENE ──
+        // ═══ HIERARCHY ═══
+        var hubRoot = new GameObject("HubLayout");
+        var solRoot = new GameObject("Sol");
+        solRoot.transform.SetParent(hubRoot.transform);
+        var markersRoot = new GameObject("Markers");
+        markersRoot.transform.SetParent(hubRoot.transform);
+
+        // ═══ MARKERS ═══
+        CreateMarker("PlayerSpawn",            new Vector3(0f,  0f, -18f), markersRoot.transform, Color.green);
+        CreateMarker("DungeonEntranceMarker",  new Vector3(0f,  0f,  28f), markersRoot.transform, Color.red);
+        CreateMarker("MerchantAreaMarker",     new Vector3(-14f, 0f, 4f),  markersRoot.transform, Color.yellow);
+        CreateMarker("ForgeAreaMarker",        new Vector3(14f, 0f,  4f),  markersRoot.transform, new Color(1f, 0.5f, 0f));
+
+        // ═══ SOL — STEP 1 ═══
+        // Hub layout (sud -> nord) :
+        //   Z = -20 to -14 : bande arrivée joueur (terre/sable)
+        //   Z = -14 to -6  : transition sud-centre (chemin bois + terre)
+        //   Z = -6  to +10 : place centrale (pavés cobble)
+        //   Z = +10 to +20 : zone nord-centre (transition cobble -> terre)
+        //   Z = +20 to +30 : entrée donjon (terre sombre/mud)
+        //
+        //   X = -18 to -8  : allée marchand (ouest)
+        //   X = +8  to +18 : allée forge (est)
+
+        float S = 4f; // tile spacing — les tiles cobble couvrent ~4 unites
+
+        // ── 1. PLACE CENTRALE (cobble) : Z -6 to +10, X -8 to +8 ──
+        var solCentre = new GameObject("Sol_PlaceCentrale");
+        solCentre.transform.SetParent(solRoot.transform);
+
+        for (int x = -2; x <= 2; x++)
+        {
+            for (int z = -1; z <= 2; z++)
+            {
+                // Centre exact = tile speciale
+                var prefab = (x == 0 && z == 0) ? (cobbleB ?? cobbleA) : cobbleA;
+                PlaceTile(prefab, new Vector3(x * S, 0f, z * S), 0f, solCentre.transform,
+                    $"Cobble_{x+2}_{z+1}");
+            }
+        }
+        // Coins de la place
+        if (cobbleCorner != null)
+        {
+            PlaceTile(cobbleCorner, new Vector3(-2*S, 0f, -1*S), 0f,   solCentre.transform, "Corner_SW");
+            PlaceTile(cobbleCorner, new Vector3( 2*S, 0f, -1*S), 90f,  solCentre.transform, "Corner_SE");
+            PlaceTile(cobbleCorner, new Vector3(-2*S, 0f,  2*S), -90f, solCentre.transform, "Corner_NW");
+            PlaceTile(cobbleCorner, new Vector3( 2*S, 0f,  2*S), 180f, solCentre.transform, "Corner_NE");
+        }
+
+        // ── 2. AXE PRINCIPAL SUD (bois + terre) : Z -18 to -6 ──
+        var solSud = new GameObject("Sol_AxeSud");
+        solSud.transform.SetParent(solRoot.transform);
+
+        var axeSudPrefab = woodRoad ?? cobbleA;
+        for (int z = -4; z <= -2; z++)
+        {
+            PlaceTile(axeSudPrefab, new Vector3(0f, 0f, z * S), 0f, solSud.transform,
+                $"AxeSud_{z+5}");
+        }
+        // Terre flanquante sur l'arrivée
+        var terreSud = sandFlat ?? mudFlat;
+        if (terreSud != null)
+        {
+            for (int z = -4; z <= -2; z++)
+            {
+                PlaceTile(terreSud, new Vector3(-S, 0f, z * S), 0f, solSud.transform, $"TerreSud_L_{z+5}");
+                PlaceTile(terreSud, new Vector3( S, 0f, z * S), 0f, solSud.transform, $"TerreSud_R_{z+5}");
+            }
+        }
+
+        // ── 3. AXE PRINCIPAL NORD (cobble → terre) : Z +10 to +28 ──
+        var solNord = new GameObject("Sol_AxeNord");
+        solNord.transform.SetParent(solRoot.transform);
+
+        // Transition cobble
+        for (int z = 3; z <= 4; z++)
+        {
+            PlaceTile(cobbleA, new Vector3(0f, 0f, z * S), 0f, solNord.transform,
+                $"NordCobble_{z-3}");
+        }
+        // Zone donjon (terre sombre)
+        var terreDonjon = mudFlat ?? sandFlat;
+        if (terreDonjon != null)
+        {
+            for (int z = 5; z <= 7; z++)
+            {
+                PlaceTile(terreDonjon, new Vector3(0f, 0f, z * S), 0f, solNord.transform,
+                    $"DonjonTerre_{z-5}");
+                PlaceTile(terreDonjon, new Vector3(-S, 0f, z * S), 0f, solNord.transform,
+                    $"DonjonTerre_L_{z-5}");
+                PlaceTile(terreDonjon, new Vector3( S, 0f, z * S), 0f, solNord.transform,
+                    $"DonjonTerre_R_{z-5}");
+            }
+        }
+
+        // ── 4. ALLÉE MARCHAND OUEST : X -8 to -18, Z ~0 to 8 ──
+        var solMarchand = new GameObject("Sol_AlleeMarchand");
+        solMarchand.transform.SetParent(solRoot.transform);
+
+        var alleePrefab = woodRoad ?? cobbleA;
+        for (int x = -3; x >= -4; x--)
+        {
+            PlaceTile(alleePrefab, new Vector3(x * S, 0f, S), 90f, solMarchand.transform,
+                $"AlleeMarchand_{x+5}");
+        }
+        // Zone marchand (terre)
+        if (terreSud != null)
+        {
+            PlaceTile(terreSud, new Vector3(-3*S, 0f, 0f), 0f, solMarchand.transform, "ZoneMarchand_0");
+            PlaceTile(terreSud, new Vector3(-4*S, 0f, 0f), 0f, solMarchand.transform, "ZoneMarchand_1");
+            PlaceTile(terreSud, new Vector3(-3*S, 0f, 2*S), 0f, solMarchand.transform, "ZoneMarchand_2");
+            PlaceTile(terreSud, new Vector3(-4*S, 0f, 2*S), 0f, solMarchand.transform, "ZoneMarchand_3");
+        }
+
+        // ── 5. ALLÉE FORGE EST : X +8 to +18, Z ~0 to 8 ──
+        var solForge = new GameObject("Sol_AlleeForge");
+        solForge.transform.SetParent(solRoot.transform);
+
+        for (int x = 3; x <= 4; x++)
+        {
+            PlaceTile(alleePrefab, new Vector3(x * S, 0f, S), 90f, solForge.transform,
+                $"AlleeForge_{x-3}");
+        }
+        // Zone forge (terre)
+        var mudForge = mudFlatX ?? mudFlat ?? sandFlat;
+        if (mudForge != null)
+        {
+            PlaceTile(mudForge, new Vector3(3*S, 0f, 0f), 0f, solForge.transform, "ZoneForge_0");
+            PlaceTile(mudForge, new Vector3(4*S, 0f, 0f), 0f, solForge.transform, "ZoneForge_1");
+            PlaceTile(mudForge, new Vector3(3*S, 0f, 2*S), 0f, solForge.transform, "ZoneForge_2");
+            PlaceTile(mudForge, new Vector3(4*S, 0f, 2*S), 0f, solForge.transform, "ZoneForge_3");
+        }
+
+        // ── 6. BASE GROUND (grand plan sous tout pour combler les trous) ──
+        var groundPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        groundPlane.name = "BaseGround";
+        groundPlane.transform.SetParent(solRoot.transform);
+        groundPlane.transform.position = new Vector3(0f, -0.05f, 5f);
+        groundPlane.transform.localScale = new Vector3(5f, 1f, 6f);
+        groundPlane.isStatic = true;
+        // Couleur terre neutre
+        var groundMr = groundPlane.GetComponent<MeshRenderer>();
+        var groundMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        groundMat.SetColor("_BaseColor", new Color(0.35f, 0.28f, 0.2f));
+        groundMat.name = "HubGroundBase";
+        groundMr.sharedMaterial = groundMat;
+
+        // ═══ SAVE ═══
+        EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.Refresh();
 
-        Debug.Log($"[HubPrototypeSetup] HubPrototype scene created at {ScenePath}");
-        Debug.Log($"[HubPrototypeSetup] Markers: PlayerSpawn, DungeonEntranceMarker, MerchantAreaMarker, ForgeAreaMarker");
+        // Count placed tiles
+        int tileCount = 0;
+        foreach (Transform child in solRoot.transform)
+            tileCount += child.childCount;
+        tileCount++; // BaseGround
+
+        Debug.Log($"[HubSetup] STEP 1 done — {tileCount} sol elements, 4 markers");
+        Debug.Log($"[HubSetup] Markers: PlayerSpawn(0,0,-18) DungeonEntrance(0,0,28) Merchant(-14,0,4) Forge(14,0,4)");
+        Debug.Log($"[HubSetup] Scene saved: {ScenePath}");
     }
 
-    static List<GameObject> LoadPrefabs(string[] relativePaths)
+    static GameObject Load(string rel)
     {
-        var list = new List<GameObject>();
-        foreach (var rel in relativePaths)
-        {
-            string full = $"{PackPrefabs}/{rel}";
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(full);
-            if (prefab != null)
-                list.Add(prefab);
-            else
-                Debug.LogWarning($"[HubPrototypeSetup] Prefab not found: {full}");
-        }
-        return list;
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{Pack}/{rel}");
+        if (prefab == null) Debug.LogWarning($"[HubSetup] Not found: {rel}");
+        return prefab;
     }
 
-    static void CreateMarker(string name, Vector3 pos, Transform parent)
+    static void PlaceTile(GameObject prefab, Vector3 pos, float rotY, Transform parent, string name = null)
+    {
+        if (prefab == null) return;
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+        go.transform.SetParent(parent);
+        go.transform.position = pos;
+        go.transform.rotation = Quaternion.Euler(0f, rotY, 0f);
+        go.isStatic = true;
+        if (name != null) go.name = name;
+    }
+
+    static void CreateMarker(string name, Vector3 pos, Transform parent, Color color)
     {
         var go = new GameObject(name);
         go.transform.SetParent(parent);
         go.transform.position = pos;
 
-        // Visual indicator (small colored cube for scene view)
+        // Pilier visuel (visible en scene view)
         var vis = GameObject.CreatePrimitive(PrimitiveType.Cube);
         vis.name = "Visual";
         vis.transform.SetParent(go.transform);
-        vis.transform.localPosition = Vector3.up * 1.5f;
-        vis.transform.localScale = new Vector3(0.5f, 3f, 0.5f);
+        vis.transform.localPosition = Vector3.up * 2f;
+        vis.transform.localScale = new Vector3(0.6f, 4f, 0.6f);
 
         var mr = vis.GetComponent<MeshRenderer>();
         var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-        Color c;
-        switch (name)
-        {
-            case "PlayerSpawn": c = Color.green; break;
-            case "DungeonEntranceMarker": c = Color.red; break;
-            case "MerchantAreaMarker": c = Color.yellow; break;
-            case "ForgeAreaMarker": c = new Color(1f, 0.5f, 0f); break;
-            default: c = Color.white; break;
-        }
-        mat.SetColor("_BaseColor", c);
+        mat.SetColor("_BaseColor", color);
         mat.name = $"Marker_{name}";
         mr.sharedMaterial = mat;
 
-        // Remove collider from marker visual
         var col = vis.GetComponent<Collider>();
         if (col != null) Object.DestroyImmediate(col);
-    }
-
-    static GameObject Place(List<GameObject> list, int idx, Vector3 pos, float rotY, Transform parent, string rename = null)
-    {
-        if (idx < 0 || idx >= list.Count || list[idx] == null) return null;
-        var go = (GameObject)PrefabUtility.InstantiatePrefab(list[idx]);
-        go.transform.SetParent(parent);
-        go.transform.position = pos;
-        go.transform.rotation = Quaternion.Euler(0f, rotY, 0f);
-        if (rename != null) go.name = rename;
-        return go;
-    }
-
-    static int FindIdx(List<GameObject> list, string partialName)
-    {
-        for (int i = 0; i < list.Count; i++)
-            if (list[i] != null && list[i].name.Contains(partialName))
-                return i;
-        return -1;
     }
 }
