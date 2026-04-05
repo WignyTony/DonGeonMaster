@@ -12,6 +12,7 @@ namespace DonGeonMaster.MapGeneration
         GenerationResult result;
 
         public bool skipStructuralCategories;
+        public bool enableDebugDump = true;
 
         /// <summary>Info de rendu sol par cellule (x,y) → CellSupportInfo. Alimente par le renderer avant PlaceAssets.</summary>
         public Dictionary<(int x, int y), CellSupportInfo> cellRenderLookup;
@@ -82,7 +83,7 @@ namespace DonGeonMaster.MapGeneration
             float exclSq = SpawnExclusionRadius * SpawnExclusionRadius;
 
             // Demarrer le dump
-            PlacementDebugDump.Begin(config, map, cats.Count);
+            if (enableDebugDump) PlacementDebugDump.Begin(config, map, cats.Count);
 
             HashSet<string> shaderWarned = new();
 
@@ -109,43 +110,45 @@ namespace DonGeonMaster.MapGeneration
                             totalAttempted++;
                             attemptIndex++;
 
-                            // Base attempt record
-                            // Support visuel sol
-                            string supMode = "", supType = "", supObj = "";
-                            if (cellRenderLookup != null && cellRenderLookup.TryGetValue((x, y), out var cri))
+                            // Base attempt record (only built when dump is active)
+                            PlacementAttempt rec = default;
+                            if (enableDebugDump)
                             {
-                                supMode = cri.renderMode;
-                                supType = cri.materialName;
-                                supObj = cri.objectName;
-                            }
+                                string supMode = "", supType = "", supObj = "";
+                                if (cellRenderLookup != null && cellRenderLookup.TryGetValue((x, y), out var cri))
+                                {
+                                    supMode = cri.renderMode;
+                                    supType = cri.materialName;
+                                    supObj = cri.objectName;
+                                }
 
-                            var rec = new PlacementAttempt
-                            {
-                                attemptIndex = attemptIndex,
-                                categoryId = cat.categoryId,
-                                biome = cell.biome.ToString(),
-                                supportCellType = cell.type.ToString(),
-                                surfaceShape = cell.surfaceShape.ToString(),
-                                cellFloorHeight = cell.floorHeight,
-                                cellX = x, cellY = y,
-                                supportCenterX = x * config.cellSize,
-                                supportCenterY = 0,
-                                supportCenterZ = y * config.cellSize,
-                                initScaleX = config.assetScale.x,
-                                initScaleY = config.assetScale.y,
-                                initScaleZ = config.assetScale.z,
-                                categorySizeCap = cat.EffectiveMaxBoundsSize,
-                                supportRenderMode = supMode,
-                                supportVisualType = supType,
-                                supportObjectName = supObj
-                            };
+                                rec = new PlacementAttempt
+                                {
+                                    attemptIndex = attemptIndex,
+                                    categoryId = cat.categoryId,
+                                    biome = cell.biome.ToString(),
+                                    supportCellType = cell.type.ToString(),
+                                    surfaceShape = cell.surfaceShape.ToString(),
+                                    cellFloorHeight = cell.floorHeight,
+                                    cellX = x, cellY = y,
+                                    supportCenterX = x * config.cellSize,
+                                    supportCenterY = 0,
+                                    supportCenterZ = y * config.cellSize,
+                                    initScaleX = config.assetScale.x,
+                                    initScaleY = config.assetScale.y,
+                                    initScaleZ = config.assetScale.z,
+                                    categorySizeCap = cat.EffectiveMaxBoundsSize,
+                                    supportRenderMode = supMode,
+                                    supportVisualType = supType,
+                                    supportObjectName = supObj
+                                };
+                            }
 
                             // Chance check
                             if ((float)rng.NextDouble() > chance)
                             {
                                 totalSkipChance++; Inc(cntSkipChance, cat.categoryId);
-                                rec.finalStatus = "skip_chance"; rec.prefabName = "";
-                                PlacementDebugDump.Record(rec);
+                                if (enableDebugDump) { rec.finalStatus = "skip_chance"; rec.prefabName = ""; PlacementDebugDump.Record(rec); }
                                 continue;
                             }
 
@@ -153,11 +156,10 @@ namespace DonGeonMaster.MapGeneration
                             if (prefab == null)
                             {
                                 totalSkipPrefabNull++; Inc(cntSkipPrefabNull, cat.categoryId);
-                                rec.finalStatus = "skip_prefabNull"; rec.prefabName = "";
-                                PlacementDebugDump.Record(rec);
+                                if (enableDebugDump) { rec.finalStatus = "skip_prefabNull"; rec.prefabName = ""; PlacementDebugDump.Record(rec); }
                                 continue;
                             }
-                            rec.prefabName = prefab.name;
+                            if (enableDebugDump) rec.prefabName = prefab.name;
 
                             // Shader warn (once)
                             if (!shaderWarned.Contains(cat.categoryId))
@@ -173,18 +175,16 @@ namespace DonGeonMaster.MapGeneration
                             }
 
                             Vector3 wp = CellToWorld(x, y, cell.floorHeight) + GetRandomOffset(cat);
-                            rec.worldPosX = wp.x; rec.worldPosY = wp.y; rec.worldPosZ = wp.z;
 
                             float dS = Mathf.Sqrt((wp.x - spawnW.x) * (wp.x - spawnW.x) + (wp.z - spawnW.z) * (wp.z - spawnW.z));
                             float dE = Mathf.Sqrt((wp.x - exitW.x) * (wp.x - exitW.x) + (wp.z - exitW.z) * (wp.z - exitW.z));
-                            rec.distanceToSpawn = dS; rec.distanceToExit = dE;
+                            if (enableDebugDump) { rec.worldPosX = wp.x; rec.worldPosY = wp.y; rec.worldPosZ = wp.z; rec.distanceToSpawn = dS; rec.distanceToExit = dE; }
 
                             // Spawn zone
                             if (dS * dS < exclSq * 1.0001f || dE * dE < exclSq * 1.0001f)
                             {
                                 totalSkipSpawnZone++; Inc(cntSkipSpawnZone, cat.categoryId);
-                                rec.finalStatus = "skip_spawnZone";
-                                PlacementDebugDump.Record(rec);
+                                if (enableDebugDump) { rec.finalStatus = "skip_spawnZone"; PlacementDebugDump.Record(rec); }
                                 continue;
                             }
 
@@ -192,8 +192,7 @@ namespace DonGeonMaster.MapGeneration
                             if (cat.minSpacing > 0 && IsTooClose(cat.categoryId, wp, cat.minSpacing))
                             {
                                 totalSkipSpacing++; Inc(cntSkipSpacing, cat.categoryId);
-                                rec.finalStatus = "skip_spacing";
-                                PlacementDebugDump.Record(rec);
+                                if (enableDebugDump) { rec.finalStatus = "skip_spacing"; PlacementDebugDump.Record(rec); }
                                 continue;
                             }
 
@@ -207,7 +206,7 @@ namespace DonGeonMaster.MapGeneration
                             var go = Object.Instantiate(prefab, wp, baseRot, mapRoot);
 
                             Vector3 baseScale = config.assetScale * cat.scaleMultiplier;
-                            rec.scaleAfterMultX = baseScale.x; rec.scaleAfterMultY = baseScale.y; rec.scaleAfterMultZ = baseScale.z;
+                            if (enableDebugDump) { rec.scaleAfterMultX = baseScale.x; rec.scaleAfterMultY = baseScale.y; rec.scaleAfterMultZ = baseScale.z; }
 
                             if (cat.allowRotationVariation)
                             {
@@ -221,12 +220,12 @@ namespace DonGeonMaster.MapGeneration
                             if (cat.yOffset != 0)
                             {
                                 go.transform.position += Vector3.up * cat.yOffset;
-                                rec.yOffsetApplied = cat.yOffset;
+                                if (enableDebugDump) rec.yOffsetApplied = cat.yOffset;
                             }
 
                             // Bounds
                             var renderers = go.GetComponentsInChildren<Renderer>();
-                            rec.rendererCount = renderers.Length;
+                            if (enableDebugDump) rec.rendererCount = renderers.Length;
                             Bounds cb = new Bounds(go.transform.position, Vector3.zero);
                             foreach (var r in renderers) cb.Encapsulate(r.bounds);
                             float maxDim = Mathf.Max(cb.size.x, cb.size.y, cb.size.z);
@@ -249,48 +248,46 @@ namespace DonGeonMaster.MapGeneration
                                 {
                                     Object.Destroy(go);
                                     totalSkipOversize++; Inc(cntSkipOversize, cat.categoryId);
-                                    rec.finalStatus = "skip_oversize";
-                                    rec.wasBoundsClamped = true; rec.clampRatio = clampRatio;
-                                    PlacementDebugDump.Record(rec);
+                                    if (enableDebugDump) { rec.finalStatus = "skip_oversize"; rec.wasBoundsClamped = true; rec.clampRatio = clampRatio; PlacementDebugDump.Record(rec); }
                                     continue;
                                 }
                             }
 
-                            // Fill record with final data
-                            rec.finalStatus = "placed";
-                            var fp = go.transform.position;
-                            var fe = go.transform.rotation.eulerAngles;
-                            var fs = go.transform.localScale;
-                            rec.worldPosX = fp.x; rec.worldPosY = fp.y; rec.worldPosZ = fp.z;
-                            rec.rotEulerX = fe.x; rec.rotEulerY = fe.y; rec.rotEulerZ = fe.z;
-                            rec.scaleX = fs.x; rec.scaleY = fs.y; rec.scaleZ = fs.z;
-                            rec.scaleAfterClampX = fs.x; rec.scaleAfterClampY = fs.y; rec.scaleAfterClampZ = fs.z;
-                            rec.wasBoundsClamped = clamped; rec.clampRatio = clampRatio;
-                            rec.boundsCenterX = cb.center.x; rec.boundsCenterY = cb.center.y; rec.boundsCenterZ = cb.center.z;
-                            rec.boundsSizeX = cb.size.x; rec.boundsSizeY = cb.size.y; rec.boundsSizeZ = cb.size.z;
-                            rec.boundsMinX = cb.min.x; rec.boundsMinY = cb.min.y; rec.boundsMinZ = cb.min.z;
-                            rec.boundsMaxX = cb.max.x; rec.boundsMaxY = cb.max.y; rec.boundsMaxZ = cb.max.z;
-                            rec.maxDimension = maxDim;
-
-                            // Orientation
-                            rec.prefabForwardX = go.transform.forward.x;
-                            rec.prefabForwardY = go.transform.forward.y;
-                            rec.prefabForwardZ = go.transform.forward.z;
-                            rec.prefabUpX = go.transform.up.x;
-                            rec.prefabUpY = go.transform.up.y;
-                            rec.prefabUpZ = go.transform.up.z;
-                            if (renderers.Length > 0)
+                            // Fill record with final data and record
+                            if (enableDebugDump)
                             {
-                                var fr = renderers[0];
-                                rec.firstRendPosX = fr.transform.position.x;
-                                rec.firstRendPosY = fr.transform.position.y;
-                                rec.firstRendPosZ = fr.transform.position.z;
-                                var re = fr.transform.rotation.eulerAngles;
-                                rec.firstRendRotX = re.x; rec.firstRendRotY = re.y; rec.firstRendRotZ = re.z;
+                                rec.finalStatus = "placed";
+                                var fp = go.transform.position;
+                                var fe = go.transform.rotation.eulerAngles;
+                                var fs = go.transform.localScale;
+                                rec.worldPosX = fp.x; rec.worldPosY = fp.y; rec.worldPosZ = fp.z;
+                                rec.rotEulerX = fe.x; rec.rotEulerY = fe.y; rec.rotEulerZ = fe.z;
+                                rec.scaleX = fs.x; rec.scaleY = fs.y; rec.scaleZ = fs.z;
+                                rec.scaleAfterClampX = fs.x; rec.scaleAfterClampY = fs.y; rec.scaleAfterClampZ = fs.z;
+                                rec.wasBoundsClamped = clamped; rec.clampRatio = clampRatio;
+                                rec.boundsCenterX = cb.center.x; rec.boundsCenterY = cb.center.y; rec.boundsCenterZ = cb.center.z;
+                                rec.boundsSizeX = cb.size.x; rec.boundsSizeY = cb.size.y; rec.boundsSizeZ = cb.size.z;
+                                rec.boundsMinX = cb.min.x; rec.boundsMinY = cb.min.y; rec.boundsMinZ = cb.min.z;
+                                rec.boundsMaxX = cb.max.x; rec.boundsMaxY = cb.max.y; rec.boundsMaxZ = cb.max.z;
+                                rec.maxDimension = maxDim;
+                                rec.prefabForwardX = go.transform.forward.x;
+                                rec.prefabForwardY = go.transform.forward.y;
+                                rec.prefabForwardZ = go.transform.forward.z;
+                                rec.prefabUpX = go.transform.up.x;
+                                rec.prefabUpY = go.transform.up.y;
+                                rec.prefabUpZ = go.transform.up.z;
+                                if (renderers.Length > 0)
+                                {
+                                    var fr = renderers[0];
+                                    rec.firstRendPosX = fr.transform.position.x;
+                                    rec.firstRendPosY = fr.transform.position.y;
+                                    rec.firstRendPosZ = fr.transform.position.z;
+                                    var re = fr.transform.rotation.eulerAngles;
+                                    rec.firstRendRotX = re.x; rec.firstRendRotY = re.y; rec.firstRendRotZ = re.z;
+                                }
+                                rec.estimatedTouchesGround = cb.min.y <= 0.5f;
+                                PlacementDebugDump.Record(rec);
                             }
-                            rec.estimatedTouchesGround = cb.min.y <= 0.5f;
-
-                            PlacementDebugDump.Record(rec);
 
                             go.name = $"{cat.categoryId}_{x}_{y}_{i}";
                             cell.placedObjects.Add(go);
@@ -318,10 +315,11 @@ namespace DonGeonMaster.MapGeneration
             foreach (var k in cntSkipOversize) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
             foreach (var k in cntSkipPrefabNull) { if (!allRej.ContainsKey(k.Key)) allRej[k.Key] = 0; allRej[k.Key] += k.Value; }
 
-            PlacementDebugDump.Finalize(
-                totalAttempted, totalPlaced,
-                totalSkipChance, totalSkipSpacing, totalSkipSpawnZone, totalSkipOversize, totalSkipPrefabNull,
-                cntPlaced, allRej);
+            if (enableDebugDump)
+                PlacementDebugDump.Finalize(
+                    totalAttempted, totalPlaced,
+                    totalSkipChance, totalSkipSpacing, totalSkipSpawnZone, totalSkipOversize, totalSkipPrefabNull,
+                    cntPlaced, allRej);
 
             // Synthese console
             result.objectsPerCategory = new Dictionary<string, int>(cntPlaced);
