@@ -20,12 +20,10 @@ public class HubPrototypeSetup
     static readonly string MudFlat      = "Environment/Mud/EA03_Env_Mud_Flat_01b_PRE.prefab";
     static readonly string MudFlatX     = "Environment/Mud/EA03_Env_Mud_Flat_01b_x_PRE.prefab";
     static readonly string SandFlat     = "Environment/Sand/EA03_Env_Sand_Flat_01a_PRE.prefab";
-    static readonly string Platform     = "Environment/Road/EA03_Village_platform_01a_PRE.prefab";
 
     [MenuItem("DonGeonMaster/Creer Hub Prototype", false, 300)]
     public static void CreateHubPrototype()
     {
-        // ═══ LOGGER START ═══
         HubBuildLogger.Begin(ScenePath, $"Pack: {Pack}");
 
         // ═══ LOAD PREFABS ═══
@@ -36,20 +34,18 @@ public class HubPrototypeSetup
         var mudFlat = Load(MudFlat);
         var mudFlatX = Load(MudFlatX);
         var sandFlat = Load(SandFlat);
-        var platform = Load(Platform);
 
-        if (cobbleA == null)
-        {
+        if (cobbleA == null) {
             HubBuildLogger.Error("Cobble prefab not found — aborting");
             HubBuildLogger.End();
             return;
         }
 
         // ═══ NEW SCENE ═══
+        HubBuildLogger.SetPhase("ground_foundation");
         HubBuildLogger.BeginZone("scene_setup", "Scene Setup");
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // Lighting
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
         RenderSettings.ambientSkyColor = new Color(0.35f, 0.35f, 0.45f);
         RenderSettings.ambientEquatorColor = new Color(0.25f, 0.25f, 0.3f);
@@ -62,9 +58,8 @@ public class HubPrototypeSetup
         sun.intensity = 1.2f;
         sun.shadows = LightShadows.Soft;
         sunGO.transform.rotation = Quaternion.Euler(45f, -30f, 0f);
-        LogGO("scene_infrastructure", sunGO, null, "Directional light, warm tone", sunGO.transform);
+        LogRuntimeGO("scene_light", HubBuildLogger.Family.Helper, sunGO, "Directional light, warm tone");
 
-        // Camera
         var camGO = new GameObject("Main Camera");
         camGO.tag = "MainCamera";
         var cam = camGO.AddComponent<Camera>();
@@ -72,7 +67,7 @@ public class HubPrototypeSetup
         cam.fieldOfView = 50f;
         camGO.transform.position = new Vector3(0f, 40f, -35f);
         camGO.transform.rotation = Quaternion.Euler(50f, 0f, 0f);
-        LogGO("scene_infrastructure", camGO, null, "Overview camera", camGO.transform);
+        LogRuntimeGO("scene_camera", HubBuildLogger.Family.Helper, camGO, "Overview camera for scene editing");
 
         // ═══ HIERARCHY ═══
         var hubRoot = new GameObject("HubLayout");
@@ -82,6 +77,7 @@ public class HubPrototypeSetup
         markersRoot.transform.SetParent(hubRoot.transform);
 
         // ═══ MARKERS ═══
+        HubBuildLogger.SetPhase("gameplay_markers");
         HubBuildLogger.BeginZone("markers", "Gameplay Markers");
         CreateMarker("PlayerSpawn",            new Vector3(0f,  0f, -18f), markersRoot.transform, Color.green,
             "Player arrival point, south gate");
@@ -93,6 +89,7 @@ public class HubPrototypeSetup
             "Forge/upgrade zone anchor, east of plaza");
 
         // ═══ SOL — STEP 1 ═══
+        HubBuildLogger.SetPhase("ground_foundation");
         float S = 4f;
 
         // ── 1. PLACE CENTRALE ──
@@ -101,109 +98,95 @@ public class HubPrototypeSetup
         solCentre.transform.SetParent(solRoot.transform);
 
         for (int x = -2; x <= 2; x++)
-        {
-            for (int z = -1; z <= 2; z++)
-            {
+            for (int z = -1; z <= 2; z++) {
                 var prefab = (x == 0 && z == 0) ? (cobbleB ?? cobbleA) : cobbleA;
-                string note = (x == 0 && z == 0) ? "Central plaza anchor" : "Plaza cobble fill";
+                string note = (x == 0 && z == 0) ? "Central plaza anchor tile" : "Plaza cobble paving fill";
                 PlaceTile(prefab, new Vector3(x * S, 0f, z * S), 0f, solCentre.transform,
-                    $"Cobble_{x+2}_{z+1}", "cobble_plaza", note);
+                    $"Cobble_{x+2}_{z+1}", "cobble_plaza", HubBuildLogger.Family.Environment, note);
             }
-        }
-        if (cobbleCorner != null)
-        {
-            PlaceTile(cobbleCorner, new Vector3(-2*S, 0f, -1*S), 0f,   solCentre.transform, "Corner_SW", "corner_plaza", "SW corner frames plaza");
-            PlaceTile(cobbleCorner, new Vector3( 2*S, 0f, -1*S), 90f,  solCentre.transform, "Corner_SE", "corner_plaza", "SE corner frames plaza");
-            PlaceTile(cobbleCorner, new Vector3(-2*S, 0f,  2*S), -90f, solCentre.transform, "Corner_NW", "corner_plaza", "NW corner frames plaza");
-            PlaceTile(cobbleCorner, new Vector3( 2*S, 0f,  2*S), 180f, solCentre.transform, "Corner_NE", "corner_plaza", "NE corner frames plaza");
+
+        if (cobbleCorner != null) {
+            PlaceTile(cobbleCorner, new Vector3(-2*S, 0f, -1*S), 0f,   solCentre.transform, "Corner_SW", "corner_plaza", HubBuildLogger.Family.Environment, "SW corner frames plaza edge");
+            PlaceTile(cobbleCorner, new Vector3( 2*S, 0f, -1*S), 90f,  solCentre.transform, "Corner_SE", "corner_plaza", HubBuildLogger.Family.Environment, "SE corner frames plaza edge");
+            PlaceTile(cobbleCorner, new Vector3(-2*S, 0f,  2*S), -90f, solCentre.transform, "Corner_NW", "corner_plaza", HubBuildLogger.Family.Environment, "NW corner frames plaza edge");
+            PlaceTile(cobbleCorner, new Vector3( 2*S, 0f,  2*S), 180f, solCentre.transform, "Corner_NE", "corner_plaza", HubBuildLogger.Family.Environment, "NE corner frames plaza edge");
         }
 
-        // ── 2. AXE PRINCIPAL SUD ──
+        // ── 2. AXE SUD ──
         HubBuildLogger.BeginZone("south_arrival", "South Arrival Path");
         var solSud = new GameObject("Sol_AxeSud");
         solSud.transform.SetParent(solRoot.transform);
 
         var axeSudPrefab = woodRoad ?? cobbleA;
         for (int z = -4; z <= -2; z++)
-        {
             PlaceTile(axeSudPrefab, new Vector3(0f, 0f, z * S), 0f, solSud.transform,
-                $"AxeSud_{z+5}", "road_arrival", "Main south approach path");
-        }
+                $"AxeSud_{z+5}", "road_arrival", HubBuildLogger.Family.Environment, "Main south approach path from spawn");
+
         var terreSud = sandFlat ?? mudFlat;
         if (terreSud != null)
-        {
-            for (int z = -4; z <= -2; z++)
-            {
+            for (int z = -4; z <= -2; z++) {
                 PlaceTile(terreSud, new Vector3(-S, 0f, z * S), 0f, solSud.transform,
-                    $"TerreSud_L_{z+5}", "sand_flank", "Left flank, arrival zone");
+                    $"TerreSud_L_{z+5}", "sand_arrival_flank", HubBuildLogger.Family.Environment, "Left dirt flank, arrival zone");
                 PlaceTile(terreSud, new Vector3( S, 0f, z * S), 0f, solSud.transform,
-                    $"TerreSud_R_{z+5}", "sand_flank", "Right flank, arrival zone");
+                    $"TerreSud_R_{z+5}", "sand_arrival_flank", HubBuildLogger.Family.Environment, "Right dirt flank, arrival zone");
             }
-        }
 
-        // ── 3. AXE PRINCIPAL NORD ──
+        // ── 3. AXE NORD ──
         HubBuildLogger.BeginZone("north_approach", "North Approach");
         var solNord = new GameObject("Sol_AxeNord");
         solNord.transform.SetParent(solRoot.transform);
 
         for (int z = 3; z <= 4; z++)
-        {
             PlaceTile(cobbleA, new Vector3(0f, 0f, z * S), 0f, solNord.transform,
-                $"NordCobble_{z-3}", "cobble_transition", "Cobble transition plaza to dungeon");
-        }
+                $"NordCobble_{z-3}", "cobble_transition", HubBuildLogger.Family.Environment, "Cobble transition plaza toward dungeon");
 
-        // ── 4. ZONE DONJON (terre) ──
+        // ── 4. ZONE DONJON ──
+        HubBuildLogger.SetPhase("dungeon_approach");
         HubBuildLogger.BeginZone("dungeon_entrance", "Dungeon Entrance Ground");
         var terreDonjon = mudFlat ?? sandFlat;
         if (terreDonjon != null)
-        {
-            for (int z = 5; z <= 7; z++)
-            {
+            for (int z = 5; z <= 7; z++) {
                 PlaceTile(terreDonjon, new Vector3(0f, 0f, z * S), 0f, solNord.transform,
-                    $"DonjonTerre_{z-5}", "mud_dungeon", "Dark ground approaching dungeon");
+                    $"DonjonTerre_{z-5}", "mud_dungeon_approach", HubBuildLogger.Family.Environment, "Dark ground approaching dungeon entrance");
                 PlaceTile(terreDonjon, new Vector3(-S, 0f, z * S), 0f, solNord.transform,
-                    $"DonjonTerre_L_{z-5}", "mud_dungeon", "Left dungeon approach flank");
+                    $"DonjonTerre_L_{z-5}", "mud_dungeon_flank", HubBuildLogger.Family.Environment, "Left dungeon approach flank");
                 PlaceTile(terreDonjon, new Vector3( S, 0f, z * S), 0f, solNord.transform,
-                    $"DonjonTerre_R_{z-5}", "mud_dungeon", "Right dungeon approach flank");
+                    $"DonjonTerre_R_{z-5}", "mud_dungeon_flank", HubBuildLogger.Family.Environment, "Right dungeon approach flank");
             }
-        }
 
-        // ── 5. ALLÉE MARCHAND OUEST ──
+        // ── 5. ALLÉE MARCHAND ──
+        HubBuildLogger.SetPhase("ground_foundation");
         HubBuildLogger.BeginZone("merchant_area", "Merchant Area");
         var solMarchand = new GameObject("Sol_AlleeMarchand");
         solMarchand.transform.SetParent(solRoot.transform);
 
         var alleePrefab = woodRoad ?? cobbleA;
         for (int x = -3; x >= -4; x--)
-        {
             PlaceTile(alleePrefab, new Vector3(x * S, 0f, S), 90f, solMarchand.transform,
-                $"AlleeMarchand_{x+5}", "road_merchant", "Wooden path to merchant zone");
-        }
-        if (terreSud != null)
-        {
-            PlaceTile(terreSud, new Vector3(-3*S, 0f, 0f), 0f, solMarchand.transform, "ZoneMarchand_0", "sand_merchant", "Merchant zone ground SW");
-            PlaceTile(terreSud, new Vector3(-4*S, 0f, 0f), 0f, solMarchand.transform, "ZoneMarchand_1", "sand_merchant", "Merchant zone ground NW");
-            PlaceTile(terreSud, new Vector3(-3*S, 0f, 2*S), 0f, solMarchand.transform, "ZoneMarchand_2", "sand_merchant", "Merchant zone ground SE");
-            PlaceTile(terreSud, new Vector3(-4*S, 0f, 2*S), 0f, solMarchand.transform, "ZoneMarchand_3", "sand_merchant", "Merchant zone ground NE");
+                $"AlleeMarchand_{x+5}", "road_merchant_path", HubBuildLogger.Family.Environment, "Wooden path connecting plaza to merchant zone");
+
+        if (terreSud != null) {
+            PlaceTile(terreSud, new Vector3(-3*S, 0f, 0f), 0f, solMarchand.transform, "ZoneMarchand_0", "sand_merchant_zone", HubBuildLogger.Family.Environment, "Merchant zone ground SW quadrant");
+            PlaceTile(terreSud, new Vector3(-4*S, 0f, 0f), 0f, solMarchand.transform, "ZoneMarchand_1", "sand_merchant_zone", HubBuildLogger.Family.Environment, "Merchant zone ground NW quadrant");
+            PlaceTile(terreSud, new Vector3(-3*S, 0f, 2*S), 0f, solMarchand.transform, "ZoneMarchand_2", "sand_merchant_zone", HubBuildLogger.Family.Environment, "Merchant zone ground SE quadrant");
+            PlaceTile(terreSud, new Vector3(-4*S, 0f, 2*S), 0f, solMarchand.transform, "ZoneMarchand_3", "sand_merchant_zone", HubBuildLogger.Family.Environment, "Merchant zone ground NE quadrant");
         }
 
-        // ── 6. ALLÉE FORGE EST ──
+        // ── 6. ALLÉE FORGE ──
         HubBuildLogger.BeginZone("forge_area", "Forge Area");
         var solForge = new GameObject("Sol_AlleeForge");
         solForge.transform.SetParent(solRoot.transform);
 
         for (int x = 3; x <= 4; x++)
-        {
             PlaceTile(alleePrefab, new Vector3(x * S, 0f, S), 90f, solForge.transform,
-                $"AlleeForge_{x-3}", "road_forge", "Wooden path to forge zone");
-        }
+                $"AlleeForge_{x-3}", "road_forge_path", HubBuildLogger.Family.Environment, "Wooden path connecting plaza to forge zone");
+
         var mudForge = mudFlatX ?? mudFlat ?? sandFlat;
-        if (mudForge != null)
-        {
-            PlaceTile(mudForge, new Vector3(3*S, 0f, 0f), 0f, solForge.transform, "ZoneForge_0", "mud_forge", "Forge zone ground SW");
-            PlaceTile(mudForge, new Vector3(4*S, 0f, 0f), 0f, solForge.transform, "ZoneForge_1", "mud_forge", "Forge zone ground NW");
-            PlaceTile(mudForge, new Vector3(3*S, 0f, 2*S), 0f, solForge.transform, "ZoneForge_2", "mud_forge", "Forge zone ground SE");
-            PlaceTile(mudForge, new Vector3(4*S, 0f, 2*S), 0f, solForge.transform, "ZoneForge_3", "mud_forge", "Forge zone ground NE");
+        if (mudForge != null) {
+            PlaceTile(mudForge, new Vector3(3*S, 0f, 0f), 0f, solForge.transform, "ZoneForge_0", "mud_forge_zone", HubBuildLogger.Family.Environment, "Forge zone ground SW quadrant");
+            PlaceTile(mudForge, new Vector3(4*S, 0f, 0f), 0f, solForge.transform, "ZoneForge_1", "mud_forge_zone", HubBuildLogger.Family.Environment, "Forge zone ground NW quadrant");
+            PlaceTile(mudForge, new Vector3(3*S, 0f, 2*S), 0f, solForge.transform, "ZoneForge_2", "mud_forge_zone", HubBuildLogger.Family.Environment, "Forge zone ground SE quadrant");
+            PlaceTile(mudForge, new Vector3(4*S, 0f, 2*S), 0f, solForge.transform, "ZoneForge_3", "mud_forge_zone", HubBuildLogger.Family.Environment, "Forge zone ground NE quadrant");
         }
 
         // ── 7. BASE GROUND ──
@@ -219,14 +202,13 @@ public class HubPrototypeSetup
         groundMat.SetColor("_BaseColor", new Color(0.35f, 0.28f, 0.2f));
         groundMat.name = "HubGroundBase";
         groundMr.sharedMaterial = groundMat;
-        LogGO("ground_base", groundPlane, null, "Earth-colored base fills gaps", solRoot.transform);
+        LogRuntimeGO("ground_base_plane", HubBuildLogger.Family.Helper, groundPlane, "Earth-colored base plane fills visual gaps");
 
         // ═══ SAVE ═══
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.Refresh();
 
-        // ═══ LOGGER END ═══
         HubBuildLogger.End();
     }
 
@@ -239,8 +221,15 @@ public class HubPrototypeSetup
         return prefab;
     }
 
+    static string HierarchyPath(Transform t)
+    {
+        var parts = new System.Collections.Generic.List<string>();
+        while (t != null) { parts.Insert(0, t.name); t = t.parent; }
+        return string.Join("/", parts);
+    }
+
     static void PlaceTile(GameObject prefab, Vector3 pos, float rotY, Transform parent,
-        string name, string role, string note)
+        string name, string role, HubBuildLogger.Family family, string note)
     {
         if (prefab == null) return;
         var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
@@ -251,18 +240,19 @@ public class HubPrototypeSetup
         if (name != null) go.name = name;
 
         string assetPath = AssetDatabase.GetAssetPath(prefab);
-        HubBuildLogger.LogCreate(role, go.name, prefab.name, assetPath,
-            go.transform.position, go.transform.rotation.eulerAngles, go.transform.localScale,
-            parent.name, note);
+        string hPath = HierarchyPath(go.transform);
+        HubBuildLogger.LogCreate(role, family, go.name, prefab.name, assetPath,
+            go.transform.position, go.transform.localPosition, go.transform.rotation.eulerAngles,
+            go.transform.localScale, parent.name, hPath, note);
     }
 
-    static void LogGO(string role, GameObject go, GameObject prefab, string note, Transform parent)
+    static void LogRuntimeGO(string role, HubBuildLogger.Family family, GameObject go, string note)
     {
-        string assetPath = prefab != null ? AssetDatabase.GetAssetPath(prefab) : "";
-        string prefabName = prefab != null ? prefab.name : "(runtime)";
-        HubBuildLogger.LogCreate(role, go.name, prefabName, assetPath,
-            go.transform.position, go.transform.rotation.eulerAngles, go.transform.localScale,
-            parent != null ? parent.name : "(root)", note);
+        string hPath = HierarchyPath(go.transform);
+        string parentName = go.transform.parent != null ? go.transform.parent.name : "(root)";
+        HubBuildLogger.LogCreate(role, family, go.name, "(runtime)", "",
+            go.transform.position, go.transform.localPosition, go.transform.rotation.eulerAngles,
+            go.transform.localScale, parentName, hPath, note);
     }
 
     static void CreateMarker(string name, Vector3 pos, Transform parent, Color color, string note)
