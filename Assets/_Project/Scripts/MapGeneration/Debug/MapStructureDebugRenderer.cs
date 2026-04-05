@@ -32,13 +32,11 @@ namespace DonGeonMaster.MapGeneration.DebugTools
         public int RealGroundCorridorCount { get; private set; }
         public int BlockoutCellCount { get; private set; }
 
-        // Collision ground
-        public const float CollisionGroundY = 0f;
-        public const float CollisionGroundThickness = 0.1f;
-        public int CollisionCellsFloor { get; private set; }
-        public int CollisionCellsCorridor { get; private set; }
-        public int CollisionCellsTotal { get; private set; }
-        Transform collisionRoot;
+        // Collision ground (built by MapCollisionBuilder)
+        MapCollisionBuilder.Result collisionResult;
+        public int CollisionCellsFloor => collisionResult.cellsFloor;
+        public int CollisionCellsCorridor => collisionResult.cellsCorridor;
+        public int CollisionCellsTotal => collisionResult.cellsTotal;
 
         // Info par cellule pour le dump
         public struct CellRenderInfo
@@ -278,39 +276,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             }
 
             // ── COLLISION GROUND ──
-            // En mode realGround : les TileGround MeshColliders fournissent la physique
-            // En mode blockout : BoxColliders invisibles comme fallback
-            var collGO = new GameObject("CollisionGround");
-            collisionRoot = collGO.transform;
-            collisionRoot.SetParent(structureRoot);
-
-            for (int x = 0; x < map.width; x++)
-            {
-                for (int y = 0; y < map.height; y++)
-                {
-                    var cell = map.cells[x, y];
-                    if (cell.type != CellType.Sol && cell.type != CellType.Couloir) continue;
-
-                    // En mode realGround, les tiles ont deja des MeshColliders actifs
-                    if (canRealGround) { CollisionCellsTotal++; continue; }
-
-                    var cgo = new GameObject($"CollGround_{x}_{y}");
-                    cgo.transform.SetParent(collisionRoot);
-                    cgo.transform.position = new Vector3(x * cs, cell.floorHeight, y * cs);
-                    cgo.layer = 0;
-
-                    var box = cgo.AddComponent<BoxCollider>();
-                    box.center = Vector3.down * (CollisionGroundThickness * 0.5f);
-                    box.size = new Vector3(cs, CollisionGroundThickness, cs);
-
-                    CollisionCellsTotal++;
-                    if (cell.type == CellType.Sol) CollisionCellsFloor++;
-                    else CollisionCellsCorridor++;
-                }
-            }
-
-            Debug.Log($"[StructureRenderer] Collision ground: {CollisionCellsTotal} cells " +
-                $"(Sol:{CollisionCellsFloor} Couloir:{CollisionCellsCorridor}) at Y={CollisionGroundY}");
+            collisionResult = MapCollisionBuilder.Build(map, config, structureRoot, canRealGround);
 
             foreach (var room in map.rooms)
             {
@@ -523,10 +489,7 @@ namespace DonGeonMaster.MapGeneration.DebugTools
             RealGroundFloorCount = 0;
             RealGroundCorridorCount = 0;
             BlockoutCellCount = 0;
-            CollisionCellsFloor = 0;
-            CollisionCellsCorridor = 0;
-            CollisionCellsTotal = 0;
-            collisionRoot = null;
+            collisionResult = default;
             cellRenderInfos.Clear();
         }
 

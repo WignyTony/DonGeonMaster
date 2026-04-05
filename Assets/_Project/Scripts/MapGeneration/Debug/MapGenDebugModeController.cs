@@ -213,8 +213,8 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                     structureRenderer.CollisionCellsTotal,
                     structureRenderer.CollisionCellsFloor,
                     structureRenderer.CollisionCellsCorridor,
-                    MapStructureDebugRenderer.CollisionGroundY,
-                    MapStructureDebugRenderer.CollisionGroundThickness);
+                    MapCollisionBuilder.GroundY,
+                    MapCollisionBuilder.GroundThickness);
 
                 // Export debug dump (ecrase les fichiers precedents)
                 PlacementDebugDump.Export();
