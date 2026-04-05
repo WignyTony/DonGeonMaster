@@ -76,7 +76,7 @@ public class HubPrototypeSetup
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         // -- Lighting --
-        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilinear;
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
         RenderSettings.ambientSkyColor = new Color(0.35f, 0.35f, 0.45f);
         RenderSettings.ambientEquatorColor = new Color(0.25f, 0.25f, 0.3f);
         RenderSettings.ambientGroundColor = new Color(0.15f, 0.12f, 0.1f);
