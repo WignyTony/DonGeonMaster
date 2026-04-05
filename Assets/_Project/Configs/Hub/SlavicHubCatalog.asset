@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5ef0a2de319b39247ab33209ef27bb1c, type: 3}
   m_Name: SlavicHubCatalog
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: Assembly-CSharp::DonGeonMaster.Hub.HubAssetCatalog
   buildings:
   - {fileID: 4637899505770374537, guid: 7c41964487b21dc4997089d9294c86f1, type: 3}
   - {fileID: 2694867359139682505, guid: 8df3daf84b58c4b4bb283bcedf5d9d62, type: 3}
@@ -20,10 +20,10 @@ MonoBehaviour:
   props:
   - {fileID: 1154291972530608, guid: 7fa469182d2dc504ebec967a2e6bec53, type: 3}
   - {fileID: 1107262656423180, guid: a45b69c490dc1c84a8fbefd4250434cc, type: 3}
-  - {fileID: 1475984548, guid: a6ddb387a886d1c42b48eb3b4fe3e427, type: 3}
+  - {fileID: 4302750182873361722, guid: a6ddb387a886d1c42b48eb3b4fe3e427, type: 3}
   - {fileID: 1395020075249872, guid: cb0202a48afd8ff428cd62c8437902f1, type: 3}
   - {fileID: 1630738129433760, guid: 030aafe6a5bf7ef4ab7c96b43761fd01, type: 3}
-  - {fileID: 4157763371964188187, guid: 6846503cbdf6f2047bb7008195882b52, type: 3}
+  - {fileID: 7013062300125326045, guid: 6846503cbdf6f2047bb7008195882b52, type: 3}
   environment:
   - {fileID: 1807949595683360, guid: 2db5cf884e24ae74ba5afa31151e2453, type: 3}
   - {fileID: 1171855273661684, guid: 8e29bd443d493f14fbfdb399f8316b38, type: 3}
@@ -35,11 +35,11 @@ MonoBehaviour:
   - {fileID: 1907079012912306, guid: a6fc57c8e1ca6d644b9befadd181a591, type: 3}
   - {fileID: 1163180236395570, guid: e784bd578603723449792fd7a2e8a9e3, type: 3}
   - {fileID: 178873758778006785, guid: 0d3784e80d2c3074bb909d9cdd536402, type: 3}
-  - {fileID: 458025092418708289, guid: 1d92f26bf55fcc24583880399688e793, type: 3}
+  - {fileID: 5246660610424533593, guid: 1d92f26bf55fcc24583880399688e793, type: 3}
   nature:
   - {fileID: 1955220120978140, guid: e03898b14a86f234a97b28e18ce3a154, type: 3}
   - {fileID: 1756270387487942424, guid: 1286e3a745458f4438fb05c8ad88add5, type: 3}
   - {fileID: 1922763790244634, guid: 9cd2dd4d6232e7042ae210310ee2cd34, type: 3}
-  - {fileID: 1192907375290743863, guid: eed938129e31212468dfecd2e4246b59, type: 3}
-  - {fileID: 4846393676404777313, guid: a03ab4b398d4be2419fb1eb53e6aef65, type: 3}
-  - {fileID: 2742771682792202282, guid: c81ddac14e06bd74aa5cebb160dd3fc1, type: 3}
+  - {fileID: 4537925530980420048, guid: eed938129e31212468dfecd2e4246b59, type: 3}
+  - {fileID: 7742300369867183706, guid: a03ab4b398d4be2419fb1eb53e6aef65, type: 3}
+  - {fileID: 3653093322411788321, guid: c81ddac14e06bd74aa5cebb160dd3fc1, type: 3}
