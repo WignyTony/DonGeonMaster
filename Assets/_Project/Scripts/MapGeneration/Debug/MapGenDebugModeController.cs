@@ -189,9 +189,14 @@ namespace DonGeonMaster.MapGeneration.DebugTools
                 assetPlacer.skipStructuralCategories = true;
 
                 // Passer les infos de rendu sol au placer pour les dumps
-                var lookup = new Dictionary<(int, int), MapStructureDebugRenderer.CellRenderInfo>();
+                var lookup = new Dictionary<(int, int), CellSupportInfo>();
                 foreach (var ci in structureRenderer.cellRenderInfos)
-                    lookup[(ci.x, ci.y)] = ci;
+                    lookup[(ci.x, ci.y)] = new CellSupportInfo
+                    {
+                        renderMode = ci.renderMode,
+                        materialName = ci.materialName,
+                        objectName = ci.objectName
+                    };
                 assetPlacer.cellRenderLookup = lookup;
 
                 int placed = assetPlacer.PlaceAssets(map, assetRegistry);

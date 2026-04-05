@@ -13,8 +13,8 @@ namespace DonGeonMaster.MapGeneration
 
         public bool skipStructuralCategories;
 
-        /// <summary>Info de rendu sol par cellule (x,y) → CellRenderInfo. Alimente par le renderer avant PlaceAssets.</summary>
-        public Dictionary<(int x, int y), DebugTools.MapStructureDebugRenderer.CellRenderInfo> cellRenderLookup;
+        /// <summary>Info de rendu sol par cellule (x,y) → CellSupportInfo. Alimente par le renderer avant PlaceAssets.</summary>
+        public Dictionary<(int x, int y), CellSupportInfo> cellRenderLookup;
 
         Dictionary<string, List<Vector3>> placedPerCategory = new();
 
